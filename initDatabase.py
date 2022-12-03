@@ -32,6 +32,7 @@ sql = """CREATE TABLE dungeon (
          id INT PRIMARY KEY,
          createTime INT,
          adminToken VARCHAR(32),
+         map VARCHAR(32),
          auctionStart INT,
          auctionEnd INT
 ) DEFAULT CHARSET utf8mb4;"""
@@ -42,7 +43,8 @@ sql = """CREATE TABLE player (
          dungeonID INT,
          position INT,
          playerName VARCHAR(32),
-         xinfa VARCHAR(32)
+         xinfa VARCHAR(32),
+         profile VARCHAR(32)
 ) DEFAULT CHARSET utf8mb4;"""
 cursor.execute(sql)
 

@@ -9,6 +9,7 @@
 - `id` 主键。副本表的ID。
 - `createTime` 创建时间。时间戳格式。
 - `adminToken` 团长令牌。
+- `map` 副本地图。
 - `auctionStart` 开始拍卖的时间。如果未开始则为0。
 - `auctionEnd` 结束拍卖的时间。如果未结束则为0。
 
@@ -16,6 +17,7 @@
          id INT PRIMARY KEY,
          createTime INT,
          adminToken VARCHAR(32),
+         map VARCHAR(32),
          auctionStart INT,
          auctionEnd INT
 ) DEFAULT CHARSET utf8mb4;``
@@ -29,13 +31,15 @@
 - `position` 位置（应该是1-25之间）。
 - `playerName` 玩家名。注意和大部分数据库中的`playerID`区分，后者一般表示`player`表的ID。
 - `xinfa` 玩家的心法.
+- `profile` 玩家展示状态. 通常是“思考中”“拍完了”等状态。
 
 ``CREATE TABLE player (
          id INT PRIMARY KEY,
          dungeonID INT,
          position INT,
          playerName VARCHAR(32),
-         xinfa VARCHAR(32)
+         xinfa VARCHAR(32),
+         profile VARCHAR(32)
 ) DEFAULT CHARSET utf8mb4;``
 
 ## treasure
