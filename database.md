@@ -9,6 +9,16 @@
 - `id` 主键。副本表的ID。
 - `createTime` 创建时间。时间戳格式。
 - `adminToken` 团长令牌。
+- `auctionStart` 开始拍卖的时间。如果未开始则为0。
+- `auctionEnd` 结束拍卖的时间。如果未结束则为0。
+
+``CREATE TABLE dungeon (
+         id INT PRIMARY KEY,
+         createTime INT,
+         adminToken VARCHAR(32),
+         auctionStart INT,
+         auctionEnd INT
+) DEFAULT CHARSET utf8mb4;``
 
 ## player
 
@@ -19,6 +29,14 @@
 - `position` 位置（应该是1-25之间）。
 - `playerName` 玩家名。注意和大部分数据库中的`playerID`区分，后者一般表示`player`表的ID。
 - `xinfa` 玩家的心法.
+
+``CREATE TABLE player (
+         id INT PRIMARY KEY,
+         dungeonID INT,
+         position INT,
+         playerName VARCHAR(32),
+         xinfa VARCHAR(32)
+) DEFAULT CHARSET utf8mb4;``
 
 ## treasure
 
@@ -32,6 +50,16 @@
 - `groupID` 打包拍卖的主元素itemID。如果为-1表示不是打包拍卖。
 - `simulID` 同步拍卖的主元素itemID。如果为-1表示不是同步拍卖。
 
+``CREATE TABLE treasure (
+         id INT PRIMARY KEY,
+         dungeonID INT,
+         itemID INT,
+         name VARCHAR(32),
+         boss VARCHAR(32),
+         groupID INT,
+         simulID INT
+) DEFAULT CHARSET utf8mb4;``
+
 ## auction
 
 拍卖表。用于记录所有的出价信息。
@@ -44,6 +72,16 @@
 - `effective` 出价是否仍有效。
 - `auto` 是否来源于自动出价。
 
+``CREATE TABLE auction (
+         id INT PRIMARY KEY,
+         playerID INT,
+         treasureID INT,
+         time INT,
+         price INT,
+         effective INT,
+         auto INT
+) DEFAULT CHARSET utf8mb4;``
+
 ## autobid
 
 自动出价记录表。用于记录自动出价信息。这个表会实时更新，无效的自动出价操作需要被删除。
@@ -54,5 +92,14 @@
 - `time` 进行出价操作的时间。
 - `price` 出价的价格。
 - `num` 需求的数量，用于同步出价。
+
+``CREATE TABLE autobid (
+         id INT PRIMARY KEY,
+         playerID INT,
+         treasureID INT,
+         time INT,
+         price INT,
+         num INT
+) DEFAULT CHARSET utf8mb4;``
 
 
