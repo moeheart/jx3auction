@@ -140,6 +140,53 @@ def registerTeam():
 
     return jsonify({'status': 0})
 
+@app.route('/getTeam', methods=['GET'])
+def getTeam():
+    # http://127.0.0.1:8009/getTeam?DungeonID=2
+    try:
+        DungeonID = request.args.get('DungeonID')
+        if DungeonID is None:
+            return jsonify({'status': 101})
+    except:
+        return jsonify({'status': 100})
+
+    name = config.get('jx3auction', 'username')
+    pwd = config.get('jx3auction', 'password')
+    db = pymysql.connect(host=IP, user=name, password=pwd, database="jx3auction", port=3306, charset='utf8mb4')
+    cursor = db.cursor()
+
+    try:
+        # 检测秘境ID是否存在
+        sql = '''SELECT id FROM dungeon WHERE id=%d;''' % int(DungeonID)
+        cursor.execute(sql)
+        result = cursor.fetchall()
+        if not result:
+            return jsonify({'status': 201})
+
+        # 进行查询
+        sql = '''SELECT position, playerName, xinfa, profile FROM player WHERE dungeonID=%d;''' % (int(DungeonID))
+        cursor.execute(sql)
+        result = cursor.fetchall()
+
+        team = []
+        for line in result:
+            team.append({
+                "position": line[0],
+                "playerName": line[1],
+                "xinfa": line[2],
+                "profile": line[3]
+            })
+
+    except Exception as e:
+        traceback.print_exc()
+        return jsonify({'status': 200})
+
+    finally:
+        db.commit()
+        db.close()
+
+    return jsonify({'status': 0, 'team': team})
+
 
 if __name__ == '__main__':
     import signal
