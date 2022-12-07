@@ -364,7 +364,6 @@ class ItemAnalyser():
                 - `character` 包括侠客的低阶掉落物品，主要是茶饼、维峰丹
                 - `xiaotie` 包括小铁
                 - `datie` 包括大铁（这玩意真的会有？）
-                - `special` 包括副本的特殊掉落，主要是各种挂件。
                 - `hanzi` 包括剑侠情缘汉字，在活动期间会出现。
                 - `other` 包括不在上面分类中的其它内容。常见的有：侠客秘籍、挂件等特殊掉落。
             - `attribute` 只在装备或兑换牌类型中出现。其内部也是一个pythondict，包括：
@@ -394,7 +393,7 @@ class ItemAnalyser():
         output = {"available": 1,
                   "name": input["name"],
                   "icon": item["iconid"],
-                  "quality": item.get("quality", "0"),
+                  "quality": self.GetQuality(item.get("quality", "0")),
                   "desc": item["desc"],
                   }
         # 获得物品属性.
@@ -507,9 +506,11 @@ class ItemAnalyser():
             output["main"] = main
             output["school"] = item["school"]
             output["sketch"] = sketch
+            output["related"] = []
         elif item["type"] == "item":
             output["type"] = "item"
             output["class"] = item.get("class", "other")
+            output["related"] = []
         elif item["type"] == "coupon":
             output["type"] = "coupon"
             output["class"] = item.get("class", "other")
@@ -526,6 +527,26 @@ class ItemAnalyser():
         for key in output:
             print(key, output[key])
 
+        return output
+
+    def GetExtendItemByName(self, input):
+        '''
+        通过输入掉落的名称，可以获取所有需要进行展示的信息。副本名用于辅助判断一些重名情况。
+        如果提供心法名，还可以显示对应的兑换类装备在兑换之后的详细数据。
+        方法为在logic.ItemAnalyser.GetSingleItemByName的基础上，将related中的结果替换为独立查询的结果。
+        inputs：
+        - `name` 装备名。例如`揽江护腕·万花`。
+        - `map` 副本名。例如`25人英雄西津渡`。
+        - `xinfa` 心法。例如`冰心诀`。用于实现兑换牌的展示。
+        outputs：
+        - `result` 数组格式，大部分与调用GetSingleItemByName的结果相同.
+            - `related` 这里不再是字符串，而是再次调用GetSingleItemByName的结果.
+        '''
+        output = self.GetSingleItemByName(input)
+        for i in range(len(output["related"])):
+            equipName = output["related"][i]
+            childResult = self.GetSingleItemByName({"name": equipName, "map": input["map"], "xinfa": input["xinfa"]})
+            output["related"][i] = childResult
         return output
 
     def loadSingleFile(self, path, scene):
@@ -584,7 +605,7 @@ class ItemAnalyser():
                     equip = {"type": "equipment",
                              "subtype": self.GetSubtype(subtype),
                              "level": level,
-                             "quality": self.GetQuality(quality),
+                             "quality": quality,
                              "magickind": magickind,
                              "magictype": magictype,
                              "uiid": uiid,
@@ -743,7 +764,7 @@ class ItemAnalyser():
         self.LoadEquipTable()
         self.LoadEnchant()
         self.LoadItem()
-        print(self.weapon)
+        # print(self.weapon)
 
 if __name__ == "__main__":
     item_analyser = ItemAnalyser()

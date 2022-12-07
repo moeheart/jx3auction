@@ -15,6 +15,8 @@ import configparser
 import os
 import traceback
 
+from logic.ItemAnalyser import ItemAnalyser
+
 IP = "120.48.95.56"  # IP
 announcement = "全新的DPS统计已出炉，大家可以关注一下，看一下各门派的表现~"
 app = Flask(__name__)
@@ -261,6 +263,65 @@ def setTreasure():
     return jsonify({'status': 0})
 
 
+@app.route('/getTreasure', methods=['GET'])
+def getTreasure():
+    # http://127.0.0.1:8009/getTreasure?DungeonID=2&playerName=%E8%8A%B1%E5%A7%90
+    try:
+        playerName = request.args.get('playerName')
+        DungeonID = request.args.get('DungeonID')
+        if playerName is None:
+            return jsonify({'status': 101})
+        if DungeonID is None:
+            return jsonify({'status': 101})
+    except:
+        return jsonify({'status': 100})
+
+    name = config.get('jx3auction', 'username')
+    pwd = config.get('jx3auction', 'password')
+    db = pymysql.connect(host=IP, user=name, password=pwd, database="jx3auction", port=3306, charset='utf8mb4')
+    cursor = db.cursor()
+
+    try:
+        # 获取副本地图
+        sql = '''SELECT map FROM dungeon WHERE id=%d;''' % int(DungeonID)
+        cursor.execute(sql)
+        result = cursor.fetchall()
+        if not result:
+            return jsonify({'status': 201})
+        map = result[0][0]
+
+        # 检验成员权限
+        sql = '''SELECT xinfa FROM player WHERE dungeonID=%d AND playerName="%s";''' % (int(DungeonID), playerName)
+        cursor.execute(sql)
+        result = cursor.fetchall()
+        if not result:
+            return jsonify({'status': 203})
+        xinfa = result[0][0]
+
+        # 获取所有掉落
+        treasureRes = []
+        sql = '''SELECT itemID, name, boss FROM treasure WHERE dungeonID=%d;''' % int(DungeonID)
+        cursor.execute(sql)
+        result = cursor.fetchall()
+
+        for treasure in result:
+            itemID = treasure[0]
+            name = treasure[1]
+            boss = treasure[2]
+            property = app.item_analyser.GetExtendItemByName({"name": name, "map": map, "xinfa": xinfa})
+            treasureRes.append({"itemID": itemID, "name": name, "boss": boss, "property": property})
+
+    except Exception as e:
+        traceback.print_exc()
+        return jsonify({'status': 200})
+
+    finally:
+        db.commit()
+        db.close()
+
+    return jsonify({'status': 0, 'treasure': treasureRes})
+
+
 if __name__ == '__main__':
     import signal
     
@@ -270,6 +331,8 @@ if __name__ == '__main__':
     app.dbname = config.get('jx3auction', 'username')
     app.dbpwd = config.get('jx3auction', 'password')
     app.debug = config.getboolean('jx3auction', 'debug')
+
+    app.item_analyser = ItemAnalyser()
     
     app.run(host='0.0.0.0', port=8009, debug=app.debug, threaded=True)
 

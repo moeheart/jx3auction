@@ -51,8 +51,10 @@
 - `itemID` 物品ID。表示每个副本内的掉落编号。
 - `name` 掉落名称。这个名称在数据库中按原名记录，其展示通过上层的方法实现。
 - `boss` 掉落对应的BOSS。
-- `groupID` 打包拍卖的主元素itemID。如果为-1表示不是打包拍卖。
-- `simulID` 同步拍卖的主元素itemID。如果为-1表示不是同步拍卖。
+- `groupID` 打包拍卖的主元素itemID。如果为-1表示不是打包拍卖。在拍卖开始时进行设定。
+- `simulID` 同步拍卖的主元素itemID。如果为-1表示不是同步拍卖。在拍卖开始时进行设定。
+- `basePrice` (TODO)起拍价。在拍卖开始时进行设定。
+- `minimalStep` (TODO)最小加价。在拍卖开始时进行设定。
 
 ``CREATE TABLE treasure (
          id INT PRIMARY KEY,
