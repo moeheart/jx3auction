@@ -55,7 +55,9 @@ sql = """CREATE TABLE treasure (
          name VARCHAR(32),
          boss VARCHAR(32),
          groupID INT,
-         simulID INT
+         simulID INT,
+         basePrice INT,
+         minimalStep INT
 ) DEFAULT CHARSET utf8mb4;"""
 cursor.execute(sql)
 

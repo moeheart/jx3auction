@@ -247,7 +247,7 @@ def setTreasure():
         if result and result[0][0] is not None:
             itemID = result[0][0] + 1
         for singleTreasure in treasureList:
-            sql = '''INSERT INTO treasure VALUES (%d, %d, %d, "%s", "%s", -1, -1);''' % (num, int(DungeonID), itemID, singleTreasure, boss)
+            sql = '''INSERT INTO treasure VALUES (%d, %d, %d, "%s", "%s", -1, -1, 0, 0);''' % (num, int(DungeonID), itemID, singleTreasure, boss)
             cursor.execute(sql)
             itemID += 1
             num += 1
@@ -320,6 +320,178 @@ def getTreasure():
         db.close()
 
     return jsonify({'status': 0, 'treasure': treasureRes})
+
+
+AUCTION_PARAMS = ["baseNormal", "baseCoupon", "baseWeapon", "baseJingjian", "baseTexiaoyaozhui", "baseTexiaowuqi",
+                  "stepEquip", "baseMaterials", "stepMaterials", "combineCharacter", "baseCharacter", "stepCharacter",
+                  "baseXiaofumo", "stepXiaofumo", "baseDafumo", "stepDafumo", "baseXiaotie", "stepXiaotie",
+                  "baseDatie", "stepDatie", "baseOther", "stepOther", "combineHanzi", "baseHanzi", "stepHanzi"]
+
+@app.route('/startAuction', methods=['GET'])
+def startAuction():
+    '''http://127.0.0.1:8009/startAuction?DungeonID=2&AdminToken=628546&baseNormal=2000&baseCoupon=10000&baseWeapon=20000&baseJingjian=10000&baseTexiaoyaozhui=10000&baseTexiaowuqi=30000&
+stepEquip=1000&baseMaterials=1000&stepMaterials=500&combineCharacter=1&baseCharacter=0&stepCharacter=0&baseXiaofumo=0&stepXiaofumo=500&baseDafumo=1000&stepDafumo=1000&
+baseXiaotie=6000&stepXiaotie=3000&baseDatie=0&stepDatie=10000&baseOther=0&stepOther=1000&combineHanzi=1&baseHanzi=0&stepHanzi=0'''
+    try:
+        AdminToken = request.args.get('AdminToken')
+        DungeonID = request.args.get('DungeonID')
+        if AdminToken is None:
+            return jsonify({'status': 101})
+        if DungeonID is None:
+            return jsonify({'status': 101})
+        params = {}
+        for param in AUCTION_PARAMS:
+            params[param] = request.args.get(param)
+            if params[param] is None:
+                return jsonify({'status': 101})
+            params[param] = int(params[param])
+    except:
+        return jsonify({'status': 100})
+
+    name = config.get('jx3auction', 'username')
+    pwd = config.get('jx3auction', 'password')
+    db = pymysql.connect(host=IP, user=name, password=pwd, database="jx3auction", port=3306, charset='utf8mb4')
+    cursor = db.cursor()
+
+    try:
+        # 检验团长权限
+        sql = '''SELECT id, auctionStart, map FROM dungeon WHERE id=%d AND adminToken="%s";''' % (int(DungeonID), AdminToken)
+        cursor.execute(sql)
+        result = cursor.fetchall()
+        if not result:
+            return jsonify({'status': 202})
+
+        # 检测拍卖是否已经开始
+        if result[0][1] > 0:
+            return jsonify({'status': 208})
+
+        map = result[0][2]
+
+        # 检验每一个属于这个拍卖的物品，并为之赋予状态.
+        sql = '''SELECT itemID, name FROM treasure WHERE dungeonID=%d;''' % int(DungeonID)
+        cursor.execute(sql)
+        result = cursor.fetchall()
+
+        # 获取所有掉落的详细信息.
+        allTreasures = {}
+        for line in result:
+            itemID = line[0]
+            name = line[1]
+            allTreasures[str(itemID)] = app.item_analyser.GetSingleItemByName({"name": name, "map": map, "xinfa": "unknown"})
+
+        # 判断是否存在打包拍卖.
+        group_first = {"materials": -1, "character": -1, "xiaotie": -1, "hanzi": -1}
+        group_id = {}
+        for key in allTreasures:
+            treasure = allTreasures[key]
+            if treasure["available"] and treasure["type"] == "item" and treasure["class"] in ["materials", "character", "xiaotie", "hanzi"]:
+                base_type = treasure["class"]
+                if base_type == "character" and params["combineCharacter"]:
+                    base_type = "materials"
+                if base_type == "hanzi" and params["combineHanzi"]:
+                    base_type = "materials"
+                if group_first[base_type] == -1:
+                    group_first[base_type] = int(key)
+                else:
+                    # 更新打包拍卖
+                    group_id[key] = group_first[base_type]
+                    group_id[str(group_first[base_type])] = group_first[base_type]
+
+        # 判断是否存在同步拍卖.
+        name_first = {}
+        simul_id = {}
+        for key in allTreasures:
+            treasure = allTreasures[key]
+            if treasure["available"] and key not in group_id:
+                # 判断其名称.
+                name = treasure["name"]
+                if name not in name_first:
+                    name_first[name] = int(key)
+                else:
+                    # 更新同步拍卖
+                    simul_id[key] = name_first[name]
+                    simul_id[str(name_first[name])] = name_first[name]
+
+        # 逐个为物品确定起拍价和最小加价，并记入数据库.
+        for key in allTreasures:
+            treasure = allTreasures[key]
+            base = 0
+            step = 0
+            if not treasure["available"]:
+                continue
+            if treasure["type"] == "equipment":
+                step = params["stepEquip"]
+                if treasure["subtype"] == "武器":
+                    if "特效" in treasure["sketch"]:
+                        base = params["baseTexiaowuqi"]
+                    else:
+                        base = params["baseWeapon"]
+                elif treasure["subtype"] == "腰坠" and "特效" in treasure["sketch"]:
+                    base = params["baseTexiaoyaozhui"]
+                elif "精简" in treasure["sketch"]:
+                    base = params["baseJingjian"]
+                else:
+                    base = params["baseNormal"]
+            elif treasure["type"] == "coupon":
+                step = params["stepEquip"]
+                if "神兵玉匣" in treasure["name"]:
+                    if "·奇" in treasure["name"]:
+                        base = params["baseTexiaowuqi"]
+                    else:
+                        base = params["baseWeapon"]
+                else:
+                    base = params["baseCoupon"]
+            else:
+                if treasure["class"] == "materials":
+                    base = params["baseMaterials"]
+                    step = params["stepMaterials"]
+                elif treasure["class"] == "character":
+                    base = params["baseCharacter"]
+                    step = params["stepCharacter"]
+                elif treasure["class"] == "enchant":
+                    if "天堑" in treasure["name"]:
+                        base = params["baseDafumo"]
+                        step = params["stepDafumo"]
+                    else:
+                        base = params["baseXiaofumo"]
+                        step = params["stepXiaofumo"]
+                elif treasure["class"] == "xiaotie":
+                    base = params["baseXiaotie"]
+                    step = params["stepXiaotie"]
+                elif treasure["class"] == "datie":
+                    base = params["baseDatie"]
+                    step = params["stepDatie"]
+                elif treasure["class"] == "hanzi":
+                    base = params["baseHanzi"]
+                    step = params["stepHanzi"]
+                else:
+                    base = params["baseOther"]
+                    step = params["stepOther"]
+            groupID = -1
+            simulID = -1
+            if key in group_id:
+                groupID = group_id[key]
+            if key in simul_id:
+                simulID = simul_id[key]
+
+            sql = '''UPDATE treasure SET groupID=%d, simulID=%d, basePrice=%d, minimalStep=%d WHERE dungeonID=%d AND itemID=%d;''' % \
+                  (groupID, simulID, base, step, int(DungeonID), int(key))
+            cursor.execute(sql)
+
+        # 更新拍卖状态，但是放到最后
+        sql = '''UPDATE dungeon SET auctionStart=%d WHERE id=%d;''' % (int(time.time()), int(DungeonID))
+        cursor.execute(sql)
+
+    except Exception as e:
+        traceback.print_exc()
+        return jsonify({'status': 200})
+
+    finally:
+        db.commit()
+        db.close()
+
+    return jsonify({'status': 0})
+
 
 
 if __name__ == '__main__':
