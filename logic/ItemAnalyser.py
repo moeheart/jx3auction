@@ -382,6 +382,7 @@ class ItemAnalyser():
         '''
 
         output = {"available": 0}
+        print("[Test2]", input["name"])
         if input["name"] not in self.name:
             return output
 
@@ -545,8 +546,9 @@ class ItemAnalyser():
         output = self.GetSingleItemByName(input)
         for i in range(len(output["related"])):
             equipName = output["related"][i]
-            childResult = self.GetSingleItemByName({"name": equipName, "map": input["map"], "xinfa": input["xinfa"]})
-            output["related"][i] = childResult
+            if type(equipName) is type("123"):
+                childResult = self.GetSingleItemByName({"name": equipName, "map": input["map"], "xinfa": input["xinfa"]})
+                output["related"][i] = childResult
         return output
 
     def loadSingleFile(self, path, scene):
