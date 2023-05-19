@@ -695,7 +695,7 @@ def bid():
             "playerID": playerID,
             "price": price,
             "num": num,
-            "time": int(time.time())
+            "time": int(time.time()),
             "source": "current",
         })
 
@@ -884,7 +884,7 @@ def autobid():
             "playerID": playerID,
             "price": price,
             "num": num,
-            "time": int(time.time())
+            "time": int(time.time()),
             "source": "current",
         })
 
@@ -975,7 +975,8 @@ def autobid():
             result = cursor.fetchall()
             if result and result[0][0] is not None:
                 autobidNum = result[0][0] + 1
-            sql = '''INSERT INTO autobid VALUES (%d, %d, %d, %d, %d, %d);''' % (auctionNum, int(line["playerID"]), int(treasureID), int(time.time()), maxDeleted + minimalStep, num)
+            sql = '''INSERT INTO autobid VALUES (%d, %d, %d, %d, %d, %d);''' % (autobidNum, playerID, int(treasureID), int(time.time()), maxDeleted + minimalStep, num)
+            cursor.execute(sql)
 
     except Exception as e:
         traceback.print_exc()
@@ -986,6 +987,8 @@ def autobid():
         db.close()
 
     return jsonify({'status': 0})
+
+
 
 
 if __name__ == '__main__':

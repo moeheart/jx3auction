@@ -524,9 +524,9 @@ class ItemAnalyser():
                 if menpai in self.weapon[name]:
                     output["related"] = self.weapon[name][menpai]
 
-        print("==========")
-        for key in output:
-            print(key, output[key])
+        # print("==========")
+        # for key in output:
+        #     print(key, output[key])
 
         return output
 

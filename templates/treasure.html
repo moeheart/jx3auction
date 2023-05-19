@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>掉落列表</title>
+
+    <script src="../static/vue.min.js"></script>
+
+	<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" crossorigin="anonymous"></script>
+	<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" crossorigin="anonymous"></script>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.min.js"  crossorigin="anonymous"></script>
+
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" crossorigin="anonymous">
+
+    <link rel="stylesheet" type="text/css" href="../static/treasure.css?v={{ver}}" />
+
+</head>
+
+<body>
+
+<!-- v-cloak 隐藏未编译的变量，直到 Vue 实例准备就绪。 -->
+
+<form id="main" v-cloak>
+
+	<h1>Services</h1>
+
+	<ul>
+
+		<!-- 循环输出 services 数组, 设置选项点击后的样式 -->
+
+		<li v-for="service in services" v-on:click="toggleActive(service)" v-bind:class="{ 'active': service.active}">
+
+			<!-- 显示订单中的服务名，价格
+                 Vue.js 定义了货币过滤器，用于格式化价格 -->
+
+			{{service.name}} <span>{{service.price | currency}}</span>
+
+		</li>
+	</ul>
+
+	<div class="total">
+		<!-- 计算所有服务的价格，并格式化货币 -->
+		Total: <span>{{total() | currency}}</span>
+	</div>
+
+</form>
+
+<!--<div id="treasure-list-old" v-on:click="console.log('1')">-->
+<!--	<div v-if="reload_treasure" class="accordion">-->
+<!--		<div class="card">-->
+<!--			<div id="treasure-boss" v-for="(content, boss) in treasure_by_boss">-->
+<!--				{{boss}}-->
+<!--				<ul>-->
+<!--					<li v-for="item in treasure_by_boss[boss]">-->
+<!--						{{item["name"]}}-->
+<!--					</li>-->
+<!--				</ul>-->
+<!--			</div>-->
+<!--		</div>-->
+<!--	</div>-->
+<!--</div>-->
+
+<div id="treasure-list" v-on:click="console.log('1')" class="accordion" v-if="reload_treasure" v-for="(content, boss) in treasure_by_boss">
+  <div class="card">
+    <div class="card-header" :id="`heading-${boss}`">
+      <h2 class="mb-0">
+        <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" :data-target="`#collapse-${boss}`" aria-expanded="true" :aria-controls="`collapse-${boss}`">
+			{{boss}}
+        </button>
+      </h2>
+    </div>
+
+    <div :id="`collapse-${boss}`" class="collapse" :aria-labelledby="`heading-${boss}`" data-parent="#treasure-list">
+      <div class="card-body">
+		<ul class="list-group">
+			<li class="list-group-item" v-for="item in treasure_by_boss[boss]">
+				<img class="item-icon" :src="`https://icon.jx3box.com/icon/${item['property']['icon']}.png`">
+				<div class="item-name">
+					<p class="item-text" :itemID="`${item['itemID']}`" v-on:mouseOver="item_over" v-on:mouseOut="item_out" :class="'text-'+item['property']['quality']"> {{item["name"]}} </p>
+				</div>
+				<div class="item-sketch">
+					<p class="item-sketch-text" :itemID="`${item['itemID']}`"> {{getSketch(item)}} </p>
+				</div>
+			</li>
+		</ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="desc-tooltip" class="desc-tooltip">
+	<div id="desc-tooltip-content">
+
+	</div>
+</div>
+
+<div id="desc-tooltip-1" class="desc-tooltip">
+	<div id="desc-tooltip-content-1">
+
+	</div>
+</div>
+
+<div id="desc-tooltip-2" class="desc-tooltip">
+	<div id="desc-tooltip-content-2">
+
+	</div>
+</div>
+
+<script src="../static/treasure.js?v={{ver}}"></script>
+
+<script>
+
+// 自定义过滤器 "currency".
+Vue.filter('currency', function (value) {
+    return '$' + value.toFixed(2);
+});
+
+var demo = new Vue({
+    el: '#main',
+    data: {
+    	// 定义模型属性 the model properties. The view will loop
+        // 视图将循环输出数组的数据
+        services: [
+        	{
+        		name: 'Web Development',
+        		price: 300,
+        		active:true
+        	},{
+        		name: 'Design',
+        		price: 400,
+        		active:false
+        	},{
+        		name: 'Integration',
+        		price: 250,
+        		active:false
+        	},{
+        		name: 'Training',
+        		price: 220,
+        		active:false
+        	}
+        ]
+    },
+    methods: {
+    	toggleActive: function(s){
+            s.active = !s.active;
+    	},
+    	total: function(){
+        	var total = 0;
+        	this.services.forEach(function(s){
+        		if (s.active){
+        			total += s.price;
+        		}
+        	});
+    	   return total;
+        }
+    }
+});
+
+</script>
+</body>
+</html>

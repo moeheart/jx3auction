@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>剑三拍卖助手</title>
+
+    <script src="../static/vue.min.js"></script>
+
+	<script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.min.js" crossorigin="anonymous"></script>
+	<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" crossorigin="anonymous"></script>
+	<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/js/bootstrap.min.js"  crossorigin="anonymous"></script>
+
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css" crossorigin="anonymous">
+
+    <link rel="stylesheet" type="text/css" href="../static/index.css?v={{ver}}" />
+</head>
+
+<body>
+    <h1>剑三拍卖助手</h1>
+    <form id="form-manager">
+      <div class="">
+          我是团长，我要开团
+      </div>
+      <div class="form-row">
+        <div class="form-group col-md-6">
+          <label for="inputMap">选择副本</label>
+          <select v-model="map" id="inputMap" class="form-control" >
+            <option v-for="mm in maps">{{mm}}</option>
+          </select>
+        </div>
+        <div class="form-group col-md-6">
+          <label for="inputInvcode1">邀请码</label>
+          <input v-model="invcode" class="form-control" id="inputInvcode1">
+        </div>
+      </div>
+      <button type="submit" @click.prevent="submit" class="btn btn-primary">开团！</button>
+    </form>
+
+    <form id="form-member">
+      <div class="">
+          我是团员，我要拍装备
+      </div>
+      <div class="form-row">
+        <div class="form-group col-md-6">
+          <label for="inputDungeon1">副本编号</label>
+          <input v-model="dungeon" class="form-control" id="inputDungeon1" placeholder="由网站生成，不是游戏中的ID">
+        </div>
+        <div class="form-group col-md-6">
+          <label for="inputName1">角色名</label>
+          <input v-model="name" class="form-control" id="inputName1" placeholder="请准确填写，以和游戏对应">
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="form-group col-md-6">
+          <label for="inputXinfa1">选择心法</label>
+          <select v-model="xinfa" id="inputXinfa1" class="form-control">
+            <option v-for="xx in xinfas">{{xx}}</option>
+          </select>
+        </div>
+        <div class="form-group col-md-3">
+          <label for="inputGroup1">几小队</label>
+          <select v-model="group" id="inputGroup1" class="form-control">
+            <option v-for="i in 5">{{i}}</option>
+          </select>
+        </div>
+        <div class="form-group col-md-3">
+          <label for="inputPosition1">第几个</label>
+          <select v-model="position" id="inputPosition1" class="form-control">
+            <option v-for="i in 5">{{i}}</option>
+          </select>
+        </div>
+      </div>
+      <button type="submit" @click.prevent="submit" class="btn btn-primary">进团！</button>
+    </form>
+
+
+<script src="../static/index.js?v={{ver}}"></script>
+
+</body>
+</html>
+
+

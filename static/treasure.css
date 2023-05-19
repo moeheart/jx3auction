@@ -1,0 +1,60 @@
+.item-text{
+    margin: 0;
+    color: rgb(128, 0, 255);
+}
+
+.item-sketch-text{
+    margin: 0;
+    color: rgb(128, 128, 128);
+}
+
+.item-icon{
+    width: 30px;
+    height: 30px;
+    display: inline-block;
+    margin-right: 20px;
+}
+
+.item-name, .item-sketch{
+    display: inline-block;
+}
+
+.item-name{
+    width: 160px;
+}
+
+.desc-tooltip{
+    background-color: rgb(192, 192, 192);
+    position: absolute;
+    padding: 10px;
+    display: none;
+}
+
+.text-紫色, .text-purple{
+    color: rgb(255, 0, 255);
+}
+
+.text-白色, .text-white{
+    color: rgb(255, 255, 255);
+}
+
+.text-蓝色, .text-blue{
+    color: rgb(0, 0, 255);
+}
+
+.text-绿色, .text-green{
+    color: rgb(0, 255, 0);
+}
+
+.text-橙色, .text-orange{
+    color: rgb(255, 128, 64);
+}
+
+.text-灰色, .text-gray{
+    color: rgb(128, 128, 128);
+}
+
+.text-黄色, .text-yellow{
+    color: rgb(255, 255, 0);
+}
+
