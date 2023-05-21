@@ -27,7 +27,7 @@ function render_desc(desc_id, property){
 
     if (property["type"] == "equipment") {
         var text_line = $("<div></div>");
-        text_line.html(property["subtype"]);
+        text_line.html(property["subtype"] + `（最大精炼：${property["maxlevel"]}）`);
         text_line.addClass("text-gray");
         text_line.appendTo($(desc_id));
         // attribute-base
@@ -117,23 +117,28 @@ function item_out(e){
     $("#desc-tooltip-2").css("display", "none");
 }
 
+function refresh_page(){
+    $.get(`/getTreasure?DungeonID=${DUNGEON_ID}&playerName=${PLAYER_NAME}`, function(result){
+        analyse_treasure(result);
+    });
+}
 
-$.get("http://127.0.0.1:8009/getTreasure?DungeonID=2&playerName=花姐", function(result){
-    analyse_treasure(result);
-});
-
+refresh_page();
 
 V_treasure_list = new Vue({
     el: '#treasure-list',
+    delimiters: ['[[',']]'],
     data: {
         reload_treasure: false,
-        treasure_by_boss: {},
+        bosses: [],
     },
     methods: {
         load: function(){
-    	    this.treasure_by_boss = TREASURE_BY_BOSS;
+            this.bosses = [];
+    	    for (var key in TREASURE_BY_BOSS) {
+    	        this.bosses.push(key)
+    	    }
     	    this.reload_treasure = true;
-    	    console.log(this.treasure_by_boss)
         },
         getSketch: function(item){
             var str = "";

@@ -18,7 +18,8 @@ import traceback
 from logic.ItemAnalyser import ItemAnalyser
 
 IP = "120.48.95.56"  # IP
-announcement = "全新的DPS统计已出炉，大家可以关注一下，看一下各门派的表现~"
+EDITION = "0.0.0"
+
 app = Flask(__name__)
 CORS(app)
 app.config['JSON_AS_ASCII'] = False
@@ -43,7 +44,7 @@ def createDungeon():
             return jsonify({'status': 101})
     except:
         return jsonify({'status': 100})
-    if map not in ["25人普通西津渡", "25人英雄西津渡"]:
+    if map not in ["25人普通西津渡", "25人英雄西津渡", "25人普通武狱黑牢", "25人英雄武狱黑牢"]:
         return jsonify({'status': 102})
 
     name = config.get('jx3auction', 'username')
@@ -204,7 +205,7 @@ def setTreasure():
             return jsonify({'status': 101})
         if boss is None:
             return jsonify({'status': 101})
-        if boss not in ["张景超", "刘展", "苏凤楼", "韩敬青", "藤原佑野", "李重茂"]:
+        if boss not in ["张景超", "刘展", "苏凤楼", "韩敬青", "藤原佑野", "李重茂", "其它", "关卡", "时风", "乐临川", "牛波", "和正", "武云阙", "翁幼之"]:
             return jsonify({'status': 205})
         if treasure is None:
             return jsonify({'status': 101})
@@ -217,6 +218,8 @@ def setTreasure():
                 treasureList.append(nowTreasure)
             else:
                 nowTreasure += c
+        if len(treasureList) == 0:
+            return jsonify({'status': 104})
     except:
         return jsonify({'status': 100})
 
@@ -989,7 +992,23 @@ def autobid():
     return jsonify({'status': 0})
 
 
+# 下面是网页
 
+@app.route('/', methods=['GET'])
+def index():
+    return render_template("index.html", ver=EDITION)
+
+@app.route('/manage.html', methods=['GET'])
+def manage():
+    AdminToken = request.args.get('AdminToken')
+    DungeonID = request.args.get('DungeonID')
+    return render_template("manage.html", ver=EDITION, admintoken=AdminToken, dungeonid=DungeonID)
+
+@app.route('/treasure.html', methods=['GET'])
+def treasure():
+    playerName = request.args.get('playerName')
+    DungeonID = request.args.get('DungeonID')
+    return render_template("treasure.html", ver=EDITION, playername=playerName, dungeonid=DungeonID)
 
 if __name__ == '__main__':
     import signal

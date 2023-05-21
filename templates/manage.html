@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>剑三拍卖助手</title>
+    <title>管理页面</title>
 
     <script src="../static/vue.min.js"></script>
 
@@ -18,8 +18,43 @@
 </head>
 
 <body>
+    <h1>管理页面</h1>
+        <form id="form-treasure">
+        <div class="">
+          记录掉落
+        </div>
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label for="inputBoss">选择首领</label>
+              <select v-model="boss" id="inputBoss" class="form-control" >
+                <option v-for="bb in bosses">[[bb]]</option>
+              </select>
+            </div>
+            <div class="form-group col-md-6">
+              <label for="inputTreasure">掉落列表</label>
+              <textarea v-model="treasure" rows="5" class="form-control" id="inputTreasure" placeholder='用游戏中复制来的字符串格式，形如：&#13;&#10;[清蕊坠][揽江护腕·万花][五行石（六级）]&#13;&#10;可以使用茗伊掉落统计将单个BOSS的全部装备输出到聊天栏中。'>
+              </textarea>
+            </div>
+          </div>
+          <button type="submit" @click.prevent="submit" class="btn btn-primary">记录！</button>
+        </form>
 
-<script src="../static/manage.js?v={{ver}}"></script>
+    <div id="alert1" class="alert alert-danger alert-dismissible fade show" role="alert">
+      <p> </p>
+      <button type="button" class="close" aria-label="Close" onclick="$('#alert1').hide();">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+
+    <div id="alert2" class="alert alert-primary alert-dismissible fade show" role="alert">
+      <p> </p>
+    </div>
+
+    <script src="../static/manage.js?v={{ver}}"></script>
+    <script>
+        ADMIN_TOKEN = {{admintoken}}
+        DUNGEON_ID = {{dungeonid}}
+    </script>
 </body>
 </html>
 

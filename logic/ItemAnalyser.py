@@ -193,7 +193,7 @@ MENPAI_DICT = {
     "隐龙诀": "凌雪",
     "无方": "药宗",
     "灵素": "药宗",
-    "孤风诀": "刀宗",
+    "孤锋诀": "刀宗",
 }
 
 def getAttributeDesc(attrib):
@@ -312,13 +312,13 @@ class ItemAnalyser():
         attrib, attribDesc = getAttributeDesc(key)
         if key == "atSkillEventHandler":
             desc = ""
-            if value2 == "2399":
+            if value2 in ["2399", "2496"]:
                 desc = "装备：命中后获得水·百川气劲，自身提升治疗效果，可叠加十层，持续6秒。不可与该类其他气劲并存。"
-            elif value2 == "2400":
+            elif value2 in ["2400", "2497"]:
                 desc = "装备：命中后获得水·灭虚气劲，自身提升内功攻击，可叠加十层，持续6秒。不可与该类其他气劲并存。"
-            elif value2 == "2401":
+            elif value2 in ["2401", "2498"]:
                 desc = "装备：命中后获得水·斩流气劲，自身提升外功攻击，可叠加十层，持续6秒。不可与该类其他气劲并存。"
-            elif value2 == "2402":
+            elif value2 in ["2402", "2499"]:
                 desc = "装备：命中后获得水·封山气劲，自身提升外功防御及内功防御，可叠加十层，持续6秒。不可与该类其他气劲并存。"
             return desc, attrib, "special"
 
@@ -508,6 +508,7 @@ class ItemAnalyser():
             output["school"] = item["school"]
             output["sketch"] = sketch
             output["related"] = []
+            output["maxlevel"] = item["maxstrengthlevel"]
         elif item["type"] == "item":
             output["type"] = "item"
             output["class"] = item.get("class", "other")
@@ -632,6 +633,10 @@ class ItemAnalyser():
                             map = "神兵玉匣·英雄西津渡"
                         elif level == "11150" and content[header_index["MaxStrengthLevel"]] == "4":
                             map = "神兵玉匣·英雄西津渡·奇"
+                        elif level == "12450" and content[header_index["MaxStrengthLevel"]] == "6":
+                            map = "神兵玉匣·英雄武狱黑牢"
+                        elif level == "12450" and content[header_index["MaxStrengthLevel"]] == "4":
+                            map = "神兵玉匣·英雄武狱黑牢·奇"
                         menpai = content[header_index["BelongSchool"]]
                         if map in self.weapon:
                             if menpai not in self.weapon[map]:
@@ -729,7 +734,7 @@ class ItemAnalyser():
                         elif name in ["剑", "侠", "情", "缘"]:
                             self.item[itemid]["class"] = "hanzi"
                             self.item[itemid]["quality"] = "5"
-                        elif "展锋" in name or "揽江" in name or "藏剑武器" in name:
+                        elif "展锋" in name or "揽江" in name or "濯心" in name or "藏剑武器" in name:
                             self.item[itemid]["class"] = "coupon"
                             self.item[itemid]["type"] = "coupon"
                             self.item[itemid]["related"] = []
@@ -761,7 +766,7 @@ class ItemAnalyser():
         self.item = {}
         self.attrib = {}
         self.enchant = {}
-        self.weapon = {"神兵玉匣·普通西津渡": {}, "神兵玉匣·英雄西津渡": {}, "神兵玉匣·英雄西津渡·奇": {}}
+        self.weapon = {"神兵玉匣·普通西津渡": {}, "神兵玉匣·英雄西津渡": {}, "神兵玉匣·英雄西津渡·奇": {}, "神兵玉匣·英雄武狱黑牢": {}, "神兵玉匣·英雄武狱黑牢·奇": {}}
         self.LoadAttrib()
         self.LoadEquipTable()
         self.LoadEnchant()

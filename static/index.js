@@ -1,9 +1,33 @@
-$("#form-manager").submit(function(){
-
-});
+ERROR_CONTENT = {
+    "0": "成功。",
+    "100": "未知的参数错误。",
+    "101": "缺少参数。",
+    "102": "参数格式不正确。",
+    "103": "position必须是1-25之间的整数。",
+    "104": "掉落的格式不正确",
+    "200": "未知的逻辑错误。",
+    "201": "秘境ID不存在。",
+    "202": "团长权限验证失败。",
+    "203": "成员权限验证失败。",
+    "204": "地图验证失败。",
+    "205": "BOSS名称验证失败。",
+    "206": "角色名已经被注册，请换一个角色名。",
+    "207": "位置已经被占用，请换一个位置。",
+    "208": "拍卖已经开始，无法再次开始。",
+    "209": "拍卖还未开始，无法进行拍卖操作。",
+    "210": "拍卖已经结束，无法进行拍卖操作。",
+    "211": "物品不存在。",
+    "212": "出价低于起拍价。",
+    "213": "出价不是最小加价的整数倍。",
+    "214": "不能在在打包拍卖或者同步拍卖的非主物品上操作。",
+    "215": "同步出价的数量大于可用数量。",
+    "300": "未知的结果错误。",
+    "301": "结果为空。"
+}
 
 V_manager = new Vue({
   el: '#form-manager',
+  delimiters: ['[[',']]'],
   data: {
     invcode: "",
     map: "25人普通武狱黑牢",
@@ -16,15 +40,16 @@ V_manager = new Vue({
   },
   methods: {
     submit: function() {
-        console.log("Click!");
-        console.log(this.invcode);
-        console.log(this.map);
+        $.get(`/createDungeon?map=${this.map}&code=${this.invcode}`, function(result){
+            analyse_create(result);
+        });
     }
   }
 });
 
 V_member = new Vue({
   el: '#form-member',
+  delimiters: ['[[',']]'],
   data: {
     dungeon: "",
     name: "",
@@ -60,12 +85,55 @@ V_member = new Vue({
         "隐龙诀",
         "无方",
         "灵素",
-        "孤风诀",
+        "孤锋诀",
     ]
   },
   methods: {
     submit: function() {
-        console.log("Click!");
+        var pos = (parseInt(this.group)-1) * 5 + parseInt(this.position);
+        CURRENT_NAME = this.name;
+        CURRENT_DUNGEON = this.dungeon;
+        $.get(`/registerTeam?DungeonID=${this.dungeon}&playerName=${this.name}&xinfa=${this.xinfa}&position=${pos}`, function(result){
+            console.log("2");
+            analyse_register(result, this.name, this.dungeon);
+        });
     }
   }
 });
+
+function error(code, targetID) {
+    var msg = "错误" + code + "：未知错误";
+    if (code in ERROR_CONTENT) {
+        msg = "错误" + code + "：" + ERROR_CONTENT[code];
+    }
+    $(`#${targetID} p`).html(msg);
+    $(`#${targetID}`).show();
+}
+
+function analyse_create(result){
+    console.log(result);
+    if (result["status"] != "0") {
+        error(result["status"], "alert1");
+    } else {
+        var DungeonID = result["DungeonID"]
+        var AdminToken = result["AdminToken"]
+        var msg = `创建成功！你的副本编号为：${DungeonID}，团长令牌为：${AdminToken}，点击<a href="/manage.html?AdminToken=${AdminToken}&DungeonID=${DungeonID}" class="alert-link" target="_blank">此处</a>进入管理页面。`;
+        $("#alert2 p").html(msg);
+        $("#alert2").show(msg);
+    }
+}
+
+function analyse_register(result, playerName, DungeonID){
+    console.log(result);
+    if (result["status"] != "0") {
+        error(result["status"], "alert3");
+    } else {
+        var msg = `加入团队成功！点击<a href="/treasure.html?playerName=${CURRENT_NAME}&DungeonID=${CURRENT_DUNGEON}" class="alert-link" target="_blank">此处</a>进入掉落页面。`;
+        $("#alert4 p").html(msg);
+        $("#alert4").show(msg);
+    }
+}
+$("#alert1").hide();
+$("#alert2").hide();
+$("#alert3").hide();
+$("#alert4").hide();

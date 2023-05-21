@@ -20,7 +20,7 @@
 }
 
 .item-name{
-    width: 160px;
+    width: 180px;
 }
 
 .desc-tooltip{
@@ -43,7 +43,7 @@
 }
 
 .text-绿色, .text-green{
-    color: rgb(0, 255, 0);
+    color: rgb(0, 128, 0);
 }
 
 .text-橙色, .text-orange{
