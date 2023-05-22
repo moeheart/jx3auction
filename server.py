@@ -1022,5 +1022,5 @@ if __name__ == '__main__':
 
     app.item_analyser = ItemAnalyser()
     
-    app.run(host='0.0.0.0', port=8009, debug=app.debug, threaded=True)
+    app.run(host='0.0.0.0', port=8030, debug=app.debug, threaded=True)
 

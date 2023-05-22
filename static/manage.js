@@ -69,8 +69,49 @@ function analyse_treasure(result){
     }
 }
 
+V_treasure = new Vue({
+  el: '#form-startauction',
+  delimiters: ['[[',']]'],
+  data: {
+    baseNormal: 2000,
+    baseCoupon: 20000,
+    baseWeapon: 15000,
+    baseJingjian: 30000,
+    baseTexiaoyaozhui: 3000,
+    baseTexiaowuqi: 30000,
+    stepEquip: 1000,
+    baseMaterials: 500,
+    stepMaterials: 500,
+    baseCharacter: 100,
+    stepCharacter: 100,
+    combineCharacter: true,
+    baseXiaofumo: 100,
+    stepXiaofumo: 100,
+    baseDafumo: 1000,
+    stepDafumo: 1000,
+    baseXiaotie: 6000,
+    stepXiaotie: 3000,
+    baseDatie: 0,
+    stepDatie: 10000,
+    baseOther: 0,
+    stepOther: 1000,
+    baseHanzi: 100,
+    stepHanzi: 100,
+    combineHanzi: true
+  },
+  methods: {
+    submit: function() {
+
+    }
+  }
+});
+
+
+
 $("#alert1").hide();
 $("#alert2").hide();
+$("#alert3").hide();
+$("#alert4").hide();
 
 
 

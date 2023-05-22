@@ -54,6 +54,145 @@
         </div>
     </div>
 
+    <div class="container">
+        <div class="p-2 bg-info rounded mt-3">
+            <h5>拍卖设置</h5>
+        </div>
+        <form id="form-startauction">
+          <div class="form-row">
+            <div class="form-group col-md-3">
+              <label for="input1">散件起拍价</label>
+              <input v-model="baseNormal" class="form-control" id="input1">
+            </div>
+            <div class="form-group col-md-3">
+              <label for="input2">兑换牌起拍价</label>
+              <input v-model="baseCoupon" class="form-control" id="input2">
+            </div>
+            <div class="form-group col-md-3">
+              <label for="input3">普通武器起拍价</label>
+              <input v-model="baseWeapon" class="form-control" id="input3">
+            </div>
+            <div class="form-group col-md-3">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group col-md-3">
+              <label for="input4">精简起拍价</label>
+              <input v-model="baseJingjian" class="form-control" id="input4">
+            </div>
+            <div class="form-group col-md-3">
+              <label for="input5">特效腰坠起拍价</label>
+              <input v-model="baseTexiaoyaozhui" class="form-control" id="input5">
+            </div>
+            <div class="form-group col-md-3">
+              <label for="input6">特效武器起拍价</label>
+              <input v-model="baseTexiaowuqi" class="form-control" id="input6">
+            </div>
+            <div class="form-group col-md-3">
+              <label for="input7">装备最小加价</label>
+              <input v-model="stepEquip" class="form-control bg-secondary text-white" id="input7">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-md-3">
+              <label for="input8">材料起拍价</label>
+              <input v-model="baseMaterials" class="form-control" id="input8">
+            </div>
+            <div class="form-group col-md-3">
+              <label for="input9">材料最小加价</label>
+              <input v-model="stepMaterials" class="form-control bg-secondary text-white" id="input9">
+            </div>
+            <div class="form-group col-md-2">
+              <label for="input10">茶饼维峰丹起拍价</label>
+              <input v-model="baseCharacter" class="form-control" id="input10">
+            </div>
+            <div class="form-group col-md-2">
+              <label for="input11">茶饼维峰丹最小加价</label>
+              <input v-model="stepCharacter" class="form-control bg-secondary text-white" id="input11">
+            </div>
+		    <div class="form-group form-check col-md-2" v-on:change="console.log('chabing')">
+			  <input type="checkbox" class="form-check-input" id="input12" v-model="combineCharacter">
+			  <label class="form-check-label" for="input12">和材料一起拍</label>
+		    </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-md-3">
+              <label for="input13">小附魔起拍价</label>
+              <input v-model="baseXiaofumo" class="form-control" id="input13">
+            </div>
+            <div class="form-group col-md-3">
+              <label for="input14">小附魔最小加价</label>
+              <input v-model="stepXiaofumo" class="form-control bg-secondary text-white" id="input14">
+            </div>
+            <div class="form-group col-md-3">
+              <label for="input15">大附魔起拍价</label>
+              <input v-model="baseDafumo" class="form-control" id="input15">
+            </div>
+            <div class="form-group col-md-3">
+              <label for="input16">大附魔最小加价</label>
+              <input v-model="stepDafumo" class="form-control bg-secondary text-white" id="input16">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-md-3">
+              <label for="input17">小铁起拍价</label>
+              <input v-model="baseXiaotie" class="form-control" id="input17">
+            </div>
+            <div class="form-group col-md-3">
+              <label for="input18">小铁最小加价</label>
+              <input v-model="stepXiaotie" class="form-control bg-secondary text-white" id="input18">
+            </div>
+            <div class="form-group col-md-3">
+              <label for="input19">大铁起拍价</label>
+              <input v-model="baseDatie" class="form-control" id="input19">
+            </div>
+            <div class="form-group col-md-3">
+              <label for="input20">大铁最小加价</label>
+              <input v-model="stepDatie" class="form-control bg-secondary text-white" id="input20">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group col-md-3">
+              <label for="input21">特殊掉落起拍价</label>
+              <input v-model="baseOther" class="form-control" id="input21">
+            </div>
+            <div class="form-group col-md-3">
+              <label for="input22">特殊掉落最小加价</label>
+              <input v-model="stepOther" class="form-control bg-secondary text-white" id="input22">
+            </div>
+            <div class="form-group col-md-2">
+              <label for="input23">剑侠情缘汉字起拍价</label>
+              <input v-model="baseHanzi" class="form-control" id="input23">
+            </div>
+            <div class="form-group col-md-2">
+              <label for="input24">剑侠情缘汉字最小加价</label>
+              <input v-model="stepHanzi" class="form-control bg-secondary text-white" id="input24">
+            </div>
+		    <div class="form-group form-check col-md-2" v-on:change="console.log('hanzi')">
+			  <input type="checkbox" class="form-check-input" id="input25" v-model="combineHanzi">
+			  <label class="form-check-label" for="input25">和材料一起拍</label>
+		    </div>
+          </div>
+
+          <button type="submit" @click.prevent="submit" class="btn btn-primary">开始拍卖！</button>
+        </form>
+
+        <div id="alert3" class="alert alert-danger alert-dismissible fade show" role="alert">
+          <p> </p>
+          <button type="button" class="close" aria-label="Close" onclick="$('#alert1').hide();">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+
+        <div id="alert4" class="alert alert-primary alert-dismissible fade show" role="alert">
+          <p> </p>
+        </div>
+    </div>
+
     <script src="../static/manage.js?v={{ver}}"></script>
     <script>
         ADMIN_TOKEN = {{admintoken}}
