@@ -30,6 +30,10 @@
     display: none;
 }
 
+.bottom{
+    height: 500px;
+}
+
 .text-紫色, .text-purple{
     color: rgb(255, 0, 255);
 }

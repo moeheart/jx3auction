@@ -118,6 +118,7 @@ url接口用于前端调用，通常是对一些功能的打包整理，以及�
     - `name` 物品名。
     - `boss` 物品所属BOSS。
     - `property` 属性列表。是logic.ItemAnalyser.GetGroupItemByName中的返回结果。
+- `xinfa` 角色的心法。用于在前端实现过滤功能。
 
 ### 开始拍卖：/startAuction
 

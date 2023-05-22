@@ -18,83 +18,88 @@
 </head>
 
 <body>
-    <h1>剑三拍卖助手</h1>
-    <form id="form-manager">
-      <div class="">
-          我是团长，我要开团
-      </div>
-      <div class="form-row">
-        <div class="form-group col-md-6">
-          <label for="inputMap">选择副本</label>
-          <select v-model="map" id="inputMap" class="form-control" >
-            <option v-for="mm in maps">[[mm]]</option>
-          </select>
-        </div>
-        <div class="form-group col-md-6">
-          <label for="inputInvcode1">邀请码</label>
-          <input v-model="invcode" class="form-control" id="inputInvcode1">
-        </div>
-      </div>
-      <button type="submit" @click.prevent="submit" class="btn btn-primary">开团！</button>
-    </form>
-
-    <div id="alert1" class="alert alert-danger alert-dismissible fade show" role="alert">
-      <p> </p>
-      <button type="button" class="close" aria-label="Close" onclick="$('#alert1').hide();">
-        <span aria-hidden="true">&times;</span>
-      </button>
+    <div class="container">
+        <h2>剑三拍卖助手</h2>
     </div>
+    <div class="container">
+        <div class="p-2 bg-info rounded mt-3">
+            <h5>我是团长，我要开团 </h5>
+        </div>
+        <form id="form-manager">
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label for="inputMap">选择副本</label>
+              <select v-model="map" id="inputMap" class="form-control" >
+                <option v-for="mm in maps">[[mm]]</option>
+              </select>
+            </div>
+            <div class="form-group col-md-6">
+              <label for="inputInvcode1">邀请码</label>
+              <input v-model="invcode" class="form-control" id="inputInvcode1">
+            </div>
+          </div>
+          <button type="submit" @click.prevent="submit" class="btn btn-primary">开团！</button>
+        </form>
 
-    <div id="alert2" class="alert alert-primary alert-dismissible fade show" role="alert">
-      <p> </p>
+        <div id="alert1" class="alert alert-danger alert-dismissible fade show" role="alert">
+          <p> </p>
+          <button type="button" class="close" aria-label="Close" onclick="$('#alert1').hide();">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+
+        <div id="alert2" class="alert alert-primary alert-dismissible fade show" role="alert">
+          <p> </p>
+        </div>
     </div>
+    <div class="container">
+        <div class="p-2 bg-info rounded mt-3">
+            <h5>我是团员，我要拍装备 </h5>
+        </div>
+        <form id="form-member">
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label for="inputDungeon1">副本编号</label>
+              <input v-model="dungeon" class="form-control" id="inputDungeon1" placeholder="由网站生成，不是游戏中的ID">
+            </div>
+            <div class="form-group col-md-6">
+              <label for="inputName1">角色名</label>
+              <input v-model="name" class="form-control" id="inputName1" placeholder="请准确填写，以和游戏对应">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group col-md-6">
+              <label for="inputXinfa1">选择心法</label>
+              <select v-model="xinfa" id="inputXinfa1" class="form-control">
+                <option v-for="xx in xinfas">[[xx]]</option>
+              </select>
+            </div>
+            <div class="form-group col-md-3">
+              <label for="inputGroup1">几小队</label>
+              <select v-model="group" id="inputGroup1" class="form-control">
+                <option v-for="i in 5">[[i]]</option>
+              </select>
+            </div>
+            <div class="form-group col-md-3">
+              <label for="inputPosition1">第几个</label>
+              <select v-model="position" id="inputPosition1" class="form-control">
+                <option v-for="i in 5">[[i]]</option>
+              </select>
+            </div>
+          </div>
+          <button type="submit" @click.prevent="submit" class="btn btn-primary">进团！</button>
+        </form>
 
-    <form id="form-member">
-      <div class="">
-          我是团员，我要拍装备
-      </div>
-      <div class="form-row">
-        <div class="form-group col-md-6">
-          <label for="inputDungeon1">副本编号</label>
-          <input v-model="dungeon" class="form-control" id="inputDungeon1" placeholder="由网站生成，不是游戏中的ID">
+        <div id="alert3" class="alert alert-danger alert-dismissible fade show" role="alert">
+          <p> </p>
+          <button type="button" class="close" aria-label="Close" onclick="$('#alert3').hide();">
+            <span aria-hidden="true">&times;</span>
+          </button>
         </div>
-        <div class="form-group col-md-6">
-          <label for="inputName1">角色名</label>
-          <input v-model="name" class="form-control" id="inputName1" placeholder="请准确填写，以和游戏对应">
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group col-md-6">
-          <label for="inputXinfa1">选择心法</label>
-          <select v-model="xinfa" id="inputXinfa1" class="form-control">
-            <option v-for="xx in xinfas">[[xx]]</option>
-          </select>
-        </div>
-        <div class="form-group col-md-3">
-          <label for="inputGroup1">几小队</label>
-          <select v-model="group" id="inputGroup1" class="form-control">
-            <option v-for="i in 5">[[i]]</option>
-          </select>
-        </div>
-        <div class="form-group col-md-3">
-          <label for="inputPosition1">第几个</label>
-          <select v-model="position" id="inputPosition1" class="form-control">
-            <option v-for="i in 5">[[i]]</option>
-          </select>
-        </div>
-      </div>
-      <button type="submit" @click.prevent="submit" class="btn btn-primary">进团！</button>
-    </form>
 
-    <div id="alert3" class="alert alert-danger alert-dismissible fade show" role="alert">
-      <p> </p>
-      <button type="button" class="close" aria-label="Close" onclick="$('#alert3').hide();">
-        <span aria-hidden="true">&times;</span>
-      </button>
-    </div>
-
-    <div id="alert4" class="alert alert-primary alert-dismissible fade show" role="alert">
-      <p> </p>
+        <div id="alert4" class="alert alert-primary alert-dismissible fade show" role="alert">
+          <p> </p>
+        </div>
     </div>
 
 

@@ -322,7 +322,7 @@ def getTreasure():
         db.commit()
         db.close()
 
-    return jsonify({'status': 0, 'treasure': treasureRes})
+    return jsonify({'status': 0, 'treasure': treasureRes, 'xinfa': xinfa})
 
 
 AUCTION_PARAMS = ["baseNormal", "baseCoupon", "baseWeapon", "baseJingjian", "baseTexiaoyaozhui", "baseTexiaowuqi",

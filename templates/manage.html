@@ -18,11 +18,14 @@
 </head>
 
 <body>
-    <h1>管理页面</h1>
-        <form id="form-treasure">
-        <div class="">
-          记录掉落
+    <div class="container">
+        <h2>管理页面</h2>
+    </div>
+    <div class="container">
+        <div class="p-2 bg-info rounded mt-3">
+            <h5>记录掉落 </h5>
         </div>
+        <form id="form-treasure">
           <div class="form-row">
             <div class="form-group col-md-6">
               <label for="inputBoss">选择首领</label>
@@ -39,15 +42,16 @@
           <button type="submit" @click.prevent="submit" class="btn btn-primary">记录！</button>
         </form>
 
-    <div id="alert1" class="alert alert-danger alert-dismissible fade show" role="alert">
-      <p> </p>
-      <button type="button" class="close" aria-label="Close" onclick="$('#alert1').hide();">
-        <span aria-hidden="true">&times;</span>
-      </button>
-    </div>
+        <div id="alert1" class="alert alert-danger alert-dismissible fade show" role="alert">
+          <p> </p>
+          <button type="button" class="close" aria-label="Close" onclick="$('#alert1').hide();">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
 
-    <div id="alert2" class="alert alert-primary alert-dismissible fade show" role="alert">
-      <p> </p>
+        <div id="alert2" class="alert alert-primary alert-dismissible fade show" role="alert">
+          <p> </p>
+        </div>
     </div>
 
     <script src="../static/manage.js?v={{ver}}"></script>

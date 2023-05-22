@@ -20,35 +20,66 @@
 
 <body>
 
-<div id="treasure-list" v-if="reload_treasure">
-<div v-on:click="console.log('1')" class="accordion" v-for="boss in bosses">
-  <div class="card">
-    <div class="card-header" :id='`heading-${boss}`'>
-      <h2 class="mb-0">
-        <button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" :data-target='`#collapse-${boss}`' aria-expanded="true" :aria-controls='`collapse-${boss}`'>
-			[[ boss ]]
-        </button>
-      </h2>
+    <div class="container">
+        <h2>掉落列表</h2>
     </div>
 
-    <div :id='`collapse-${boss}`' class="collapse" :aria-labelledby='`heading-${boss}`'>
-      <div class="card-body">
-		<ul class="list-group">
-			<li class="list-group-item" v-for="item in TREASURE_BY_BOSS[boss]">
-				<img class="item-icon" :src="`https://icon.jx3box.com/icon/${item['property']['icon']}.png`">
-				<div class="item-name">
-					<p class="item-text" :itemID="`${item['itemID']}`" v-on:mouseOver="item_over" v-on:mouseOut="item_out" :class="'text-'+item['property']['quality']"> [[ item["name"] ]] </p>
-				</div>
-				<div class="item-sketch">
-					<p class="item-sketch-text" :itemID="`${item['itemID']}`"> [[ getSketch(item) ]] </p>
-				</div>
-			</li>
-		</ul>
-      </div>
-    </div>
-  </div>
-</div>
-</div>
+	<div id="filter-setting" class="container">
+		<div class="form-row">
+		  <div class="form-group form-check col-md-4" v-on:change="reload_filter()">
+			<input type="checkbox" class="form-check-input" id="ignoreMaterials" v-model="ignoreMaterials">
+			<label class="form-check-label" for="ignoreMaterials">只看装备</label>
+		  </div>
+		  <div class="form-group form-check col-md-4" v-on:change="reload_filter()">
+			<input type="checkbox" class="form-check-input" id="schoolOnly" v-model="schoolOnly">
+			<label class="form-check-label" for="schoolOnly">只看自己门派</label>
+		  </div>
+		  <div class="form-group form-check col-md-4" v-on:change="reload_filter()">
+			<input type="checkbox" class="form-check-input" id="xinfaOnly" v-model="xinfaOnly">
+			<label class="form-check-label" for="xinfaOnly">只看自己心法</label>
+		  </div>
+		</div>
+	</div>
+
+	<div class="container">
+
+		<div id="treasure-list" v-if="reload_treasure">
+		<div class="accordion" v-for="boss in bosses">
+		  <div class="card">
+			<div class="card-header" :id='`heading-${boss}`'>
+			  <h2 class="mb-0">
+				<button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" :data-target='`#collapse-${boss}`' aria-expanded="true" :aria-controls='`collapse-${boss}`'>
+					[[ boss ]]
+				</button>
+			  </h2>
+			</div>
+
+			<div :id='`collapse-${boss}`' class="collapse" :aria-labelledby='`heading-${boss}`'>
+			  <div class="card-body">
+				<ul class="list-group">
+					<li class="list-group-item" v-for="item in TREASURE_BY_BOSS[boss]" :id='`item-${item["itemID"]}`'>
+						<div>
+							<img class="item-icon" :src="`https://icon.jx3box.com/icon/${item['property']['icon']}.png`">
+							<div class="item-name">
+								<p class="item-text" :itemID="`${item['itemID']}`" v-on:mouseOver="item_over" v-on:mouseOut="item_out" :class="'text-'+item['property']['quality']"> [[ item["name"] ]] </p>
+							</div>
+							<div class="item-sketch">
+								<p class="item-sketch-text" :itemID="`${item['itemID']}`"> [[ getSketch(item) ]] </p>
+							</div>
+						</div>
+					</li>
+				</ul>
+			  </div>
+			</div>
+		  </div>
+		</div>
+		</div>
+	</div>
+
+	<div class="container bottom">
+
+
+	</div>
 
 <div id="desc-tooltip" class="desc-tooltip">
 	<div id="desc-tooltip-content">
