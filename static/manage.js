@@ -65,7 +65,7 @@ function analyse_treasure(result){
         var AdminToken = result["AdminToken"]
         var msg = `上传${CURRENT_BOSS}的记录成功！其他队友可以在团员界面看到所有的掉落，你可以继续上传其它BOSS，或者开始拍卖。`;
         $("#alert2 p").html(msg);
-        $("#alert2").show(msg);
+        $("#alert2").show();
     }
 }
 
@@ -84,7 +84,8 @@ V_treasure = new Vue({
     stepMaterials: 500,
     baseCharacter: 100,
     stepCharacter: 100,
-    combineCharacter: true,
+    combineCharacterRaw: true,
+    combineCharacter: 1,
     baseXiaofumo: 100,
     stepXiaofumo: 100,
     baseDafumo: 1000,
@@ -97,15 +98,63 @@ V_treasure = new Vue({
     stepOther: 1000,
     baseHanzi: 100,
     stepHanzi: 100,
-    combineHanzi: true
+    combineHanziRaw: true,
+    combineHanzi: 1,
   },
   methods: {
     submit: function() {
-
+      var str = `/startAuction?AdminToken=${ADMIN_TOKEN}&DungeonID=${DUNGEON_ID}`;
+      this.combineCharacter = this.combineCharacterRaw ? 1 : 0;
+      this.combineHanzi = this.combineHanziRaw ? 1 : 0;
+      dataArray = [
+          "baseNormal",
+          "baseCoupon",
+          "baseWeapon",
+          "baseJingjian",
+          "baseTexiaoyaozhui",
+          "baseTexiaowuqi",
+          "stepEquip",
+          "baseMaterials",
+          "stepMaterials",
+          "baseCharacter",
+          "stepCharacter",
+          "combineCharacter",
+          "baseXiaofumo",
+          "stepXiaofumo",
+          "baseDafumo",
+          "stepDafumo",
+          "baseXiaotie",
+          "stepXiaotie",
+          "baseDatie",
+          "stepDatie",
+          "baseOther",
+          "stepOther",
+          "baseHanzi",
+          "stepHanzi",
+          "combineHanzi"
+      ];
+      for (var i in dataArray) {
+        var s = dataArray[i];
+        var value = eval(`this.${s}`);
+        str += `&${s}=${value}`;
+      }
+      $.get(str, function(result){
+          start_auction(result);
+      });
     }
   }
 });
 
+function start_auction(result){
+    console.log(result);
+    if (result["status"] != "0") {
+        error(result["status"], "alert3");
+    } else {
+        var msg = `拍卖已开始！请通知团员刷新界面，或是尽快进入系统。`;
+        $("#alert4 p").html(msg);
+        $("#alert4").show(msg);
+    }
+}
 
 
 $("#alert1").hide();

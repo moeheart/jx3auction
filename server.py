@@ -564,8 +564,11 @@ def getAuction():
                 sql = '''SELECT playerID, time, price, effective, playerName FROM auction, player WHERE treasureID=%d AND playerID=player.id;''' % int(treasureID)
                 cursor.execute(sql)
                 result = cursor.fetchall()
-                result.sort(key=lambda x:-x[2])
-                for bid in result:
+                result1 = []
+                for line in result:
+                    result1.append(line)
+                result1.sort(key=lambda x:-x[2])
+                for bid in result1:
                     bids.append({"player": bid[4],
                                  "price": bid[2],
                                  "time": bid[1]})
@@ -573,7 +576,7 @@ def getAuction():
                         currentPrice.append(bid[2])
                         currentOwner.append(bid[4])
 
-                sql = '''SELECT price FROM autobid WHERE playerID=%d AND treasureID=%d AND effective=1;''' % (int(playerID), int(treasureID))
+                sql = '''SELECT price FROM autobid WHERE playerID=%d AND treasureID=%d;''' % (int(playerID), int(treasureID))
                 cursor.execute(sql)
                 result = cursor.fetchall()
                 if result:
