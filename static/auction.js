@@ -269,6 +269,18 @@ function reload_filter(){
     }
 }
 
+function auto_bid(itemID){
+
+}
+
+function bid(itemID){
+
+}
+
+function bid_low(itemID){
+
+}
+
 V_filter = new Vue({
     el: '#filter-setting',
     delimiters: ['[[',']]'],

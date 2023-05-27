@@ -28,6 +28,7 @@
     position: absolute;
     padding: 10px;
     display: none;
+    width: 300px;
 }
 
 .bottom{
@@ -61,4 +62,6 @@
 .text-黄色, .text-yellow{
     color: rgb(255, 255, 0);
 }
+
+
 

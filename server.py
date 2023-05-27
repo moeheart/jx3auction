@@ -1013,6 +1013,12 @@ def treasure():
     DungeonID = request.args.get('DungeonID')
     return render_template("treasure.html", ver=EDITION, playername=playerName, dungeonid=DungeonID)
 
+@app.route('/auction.html', methods=['GET'])
+def auction():
+    playerName = request.args.get('playerName')
+    DungeonID = request.args.get('DungeonID')
+    return render_template("auction.html", ver=EDITION, playername=playerName, dungeonid=DungeonID)
+
 if __name__ == '__main__':
     import signal
     
