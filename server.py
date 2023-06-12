@@ -604,7 +604,7 @@ def getAuction():
         db.commit()
         db.close()
 
-    return jsonify({'status': 0, 'treasure': treasureRes})
+    return jsonify({'status': 0, 'treasure': treasureRes, 'xinfa': xinfa})
 
 @app.route('/bid', methods=['GET'])
 def bid():
@@ -644,6 +644,7 @@ def bid():
         result = cursor.fetchall()
         if not result:
             return jsonify({'status': 211})
+        result = result[0]
         treasureID = result[0]
         groupID = result[1]
         simulID = result[2]
@@ -673,7 +674,7 @@ def bid():
         autobids = {}
 
         # 获取所有出价信息
-        sql = '''SELECT playerID, time, price, effective, playerName, id FROM auction, player WHERE treasureID=%d AND playerID=player.id AND effective=1;''' % int(treasureID)
+        sql = '''SELECT playerID, time, price, effective, playerName, auction.id FROM auction, player WHERE treasureID=%d AND playerID=player.id AND effective=1;''' % int(treasureID)
         cursor.execute(sql)
         result = cursor.fetchall()
         for bid in result:
@@ -685,7 +686,7 @@ def bid():
                          "source": "auction"})
 
         # 获取所有自动出价信息
-        sql = '''SELECT price, playerID, id, num, time FROM autobid WHERE treasureID=%d AND effective=1;''' % (int(treasureID))
+        sql = '''SELECT price, playerID, id, num, time FROM autobid WHERE treasureID=%d;''' % (int(treasureID))
         cursor.execute(sql)
         result = cursor.fetchall()
         for bid in result:
@@ -710,16 +711,21 @@ def bid():
 
         # 按由低到高的顺序移除出价。需要移除的数量等于添加的数量。
         i = 0
-        toRemove = num
-        if len(bids) < itemNum:
-            toRemove = num - itemNum + len(bids)
+        # toRemove = num
+        # if len(bids) < itemNum:
+        #     toRemove = num - itemNum + len(bids)
+        toRemove = max(0, len(bids) - itemNum)
         nowNum = 0
         activeNum = num
         autobidAppear = 0
         maxDeleted = 0
+
+        print("[toRemove]", toRemove)
+
         while i < toRemove:
             # 记录中的出价更低，被顶掉
             line = bids[i]
+            print("[line]", line)
             if line["source"] == "auction":
                 sql = '''UPDATE auction SET effective=0 WHERE id=%d;''' % (int(line["auctionID"]))
                 cursor.execute(sql)
