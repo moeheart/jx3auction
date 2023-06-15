@@ -20,19 +20,30 @@ V_treasure = new Vue({
   }
 });
 
-function error(code, targetID) {
+ALERT_VISIBLE = [0, 0, 0, 0, 0];
+
+function showError(msg, i) {
+    $(`#alert-${i} p`).html(msg);
+    $(`#alert-${i}`).show();
+}
+
+function error(code) {
     var msg = "错误" + code + "：未知错误";
     if (code in ERROR_CONTENT) {
         msg = "错误" + code + "：" + ERROR_CONTENT[code];
     }
-    $(`#${targetID} p`).html(msg);
-    $(`#${targetID}`).show();
+    var i = ALERT_VISIBLE.indexOf(0);
+    if (i == -1) {
+        i = 4;
+    }
+    ALERT_VISIBLE[i] = 1;
+    showError(msg, i+1);
 }
 
 function analyse_treasure(result){
     console.log(result);
     if (result["status"] != "0") {
-        error(result["status"], "alert1");
+        error(result["status"]);
     } else {
         var DungeonID = result["DungeonID"]
         var AdminToken = result["AdminToken"]
@@ -129,11 +140,26 @@ function start_auction(result){
     }
 }
 
-
-$("#alert1").hide();
 $("#alert2").hide();
-$("#alert3").hide();
 $("#alert4").hide();
+
+V_alert = new Vue({
+  el: '#float-alert',
+  delimiters: ['[[',']]'],
+  data: {
+  },
+  methods: {
+  }
+});
+
+for (var i = 0; i <= 4; i++) {
+    $(`#alert-${i+1}`).hide();
+}
+
+function hideAlert(i){
+    $(`#alert-${i}`).hide();
+    ALERT_VISIBLE[i-1] = 0;
+}
 
 
 

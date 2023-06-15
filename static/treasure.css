@@ -35,6 +35,10 @@
     height: 500px;
 }
 
+.bid-line{
+    margin-bottom: 0;
+}
+
 .text-紫色, .text-purple{
     color: rgb(255, 0, 255);
 }

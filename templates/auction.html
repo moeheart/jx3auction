@@ -16,6 +16,7 @@
 
 <!--	与treasure共用同一个css-->
     <link rel="stylesheet" type="text/css" href="/static/treasure.css?v={{ver}}" />
+    <link rel="stylesheet" type="text/css" href="/static/overall.css?v={{ver}}" />
 
 </head>
 
@@ -99,18 +100,18 @@
 							  </div>
 							</div>
 							<ul class="list-group">
-								<li class="list-group-item">
+								<li class="list-group-item" v-for='bid in item["bids"]' :id='`bid-${item["itemID"]}-${bid["bidID"]}`'>
 									<div class="row">
 										<div class="col-md-3">
 										</div>
 										<div class="col-md-3">
-											<p> player </p>
+											<p class="bid-line"> [[ bid['player'] ]] </p>
 										</div>
-										<div class="col-md-3">
-											<p> XXX </p>
+										<div class="col-md-2">
+											<p class="bid-line"> [[ bid['price'] ]] </p>
 										</div>
-										<div class="col-md-3">
-											<p> time </p>
+										<div class="col-md-4">
+											<p class="bid-line"> [[ bid['time'] | dateFormat ]] </p>
 										</div>
 									</div>
 								</li>
@@ -129,6 +130,21 @@
 
 
 	</div>
+
+    <div id="float-alert" class="container float-alert">
+        <div class="row">
+            <div class="col-md-3"> </div>
+            <div class="col-md-6">
+                <div v-for="i in 5" :id="`alert-${i}`" class="alert alert-danger alert-dismissible fade show" role="alert">
+                  <p> </p>
+                  <button type="button" class="close" aria-label="Close" :onclick="`hideAlert(${i})`">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+            </div>
+            <div class="col-md-3"> </div>
+        </div>
+    </div>
 
 <div id="desc-tooltip" class="desc-tooltip">
 	<div id="desc-tooltip-content">

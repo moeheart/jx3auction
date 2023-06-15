@@ -25,6 +25,9 @@ function analyse_auction(auctionInfo){
     for (var i in res) {
         var item = res[i];
         var boss = item["boss"];
+        for (var i in item["bids"]) {
+            item["bids"][i]["bidID"] = i;
+        }
         if (!(boss in AUCTION_BY_BOSS)) {
             AUCTION_BY_BOSS[boss] = [];
         }
@@ -36,14 +39,24 @@ function analyse_auction(auctionInfo){
     PLAYER_XINFA = auctionInfo["xinfa"];
 }
 
-function error(code, targetID) {
+ALERT_VISIBLE = [0, 0, 0, 0, 0];
+
+function showError(msg, i) {
+    $(`#alert-${i} p`).html(msg);
+    $(`#alert-${i}`).show();
+}
+
+function error(code) {
     var msg = "错误" + code + "：未知错误";
     if (code in ERROR_CONTENT) {
         msg = "错误" + code + "：" + ERROR_CONTENT[code];
     }
-//    $(`#${targetID} p`).html(msg);
-//    $(`#${targetID}`).show();
-    alert(msg);
+    var i = ALERT_VISIBLE.indexOf(0);
+    if (i == -1) {
+        i = 4;
+    }
+    ALERT_VISIBLE[i] = 1;
+    showError(msg, i+1);
 }
 
 function auto_bid(itemID){
@@ -57,8 +70,10 @@ function bid(itemID){
     var str = `/bid?playerName=${PLAYER_NAME}&DungeonID=${DUNGEON_ID}&itemID=${itemID}&price=${price}&num=1`;
     console.log(str);
     $.get(str, function(result){
-        if (result["status"] != "0") {
-            error(result["status"], "alert1");
+        if (result["status"] != 0) {
+            error(result["status"]);
+        } else if (result["success"] == 0) {
+            error(302);
         }
         console.log(result);
     });
@@ -268,4 +283,33 @@ V_filter = new Vue({
     methods: {
     }
 });
+
+Vue.filter('dateFormat', function(originVal){
+    const dt = new Date(originVal * 1000);
+    const y = dt.getFullYear();
+    const M = (dt.getMonth() + 1 + '').padStart(2, '0');
+    const d = (dt.getDate() + '').padStart(2, '0');
+    const h = (dt.getHours() + '').padStart(2, '0');
+    const m = (dt.getMinutes() + '').padStart(2, '0');
+    const s = (dt.getSeconds() + '').padStart(2, '0');
+    return `${y}-${M}-${d} ${h}:${m}:${s}`;
+})
+
+V_alert = new Vue({
+  el: '#float-alert',
+  delimiters: ['[[',']]'],
+  data: {
+  },
+  methods: {
+  }
+});
+
+for (var i = 0; i <= 4; i++) {
+    $(`#alert-${i+1}`).hide();
+}
+
+function hideAlert(i){
+    $(`#alert-${i}`).hide();
+    ALERT_VISIBLE[i-1] = 0;
+}
 

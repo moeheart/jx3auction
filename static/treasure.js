@@ -217,3 +217,41 @@ V_filter = new Vue({
     }
 });
 
+ALERT_VISIBLE = [0, 0, 0, 0, 0];
+
+function showError(msg, i) {
+    $(`#alert-${i} p`).html(msg);
+    $(`#alert-${i}`).show();
+}
+
+function error(code) {
+    var msg = "错误" + code + "：未知错误";
+    if (code in ERROR_CONTENT) {
+        msg = "错误" + code + "：" + ERROR_CONTENT[code];
+    }
+    var i = ALERT_VISIBLE.indexOf(0);
+    if (i == -1) {
+        i = 4;
+    }
+    ALERT_VISIBLE[i] = 1;
+    showError(msg, i+1);
+}
+
+V_alert = new Vue({
+  el: '#float-alert',
+  delimiters: ['[[',']]'],
+  data: {
+  },
+  methods: {
+  }
+});
+
+for (var i = 0; i <= 4; i++) {
+    $(`#alert-${i+1}`).hide();
+}
+
+function hideAlert(i){
+    $(`#alert-${i}`).hide();
+    ALERT_VISIBLE[i-1] = 0;
+}
+

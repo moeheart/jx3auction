@@ -76,19 +76,30 @@ V_member = new Vue({
   }
 });
 
-function error(code, targetID) {
+ALERT_VISIBLE = [0, 0, 0, 0, 0];
+
+function showError(msg, i) {
+    $(`#alert-${i} p`).html(msg);
+    $(`#alert-${i}`).show();
+}
+
+function error(code) {
     var msg = "错误" + code + "：未知错误";
     if (code in ERROR_CONTENT) {
         msg = "错误" + code + "：" + ERROR_CONTENT[code];
     }
-    $(`#${targetID} p`).html(msg);
-    $(`#${targetID}`).show();
+    var i = ALERT_VISIBLE.indexOf(0);
+    if (i == -1) {
+        i = 4;
+    }
+    ALERT_VISIBLE[i] = 1;
+    showError(msg, i+1);
 }
 
 function analyse_create(result){
     console.log(result);
     if (result["status"] != "0") {
-        error(result["status"], "alert1");
+        error(result["status"]);
     } else {
         var DungeonID = result["DungeonID"]
         var AdminToken = result["AdminToken"]
@@ -101,14 +112,31 @@ function analyse_create(result){
 function analyse_register(result, playerName, DungeonID){
     console.log(result);
     if (result["status"] != "0") {
-        error(result["status"], "alert3");
+        error(result["status"]);
     } else {
         var msg = `加入团队成功！点击<a href="/treasure.html?playerName=${CURRENT_NAME}&DungeonID=${CURRENT_DUNGEON}" class="alert-link" target="_blank">此处</a>进入掉落页面。`;
         $("#alert4 p").html(msg);
         $("#alert4").show(msg);
     }
 }
-$("#alert1").hide();
 $("#alert2").hide();
-$("#alert3").hide();
 $("#alert4").hide();
+
+V_alert = new Vue({
+  el: '#float-alert',
+  delimiters: ['[[',']]'],
+  data: {
+  },
+  methods: {
+  }
+});
+
+for (var i = 0; i <= 4; i++) {
+    $(`#alert-${i+1}`).hide();
+}
+
+function hideAlert(i){
+    $(`#alert-${i}`).hide();
+    ALERT_VISIBLE[i-1] = 0;
+}
+
