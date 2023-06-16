@@ -114,7 +114,8 @@ function analyse_register(result, playerName, DungeonID){
     if (result["status"] != "0") {
         error(result["status"]);
     } else {
-        var msg = `加入团队成功！点击<a href="/treasure.html?playerName=${CURRENT_NAME}&DungeonID=${CURRENT_DUNGEON}" class="alert-link" target="_blank">此处</a>进入掉落页面。`;
+        var PlayerToken = result["PlayerToken"]
+        var msg = `加入团队成功！你的团员令牌为：${PlayerToken}，点击<a href="/treasure.html?playerName=${CURRENT_NAME}&DungeonID=${CURRENT_DUNGEON}&PlayerToken=${PlayerToken}" class="alert-link" target="_blank">此处</a>进入掉落页面。`;
         $("#alert4 p").html(msg);
         $("#alert4").show(msg);
     }

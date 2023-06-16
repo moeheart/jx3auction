@@ -32,6 +32,7 @@
 - `playerName` 玩家名。注意和大部分数据库中的`playerID`区分，后者一般表示`player`表的ID。
 - `xinfa` 玩家的心法.
 - `profile` 玩家展示状态. 通常是“思考中”“拍完了”等状态。
+- `playerToken` 团员令牌。
 
 ``CREATE TABLE player (
          id INT PRIMARY KEY,
@@ -39,7 +40,8 @@
          position INT,
          playerName VARCHAR(32),
          xinfa VARCHAR(32),
-         profile VARCHAR(32)
+         profile VARCHAR(32),
+         playerToken VARCHAR(32)
 ) DEFAULT CHARSET utf8mb4;``
 
 ## treasure

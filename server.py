@@ -29,16 +29,15 @@ app.config['JSON_AS_ASCII'] = False
 socketio = SocketIO()
 socketio.init_app(app, cors_allowed_origins='*')
 
+CHARSET = "0123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz"
+
 def Response_headers(content):
     resp = Response(content)    
     resp.headers['Access-Control-Allow-Origin'] = '*'    
     return resp
 
 def generateToken():
-    s = str(random.randint(0, 999999))
-    while len(s) < 6:
-        s = '0' + s
-    return s
+    return ''.join((random.choice(CHARSET)) for _ in range(12))
 
 @app.route('/createDungeon', methods=['GET'])
 def createDungeon():
@@ -136,7 +135,9 @@ def registerTeam():
         if result:
             return jsonify({'status': 207})
 
-        sql = '''INSERT INTO player VALUES (%d, %d, %d, "%s", "%s", "无");''' % (num, int(DungeonID), int(position), playerName, xinfa)
+        playerToken = generateToken()
+
+        sql = '''INSERT INTO player VALUES (%d, %d, %d, "%s", "%s", "无", "%s");''' % (num, int(DungeonID), int(position), playerName, xinfa, playerToken)
         cursor.execute(sql)
     except Exception as e:
         traceback.print_exc()
@@ -146,7 +147,7 @@ def registerTeam():
         db.commit()
         db.close()
 
-    return jsonify({'status': 0})
+    return jsonify({'status': 0, "PlayerToken": playerToken})
 
 @app.route('/getTeam', methods=['GET'])
 def getTeam():
