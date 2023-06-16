@@ -19,6 +19,29 @@ AUCTION_BY_ID = {};
 //    PLAYER_XINFA = treasure["xinfa"];
 //}
 
+$(document).ready(function () {
+    namespace = '/socket_connect';
+    var socket = io.connect(location.protocol + "//" + document.domain + ":" + location.port + namespace);
+    socket.on('bid', function(res) {
+        console.log("receive from socket");
+        console.log(res);
+        var bids = AUCTION_BY_ID[res["itemID"]]["bids"];
+        // console.log(bids);
+        bids.push({
+            "player": res["player"],
+            "price": res["price"],
+            "time": res["time"],
+        })
+        bids.sort((x, y) => {return -x["price"] + x["time"]/1e+10 + y["price"] - y["time"]/1e+10})
+        for (var i in bids) {
+            bids[i]["bidID"] = i;
+        }
+        V_treasure_list.reloadBids();
+        // console.log(bids);
+
+    });
+});
+
 function analyse_auction(auctionInfo){
     console.log(auctionInfo);
     var res = auctionInfo["treasure"];
@@ -198,6 +221,7 @@ V_treasure_list = new Vue({
     delimiters: ['[[',']]'],
     data: {
         reload_auction: false,
+        reload_bids: true,
         bosses: [],
     },
     methods: {
@@ -214,6 +238,12 @@ V_treasure_list = new Vue({
                 str = item["property"]["main"] + " " + item["property"]["sketch"].join(" ");
             }
             return str;
+        },
+        reloadBids: function() {
+            this.reload_bids = false;
+            this.$nextTick(function() {
+                this.reload_bids = true;
+            })
         }
     }
 });

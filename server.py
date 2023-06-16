@@ -3,6 +3,8 @@ from flask import Flask, render_template, url_for, request, redirect, session, m
 from flask import request    
 from flask import make_response,Response
 from flask_cors import CORS
+from flask_socketio import SocketIO, emit
+
 import urllib
 import json
 import re
@@ -23,6 +25,9 @@ EDITION = "0.0.0"
 app = Flask(__name__)
 CORS(app)
 app.config['JSON_AS_ASCII'] = False
+
+socketio = SocketIO()
+socketio.init_app(app, cors_allowed_origins='*')
 
 def Response_headers(content):
     resp = Response(content)    
@@ -606,6 +611,24 @@ def getAuction():
 
     return jsonify({'status': 0, 'treasure': treasureRes, 'xinfa': xinfa})
 
+@socketio.on('connect', namespace='/socket_connect')
+def connect_msg():
+    print('client connected.')
+
+@socketio.on('disconnect', namespace='/socket_connect')
+def disconnect_msg():
+    print('client disconnected.')
+
+# @socketio.on('my_event', namespace='/socket_connect')
+# def mtest_message(message):
+#     print(message)
+#     emit('my_response', {'data': message['data'], 'count': 1})
+
+def broadcast_bid(dungeonID, itemID, player, price, nowTime):
+    data = {"type": "bid", "itemID": itemID, "player": player, "price": price, "time": nowTime}
+    socketio.emit('bid', data, namespace='/socket_connect')
+    pass
+
 @app.route('/bid', methods=['GET'])
 def bid():
     # http://127.0.0.1:8009/bid?DungeonID=2&playerName=%E8%8A%B1%E5%A7%90&itemID=1&price=3000&num=1
@@ -686,7 +709,7 @@ def bid():
                          "source": "auction"})
 
         # 获取所有自动出价信息
-        sql = '''SELECT price, playerID, id, num, time FROM autobid WHERE treasureID=%d;''' % (int(treasureID))
+        sql = '''SELECT price, playerID, autobid.id, num, time, playerName FROM autobid, player WHERE treasureID=%d AND playerID=player.id;''' % (int(treasureID))
         cursor.execute(sql)
         result = cursor.fetchall()
         for bid in result:
@@ -695,6 +718,7 @@ def bid():
                  "autobidID": bid[2],
                  "num": bid[3],
                  "time": bid[4],
+                 "playerName": bid[5],
             }
 
         # 记录自己的出价信息
@@ -720,8 +744,6 @@ def bid():
         autobidAppear = 0
         maxDeleted = 0
 
-        print("[toRemove]", toRemove)
-
         while i < toRemove:
             # 记录中的出价更低，被顶掉
             line = bids[i]
@@ -735,6 +757,7 @@ def bid():
                     autobid = autobids[line["playerID"]]
                     if autobid["price"] > line["price"]:
                         bids.append({"playerID": line["playerID"],
+                                     "playerName": autobid["playerName"],
                                      "price": autobid["price"],
                                      "num": 1,
                                      "source": "autobid"})
@@ -743,7 +766,7 @@ def bid():
                         toRemove += 1
             # 当前出价，计算可以生效多少个
             elif line["source"] == "current":
-                activeNum = max(0, line["num"] - toRemove)
+                activeNum = min(num, max(0, itemNum - i))
             # 预定自动出价也可能被移除
             elif line["source"] == "current":
                 line["source"] = "unavailable"
@@ -757,31 +780,36 @@ def bid():
         if result and result[0][0] is not None:
             auctionNum = result[0][0] + 1
 
+        nowTime = int(time.time())
+
         if activeNum == 0:
             if autobidAppear == 0:
                 # 如果出价完全无效
                 return jsonify({'status': 0, 'success': 0})
             else:
                 # 如果出价有效，但是被自动出价顶掉
-                sql = '''INSERT INTO auction VALUES (%d, %d, %d, %d, %d, 0, 0);''' % (auctionNum, int(playerID), int(treasureID), int(time.time()), price)
+                sql = '''INSERT INTO auction VALUES (%d, %d, %d, %d, %d, 0, 0);''' % (auctionNum, int(playerID), int(treasureID), nowTime, price)
                 cursor.execute(sql)
                 auctionNum += 1
                 # TODO websocket出价
+                broadcast_bid(DungeonID, itemID, playerName, price, nowTime)
         else:
             # 如果出价有效并且没有被顶掉
             for i in range(activeNum):
-                sql = '''INSERT INTO auction VALUES (%d, %d, %d, %d, %d, 1, 0);''' % (auctionNum, int(playerID), int(treasureID), int(time.time()), price)
+                sql = '''INSERT INTO auction VALUES (%d, %d, %d, %d, %d, 1, 0);''' % (auctionNum, int(playerID), int(treasureID), nowTime, price)
                 cursor.execute(sql)
                 auctionNum += 1
                 # TODO websocket出价
+                broadcast_bid(DungeonID, itemID, playerName, price, nowTime)
 
         # 考虑成功的自动出价，为其安排最合适的出价
         for line in bids:
             if line["source"] == "autobid":
-                sql = '''INSERT INTO auction VALUES (%d, %d, %d, %d, %d, 1, 1);''' % (auctionNum, int(line["playerID"]), int(treasureID), int(time.time()), maxDeleted + minimalStep)
+                sql = '''INSERT INTO auction VALUES (%d, %d, %d, %d, %d, 1, 1);''' % (auctionNum, int(line["playerID"]), int(treasureID), nowTime, maxDeleted + minimalStep)
                 cursor.execute(sql)
                 auctionNum += 1
                 # TODO websocket出价
+                broadcast_bid(DungeonID, itemID, playerName, price, nowTime)
 
         # 关闭低于阈值的自动出价
         for playerID in autobids:
@@ -1037,5 +1065,6 @@ if __name__ == '__main__':
 
     app.item_analyser = ItemAnalyser()
     
-    app.run(host='0.0.0.0', port=8030, debug=app.debug, threaded=True)
+    # app.run(host='0.0.0.0', port=8030, debug=app.debug, threaded=True)
+    socketio.run(app, host='0.0.0.0', port=8030, debug=app.debug)
 
