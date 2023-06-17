@@ -278,10 +278,13 @@ def getTreasure():
     try:
         playerName = request.args.get('playerName')
         DungeonID = request.args.get('DungeonID')
+        PlayerToken = request.args.get('PlayerToken')
         if playerName is None:
             return jsonify({'status': 101})
         if DungeonID is None:
             return jsonify({'status': 101})
+        if PlayerToken is None:
+            PlayerToken = ""
     except:
         return jsonify({'status': 100})
 
@@ -300,7 +303,7 @@ def getTreasure():
         map = result[0][0]
 
         # 检验成员权限
-        sql = '''SELECT xinfa FROM player WHERE dungeonID=%d AND playerName="%s";''' % (int(DungeonID), playerName)
+        sql = '''SELECT xinfa FROM player WHERE dungeonID=%d AND playerName="%s" AND playerToken="%s";''' % (int(DungeonID), playerName, PlayerToken)
         cursor.execute(sql)
         result = cursor.fetchall()
         if not result:
@@ -508,10 +511,13 @@ def getAuction():
     try:
         playerName = request.args.get('playerName')
         DungeonID = request.args.get('DungeonID')
+        PlayerToken = request.args.get('PlayerToken')
         if playerName is None:
             return jsonify({'status': 101})
         if DungeonID is None:
             return jsonify({'status': 101})
+        if PlayerToken is None:
+            PlayerToken = ""
     except:
         return jsonify({'status': 100})
 
@@ -536,7 +542,7 @@ def getAuction():
             return jsonify({'status': 210})
 
         # 检验成员权限
-        sql = '''SELECT id, xinfa FROM player WHERE dungeonID=%d AND playerName="%s";''' % (int(DungeonID), playerName)
+        sql = '''SELECT id, xinfa FROM player WHERE dungeonID=%d AND playerName="%s" AND playerToken="%s";''' % (int(DungeonID), playerName, PlayerToken)
         cursor.execute(sql)
         result = cursor.fetchall()
         if not result:
@@ -640,10 +646,13 @@ def bid():
         itemID = int(request.args.get('itemID'))
         price = int(request.args.get('price'))
         num = int(request.args.get('num'))
+        PlayerToken = request.args.get('PlayerToken')
         if playerName is None:
             return jsonify({'status': 101})
         if DungeonID is None:
             return jsonify({'status': 101})
+        if PlayerToken is None:
+            PlayerToken = ""
     except:
         return jsonify({'status': 100})
 
@@ -654,7 +663,7 @@ def bid():
 
     try:
         # 检查副本和玩家是否合法
-        sql = '''SELECT id, xinfa FROM player WHERE dungeonID=%d AND playerName="%s";''' % (int(DungeonID), playerName)
+        sql = '''SELECT id, xinfa FROM player WHERE dungeonID=%d AND playerName="%s" AND playerToken="%s";''' % (int(DungeonID), playerName, PlayerToken)
         cursor.execute(sql)
         result = cursor.fetchall()
         if not result:
@@ -840,10 +849,13 @@ def autobid():
         itemID = int(request.args.get('itemID'))
         price = int(request.args.get('price'))
         num = int(request.args.get('num'))
+        PlayerToken = int(request.args.get('PlayerToken'))
         if playerName is None:
             return jsonify({'status': 101})
         if DungeonID is None:
             return jsonify({'status': 101})
+        if PlayerToken is None:
+            PlayerToken = ""
     except:
         return jsonify({'status': 100})
 
@@ -854,7 +866,7 @@ def autobid():
 
     try:
         # 检查副本和玩家是否合法
-        sql = '''SELECT id, xinfa FROM player WHERE dungeonID=%d AND playerName="%s";''' % (int(DungeonID), playerName)
+        sql = '''SELECT id, xinfa FROM player WHERE dungeonID=%d AND playerName="%s" AND playerToken="%s";''' % (int(DungeonID), playerName, PlayerToken)
         cursor.execute(sql)
         result = cursor.fetchall()
         if not result:
@@ -1046,13 +1058,15 @@ def manage():
 def treasure():
     playerName = request.args.get('playerName')
     DungeonID = request.args.get('DungeonID')
-    return render_template("treasure.html", ver=EDITION, playername=playerName, dungeonid=DungeonID)
+    PlayerToken = request.args.get('PlayerToken')
+    return render_template("treasure.html", ver=EDITION, playername=playerName, dungeonid=DungeonID, playertoken=PlayerToken)
 
 @app.route('/auction.html', methods=['GET'])
 def auction():
     playerName = request.args.get('playerName')
     DungeonID = request.args.get('DungeonID')
-    return render_template("auction.html", ver=EDITION, playername=playerName, dungeonid=DungeonID)
+    PlayerToken = request.args.get('PlayerToken')
+    return render_template("auction.html", ver=EDITION, playername=playerName, dungeonid=DungeonID, playertoken=PlayerToken)
 
 if __name__ == '__main__':
     import signal

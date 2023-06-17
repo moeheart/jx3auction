@@ -90,7 +90,7 @@ function bid(itemID){
     console.log(itemID);
     var price = $(`#bidnum-${itemID}`).val();
     console.log(price);
-    var str = `/bid?playerName=${PLAYER_NAME}&DungeonID=${DUNGEON_ID}&itemID=${itemID}&price=${price}&num=1`;
+    var str = `/bid?playerName=${PLAYER_NAME}&DungeonID=${DUNGEON_ID}&itemID=${itemID}&price=${price}&num=1&PlayerToken=${PLAYER_TOKEN}`;
     console.log(str);
     $.get(str, function(result){
         if (result["status"] != 0) {
@@ -209,8 +209,12 @@ function refresh_page(){
 //    $.get(`/getTreasure?DungeonID=${DUNGEON_ID}&playerName=${PLAYER_NAME}`, function(result){
 //        analyse_treasure(result);
 //    });
-    $.get(`/getAuction?DungeonID=${DUNGEON_ID}&playerName=${PLAYER_NAME}`, function(result){
-        analyse_auction(result);
+    $.get(`/getAuction?DungeonID=${DUNGEON_ID}&playerName=${PLAYER_NAME}&PlayerToken=${PLAYER_TOKEN}`, function(result){
+        if (result["status"] != 0) {
+            error(result["status"]);
+        } else {
+            analyse_auction(result);
+        }
     });
 }
 

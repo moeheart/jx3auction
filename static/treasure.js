@@ -119,8 +119,12 @@ function item_out(e){
 }
 
 function refresh_page(){
-    $.get(`/getTreasure?DungeonID=${DUNGEON_ID}&playerName=${PLAYER_NAME}`, function(result){
-        analyse_treasure(result);
+    $.get(`/getTreasure?DungeonID=${DUNGEON_ID}&playerName=${PLAYER_NAME}&PlayerToken=${PLAYER_TOKEN}`, function(result){
+        if (result["status"] != 0) {
+            error(result["status"]);
+        } else {
+            analyse_treasure(result);
+        }
     });
 }
 
