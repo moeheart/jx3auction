@@ -3,7 +3,7 @@ from flask import Flask, render_template, url_for, request, redirect, session, m
 from flask import request    
 from flask import make_response,Response
 from flask_cors import CORS
-from flask_socketio import SocketIO, emit
+from flask_socketio import SocketIO, emit, join_room, leave_room
 
 import urllib
 import json
@@ -618,13 +618,20 @@ def getAuction():
 
     return jsonify({'status': 0, 'treasure': treasureRes, 'xinfa': xinfa})
 
-@socketio.on('connect', namespace='/socket_connect')
+@socketio.on('connect', namespace='/auction_info')
 def connect_msg():
     print('client connected.')
 
-@socketio.on('disconnect', namespace='/socket_connect')
+@socketio.on('disconnect', namespace='/auction_info')
 def disconnect_msg():
     print('client disconnected.')
+
+@socketio.on('join', namespace='/auction_info')
+def on_join(data):
+    username = data['username']
+    channel = str(data['channel'])
+    join_room(channel)
+    print(username + ' has entered the room ' + channel)
 
 # @socketio.on('my_event', namespace='/socket_connect')
 # def mtest_message(message):
@@ -633,7 +640,7 @@ def disconnect_msg():
 
 def broadcast_bid(dungeonID, itemID, player, price, nowTime):
     data = {"type": "bid", "itemID": itemID, "player": player, "price": price, "time": nowTime}
-    socketio.emit('bid', data, namespace='/socket_connect')
+    socketio.emit('bid', data, namespace='/auction_info', room=str(dungeonID))
     pass
 
 @app.route('/bid', methods=['GET'])
@@ -754,7 +761,7 @@ def bid():
         autobidAppear = 0
         maxDeleted = 0
 
-        while i < toRemove:
+        while nowNum < toRemove:
             # 记录中的出价更低，被顶掉
             line = bids[i]
             print("[line]", line)
@@ -776,9 +783,9 @@ def bid():
                         toRemove += 1
             # 当前出价，计算可以生效多少个
             elif line["source"] == "current":
-                activeNum = min(num, max(0, itemNum - i))
+                activeNum = max(0, num - (toRemove - i))
             # 预定自动出价也可能被移除
-            elif line["source"] == "current":
+            elif line["source"] == "autobid":
                 line["source"] = "unavailable"
             i += 1
             nowNum += line["num"]

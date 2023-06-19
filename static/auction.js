@@ -20,8 +20,15 @@ AUCTION_BY_ID = {};
 //}
 
 $(document).ready(function () {
-    namespace = '/socket_connect';
+    namespace = '/auction_info';
     var socket = io.connect(location.protocol + "//" + document.domain + ":" + location.port + namespace);
+
+      socket.on('connect', () => {
+
+        // Automatically connect to general channel
+        socket.emit('join',{"channel": DUNGEON_ID, "username":PLAYER_NAME});
+      });
+
     socket.on('bid', function(res) {
         console.log("receive from socket");
         console.log(res);
