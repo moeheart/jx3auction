@@ -18,6 +18,7 @@
 <!--	与treasure共用同一个css-->
     <link rel="stylesheet" type="text/css" href="/static/treasure.css?v={{ver}}" />
     <link rel="stylesheet" type="text/css" href="/static/overall.css?v={{ver}}" />
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
 
 </head>
 
@@ -61,7 +62,7 @@
 			  <div class="card-body">
 				<ul class="list-group">
 					<li class="list-group-item accordion" v-for="item in AUCTION_BY_BOSS[boss]" :id='`item-${item["itemID"]}`'>
-						<div data-toggle="collapse" :data-target='`#auction-${item["itemID"]}`'>
+						<div :id='`subcollapse-${item["itemID"]}`' data-toggle="collapse" :data-target='`#auction-${item["itemID"]}`'>
 							<img class="item-icon" :src="`https://icon.jx3box.com/icon/${item['property']['icon']}.png`">
 							<div class="item-name">
 								<p class="item-text" :itemID="`${item['itemID']}`" v-on:mouseOver="item_over" v-on:mouseOut="item_out" :class="'text-'+item['property']['quality']"> [[ item["name"] ]] </p>
@@ -69,16 +70,20 @@
 							<div class="item-sketch">
 								<p class="item-sketch-text" :itemID="`${item['itemID']}`"> [[ getSketch(item) ]] </p>
 							</div>
+							<div class="item-attrib">
+								<i :id='`bag-${item["itemID"]}`' class="bi bi-bag-plus hidden"></i>
+								<i :id='`sync-${item["itemID"]}`' class="bi bi-shuffle hidden"></i>
+							</div>
 						</div>
 
 						<div class="collapse bid-container mt-3" :id='`auction-${item["itemID"]}`'>
 							<div class="container">
 							  <div class="row">
-									<p class="d-inline col-md-1 text-primary">起拍：</p>
+									<p class="d-inline col-md-1 text-primary">起拍</p>
 									<p class="d-inline col-md-2 font-weight-bold" :id='`base-price-${item["itemID"]}`' class="">[[ item['basePrice'] ]]</p>
-									<p class="d-inline text-primary col-md-1" >单次：</p>
+									<p class="d-inline text-primary col-md-1" >单次</p>
 									<p class="d-inline font-weight-bold col-md-2" :id='`single-price-${item["itemID"]}`' class="">[[ item['minimalStep'] ]]</p>
-									<p class="d-inline text-danger col-md-1">当前：</p>
+									<p class="d-inline text-danger col-md-1">当前</p>
 									<p class="d-inline col-md-3" :id='`current-player-${item["itemID"]}`' class="">[[ item['currentOwner'] ]]</p>
 									<p class="d-inline font-weight-bold col-md-2" :id='`current-price-${item["itemID"]}`' class="">[[ item['currentPrice'] ]]</p>
 							  </div>

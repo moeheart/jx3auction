@@ -49,6 +49,94 @@ $(document).ready(function () {
     });
 });
 
+function show_attrib(){
+    var group_content = {};
+    var simul_content = {};
+    // 展示打包拍卖、同步拍卖等特殊情况
+    for (var i in AUCTION_BY_ID) {
+        var item = AUCTION_BY_ID[i];
+        // 判断打包拍卖
+        if (item["groupID"] != -1 && item["groupID"] != i) {
+            // 添加打包拍卖的显示
+            console.log("testA");
+            console.log(item);
+            var obj = $(`#bag-${i}`);
+            obj.removeClass("hidden");
+            obj.attr("data-toggle", "tooltip");
+            obj.attr("data-placement", "top");
+            obj.attr("title", "这件物品是打包拍卖的从属物品。\n只有赢得主要物品的拍卖才能获取这件物品，点击前往对应的主要物品。");
+            $(`#item-${i}`).addClass("disable-color");
+            $(`#item-${i}`).click(item["groupID"], function (event) {
+                console.log(event);
+                window.location.href = `#item-${event.data}`;
+            });
+            $(`#subcollapse-${i}`).removeAttr("data-toggle");
+            // 为主要物品增加内容
+            if (!(item["groupID"] in group_content)) {
+                group_content[item["groupID"]] = {}
+            }
+            if (!(item["name"] in group_content[item["groupID"]])) {
+                group_content[item["groupID"]][item["name"]] = 1;
+            } else {
+                group_content[item["groupID"]][item["name"]] += 1;
+            }
+        }
+        // 判断同步拍卖
+        if (item["simulID"] != -1 && item["simulID"] != i) {
+            // 添加同步拍卖的显示
+            console.log("testB");
+            console.log(item);
+            var obj = $(`#sync-${i}`);
+            obj.removeClass("hidden");
+            obj.attr("data-toggle", "tooltip");
+            obj.attr("data-placement", "top");
+            obj.attr("title", "这件物品是同步拍卖的从属物品。\n拍卖在主要物品中进行，复数个最高出价都有效，点击前往对应的主要物品。");
+            $(`#item-${i}`).addClass("disable-color");
+            $(`#item-${i}`).click(item["simulID"], function (event) {
+                console.log(event);
+                window.location.href = `#item-${event.data}`;
+            });
+            $(`#subcollapse-${i}`).removeAttr("data-toggle");
+            // 为主要物品增加内容
+            if (!(item["simulID"] in simul_content)) {
+                simul_content[item["simulID"]] = 1;
+            }
+            simul_content[item["simulID"]] += 1;
+        }
+    }
+    // 再扫一次，为主要物品添加描述
+    for (var i in AUCTION_BY_ID) {
+        var item = AUCTION_BY_ID[i];
+        // 判断打包拍卖
+        if (item["groupID"] == i) {
+            // 添加打包拍卖的显示
+            console.log("testC");
+            console.log(item);
+            var obj = $(`#bag-${i}`);
+            obj.removeClass("hidden");
+            obj.attr("data-toggle", "tooltip");
+            obj.attr("data-placement", "top");
+            var resArray = []
+            for (var key in group_content[i]) {
+                resArray.push("[" + key + "]*" + group_content[i][key])
+            }
+            var resText = resArray.join(",");
+            obj.attr("title", "这件物品是打包拍卖的主要物品。\n赢得这件物品的拍卖时，还会额外获得：\n" + resText);
+        }
+        // 判断同步拍卖
+        if (item["simulID"] == i) {
+            // 添加同步拍卖的显示
+            console.log("testD");
+            console.log(item);
+            var obj = $(`#sync-${i}`);
+            obj.removeClass("hidden");
+            obj.attr("data-toggle", "tooltip");
+            obj.attr("data-placement", "top");
+            obj.attr("title", "这件物品是同步拍卖的主要物品。\n这件物品的" + simul_content[i] + "个最高出价都有效，每个出价都会分得一件。");
+        }
+    }
+}
+
 function analyse_auction(auctionInfo){
     console.log(auctionInfo);
     var res = auctionInfo["treasure"];
@@ -67,6 +155,9 @@ function analyse_auction(auctionInfo){
     console.log(AUCTION_BY_BOSS);
     V_treasure_list.loadAuction();
     PLAYER_XINFA = auctionInfo["xinfa"];
+
+    setTimeout("show_attrib()", 500);
+
 }
 
 ALERT_VISIBLE = [0, 0, 0, 0, 0];
