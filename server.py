@@ -572,7 +572,7 @@ def getAuction():
             currentPrice = []
             currentOwner = []
             autobid = -1
-            if groupID == -1 and simulID == -1:
+            if (groupID == -1 or groupID == itemID) and (simulID == -1 or simulID == simulID):
                 sql = '''SELECT playerID, time, price, effective, playerName FROM auction, player WHERE treasureID=%d AND playerID=player.id;''' % int(treasureID)
                 cursor.execute(sql)
                 result = cursor.fetchall()

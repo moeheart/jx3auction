@@ -84,8 +84,8 @@
 									<p class="d-inline text-primary col-md-1" >单次</p>
 									<p class="d-inline font-weight-bold col-md-2" :id='`single-price-${item["itemID"]}`' class="">[[ item['minimalStep'] ]]</p>
 									<p class="d-inline text-danger col-md-1">当前</p>
-									<p class="d-inline col-md-3" :id='`current-player-${item["itemID"]}`' class="">[[ item['currentOwner'] ]]</p>
-									<p class="d-inline font-weight-bold col-md-2" :id='`current-price-${item["itemID"]}`' class="">[[ item['currentPrice'] ]]</p>
+									<p class="d-inline col-md-3" :id='`current-player-${item["itemID"]}`' class="">[[ item['currentOwner'] | ownerFormat ]]</p>
+									<p class="d-inline font-weight-bold col-md-2" :id='`current-price-${item["itemID"]}`' class="">[[ item['currentPrice'] | priceFormat ]]</p>
 							  </div>
 							</div>
 							<div>
@@ -94,14 +94,15 @@
 									<p> </p>
 								</div>
 								<div class="col-md-2">
-          							<button type="submit" @click.prevent='`bid_low(${item["itemID"]})`' class="btn btn-info">填入最低</button>
+          							<button type="submit" @click.prevent='bid_low(item["itemID"])' class="btn btn-info">填入最低</button>
 								</div>
 								<input class="col-md-2" :id='`bidnum-${item["itemID"]}`'>
 								<div class="col-md-2">
 									<button type="submit" @click.prevent='bid(item["itemID"])' class="btn btn-primary">出价</button>
 								</div>
 								<div class="col-md-2">
-									<button type="submit" @click.prevent='`autobid(${item["itemID"]})`' class="btn btn-danger">自动出价</button>
+									<button type="submit" @click.prevent='autobid(item["itemID"])' class="btn btn-danger" data-toggle="tooltip" data-placement="top" title="自动以最小间隔加价，直到达到填入的价格为止。在此之后仍可继续出价。
+				暂未实装，要期待更美好的未来！">自动出价</button>
 								</div>
 							  </div>
 							</div>

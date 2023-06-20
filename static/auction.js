@@ -32,34 +32,47 @@ $(document).ready(function () {
     socket.on('bid', function(res) {
         console.log("receive from socket");
         console.log(res);
-        var bids = AUCTION_BY_ID[res["itemID"]]["bids"];
-        // console.log(bids);
+        // 添加这次更新的内容
+        var item = AUCTION_BY_ID[res["itemID"]];
+        var bids = item["bids"];
         bids.push({
             "player": res["player"],
             "price": res["price"],
             "time": res["time"],
         })
         bids.sort((x, y) => {return -x["price"] + x["time"]/1e+10 + y["price"] - y["time"]/1e+10})
+        var itemNum = 1;
+        if (item["simulID"] != -1) {
+            itemNum = SIMUL_CONTENT[item["simulID"]];
+        }
+        // 重新计算这次拍卖的最高价，与最低出价
+        item["currentOwner"] = [];
+        item["currentPrice"] = [];
+        item["lowestPrice"] = item["basePrice"];
         for (var i in bids) {
             bids[i]["bidID"] = i;
+            if (i < itemNum) {
+                item["currentOwner"].push(bids[i]["player"])
+                item["currentPrice"].push(bids[i]["price"])
+                if (i == itemNum - 1) {
+                    item["lowestPrice"] = item["basePrice"] + item["minimalStep"];
+                }
+            }
         }
         V_treasure_list.reloadBids();
         // console.log(bids);
-
     });
 });
 
 function show_attrib(){
     var group_content = {};
-    var simul_content = {};
+    SIMUL_CONTENT = {};
     // 展示打包拍卖、同步拍卖等特殊情况
     for (var i in AUCTION_BY_ID) {
         var item = AUCTION_BY_ID[i];
         // 判断打包拍卖
         if (item["groupID"] != -1 && item["groupID"] != i) {
             // 添加打包拍卖的显示
-            console.log("testA");
-            console.log(item);
             var obj = $(`#bag-${i}`);
             obj.removeClass("hidden");
             obj.attr("data-toggle", "tooltip");
@@ -67,7 +80,6 @@ function show_attrib(){
             obj.attr("title", "这件物品是打包拍卖的从属物品。\n只有赢得主要物品的拍卖才能获取这件物品，点击前往对应的主要物品。");
             $(`#item-${i}`).addClass("disable-color");
             $(`#item-${i}`).click(item["groupID"], function (event) {
-                console.log(event);
                 window.location.href = `#item-${event.data}`;
             });
             $(`#subcollapse-${i}`).removeAttr("data-toggle");
@@ -84,8 +96,6 @@ function show_attrib(){
         // 判断同步拍卖
         if (item["simulID"] != -1 && item["simulID"] != i) {
             // 添加同步拍卖的显示
-            console.log("testB");
-            console.log(item);
             var obj = $(`#sync-${i}`);
             obj.removeClass("hidden");
             obj.attr("data-toggle", "tooltip");
@@ -98,10 +108,10 @@ function show_attrib(){
             });
             $(`#subcollapse-${i}`).removeAttr("data-toggle");
             // 为主要物品增加内容
-            if (!(item["simulID"] in simul_content)) {
-                simul_content[item["simulID"]] = 1;
+            if (!(item["simulID"] in SIMUL_CONTENT)) {
+                SIMUL_CONTENT[item["simulID"]] = 1;
             }
-            simul_content[item["simulID"]] += 1;
+            SIMUL_CONTENT[item["simulID"]] += 1;
         }
     }
     // 再扫一次，为主要物品添加描述
@@ -110,8 +120,6 @@ function show_attrib(){
         // 判断打包拍卖
         if (item["groupID"] == i) {
             // 添加打包拍卖的显示
-            console.log("testC");
-            console.log(item);
             var obj = $(`#bag-${i}`);
             obj.removeClass("hidden");
             obj.attr("data-toggle", "tooltip");
@@ -126,13 +134,11 @@ function show_attrib(){
         // 判断同步拍卖
         if (item["simulID"] == i) {
             // 添加同步拍卖的显示
-            console.log("testD");
-            console.log(item);
             var obj = $(`#sync-${i}`);
             obj.removeClass("hidden");
             obj.attr("data-toggle", "tooltip");
             obj.attr("data-placement", "top");
-            obj.attr("title", "这件物品是同步拍卖的主要物品。\n这件物品的" + simul_content[i] + "个最高出价都有效，每个出价都会分得一件。");
+            obj.attr("title", "这件物品是同步拍卖的主要物品。\n这件物品的" + SIMUL_CONTENT[i] + "个最高出价都有效，每个出价都会分得一件。");
         }
     }
 }
@@ -185,11 +191,8 @@ function auto_bid(itemID){
 }
 
 function bid(itemID){
-    console.log(itemID);
     var price = $(`#bidnum-${itemID}`).val();
-    console.log(price);
     var str = `/bid?playerName=${PLAYER_NAME}&DungeonID=${DUNGEON_ID}&itemID=${itemID}&price=${price}&num=1&PlayerToken=${PLAYER_TOKEN}`;
-    console.log(str);
     $.get(str, function(result){
         if (result["status"] != 0) {
             error(result["status"]);
@@ -201,7 +204,21 @@ function bid(itemID){
 }
 
 function bid_low(itemID){
-
+    var item = AUCTION_BY_ID[itemID];
+    var bids = item["bids"];
+    var lowestPrice = item["basePrice"];
+    var itemNum = 1;
+    if (item["simulID"] != -1) {
+        itemNum = SIMUL_CONTENT[item["simulID"]];
+    }
+    for (var i in bids) {
+        if (i < itemNum) {
+            if (i == itemNum - 1) {
+                lowestPrice = bids[i]["price"] + item["minimalStep"];
+            }
+        }
+    }
+    $(`#bidnum-${itemID}`).val(lowestPrice);
 }
 
 function render_desc(desc_id, property){
@@ -416,6 +433,16 @@ V_filter = new Vue({
     }
 });
 
+Vue.filter('ownerFormat', function(originVal){
+    if (originVal.length == 0) return "-";
+    else return originVal.join(",");
+});
+
+Vue.filter('priceFormat', function(originVal){
+    if (originVal.length == 0) return "0";
+    else return originVal.join(",");
+});
+
 Vue.filter('dateFormat', function(originVal){
     const dt = new Date(originVal * 1000);
     const y = dt.getFullYear();
@@ -425,7 +452,7 @@ Vue.filter('dateFormat', function(originVal){
     const m = (dt.getMinutes() + '').padStart(2, '0');
     const s = (dt.getSeconds() + '').padStart(2, '0');
     return `${y}-${M}-${d} ${h}:${m}:${s}`;
-})
+});
 
 V_alert = new Vue({
   el: '#float-alert',
