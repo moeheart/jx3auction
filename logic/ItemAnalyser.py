@@ -725,7 +725,7 @@ class ItemAnalyser():
                             self.item[itemid]["quality"] = "3"
                         elif "断流心岩" in name or "天堑奇" in name:
                             self.item[itemid]["class"] = "enchant"
-                        elif name in ["上品茶饼", "维峰丹"]:
+                        elif name in ["上品茶饼", "维峰丹", "上品茶饼·兑"]:
                             self.item[itemid]["class"] = "character"
                         elif "陨铁" in name:
                             self.item[itemid]["class"] = "xiaotie"
