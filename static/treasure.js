@@ -128,7 +128,9 @@ function refresh_page(){
     });
 }
 
-refresh_page();
+$(document).ready(function () {
+    refresh_page();
+});
 
 V_treasure_list = new Vue({
     el: '#treasure-list',

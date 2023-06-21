@@ -161,5 +161,71 @@ function hideAlert(i){
     ALERT_VISIBLE[i-1] = 0;
 }
 
+PLAYER_LIST = {}
+
+function refresh_player(){
+    $.get(`/getTeam?DungeonID=${DUNGEON_ID}`, function(result){
+        console.log(result);
+        if (result["status"] != 0) {
+            error(result["status"]);
+        } else {
+            PLAYER_LIST = {};
+            for (var i = 1; i <= 25; i++) {
+                PLAYER_LIST[i] = {"playerName": "", "xinfa": ""}
+            }
+            for (var player of result["team"]) {
+                var pos = player["position"];
+                PLAYER_LIST[pos] = player;
+            }
+            V_player.load();
+        }
+    });
+}
+
+KICK_TARGET = 0;
+
+function kick() {
+    $.get(`/kickPlayer?DungeonID=${DUNGEON_ID}&AdminToken=${ADMIN_TOKEN}&position=${KICK_TARGET}`, function(result){
+        console.log(result);
+        if (result["status"] != 0) {
+            error(result["status"]);
+        } else {
+            setTimeout("refresh_player()", 500);
+        }
+    });
+}
+
+function start_kick(pos){
+    // 尝试踢人，弹出窗口确认一下
+    KICK_TARGET = pos;
+    V_player.kickTarget = PLAYER_LIST[pos]["playerName"];
+}
+
+$(document).ready(function () {
+    for (var i = 1; i <= 25; i++) {
+        PLAYER_LIST[i] = {"playerName": "", "xinfa": ""}
+    }
+    refresh_player();
+});
+
+V_player = new Vue({
+  el: '#player-list',
+  delimiters: ['[[',']]'],
+  data: {
+    reload_player: false,
+    kickTarget: "",
+  },
+  methods: {
+    load: function(){
+        this.reload_player = false;
+        this.$nextTick(function() {
+            this.reload_player = true;
+        })
+    },
+    reload: function(){
+        refresh_player();
+    },
+  }
+});
 
 

@@ -197,6 +197,68 @@ def getTeam():
     return jsonify({'status': 0, 'team': team})
 
 
+@app.route('/kickPlayer', methods=['GET'])
+def kickPlayer():
+    # http://127.0.0.1:8009/kickPlayer?DungeonID=2&AdminToken=628546&position=24
+    try:
+        AdminToken = request.args.get('AdminToken')
+        DungeonID = request.args.get('DungeonID')
+        position = request.args.get('position')
+        if DungeonID is None:
+            return jsonify({'status': 101})
+        if position is None:
+            return jsonify({'status': 101})
+        if int(position) < 1 or int(position) > 25:
+            return jsonify({'status': 103})
+        if AdminToken is None:
+            return jsonify({'status': 101})
+    except:
+        return jsonify({'status': 100})
+
+    name = config.get('jx3auction', 'username')
+    pwd = config.get('jx3auction', 'password')
+    db = pymysql.connect(host=IP, user=name, password=pwd, database="jx3auction", port=3306, charset='utf8mb4')
+    cursor = db.cursor()
+
+    try:
+        # 检验团长权限
+        sql = '''SELECT id FROM dungeon WHERE id=%d AND adminToken="%s";''' % (int(DungeonID), AdminToken)
+        cursor.execute(sql)
+        result = cursor.fetchall()
+        if not result:
+            return jsonify({'status': 202})
+
+        # 进行查询
+        sql = '''SELECT id FROM player WHERE position=%d AND dungeonID=%d;''' % (int(position), int(DungeonID))
+        cursor.execute(sql)
+        result = cursor.fetchall()
+
+        playerID = result[0][0]
+        print("[Delete] id=", playerID, position)
+
+        sql = '''DELETE FROM auction WHERE playerID=%d;''' % (playerID)
+        cursor.execute(sql)
+        result = cursor.fetchall()
+
+        sql = '''DELETE FROM autobid WHERE playerID=%d;''' % (playerID)
+        cursor.execute(sql)
+        result = cursor.fetchall()
+
+        sql = '''DELETE FROM player WHERE id=%d;''' % (playerID)
+        cursor.execute(sql)
+        result = cursor.fetchall()
+
+    except Exception as e:
+        traceback.print_exc()
+        return jsonify({'status': 200})
+
+    finally:
+        db.commit()
+        db.close()
+
+    return jsonify({'status': 0})
+
+
 @app.route('/setTreasure', methods=['GET'])
 def setTreasure():
     # http://127.0.0.1:8009/setTreasure?DungeonID=2&AdminToken=628546&boss=%E5%BC%A0%E6%99%AF%E8%B6%85&treasure=[%E6%B8%85%E8%95%8A%E5%9D%A0][%E6%8F%BD%E6%B1%9F%E6%8A%A4%E8%85%95%C2%B7%E4%B8%87%E8%8A%B1][%E4%BA%94%E8%A1%8C%E7%9F%B3%EF%BC%88%E5%85%AD%E7%BA%A7%EF%BC%89]

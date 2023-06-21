@@ -16,6 +16,7 @@
 
     <link rel="stylesheet" type="text/css" href="/static/manage.css?v={{ver}}" />
     <link rel="stylesheet" type="text/css" href="/static/overall.css?v={{ver}}" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
 </head>
 
 <body>
@@ -179,6 +180,54 @@
           <p> </p>
         </div>
     </div>
+
+    <div class="container">
+        <div class="p-2 bg-info rounded mt-3">
+            <h5>团队情况 </h5>
+        </div>
+        <div class="container" id="player-list" v-if="reload_player">
+            <div class="container" v-for="row in 5">
+                <div class="row">
+                    <div class="col-md-1"> </div>
+                    <div class="col-md-2 border" v-for="line in 5">
+                        <div :id="`player-${line * 5 + row - 5}`">
+                            <div>
+                                <div :id="`player-${line * 5 + row - 5}-xinfa`" class="d-inline"> [[ PLAYER_LIST[line * 5 + row - 5]["xinfa"] ]] </div>
+                                <i :id='`player-${line * 5 + row - 5}-kick`' class="bi bi-trash float-right hidden" data-toggle="modal" data-target="#kick-modal" @click.prevent="start_kick(line * 5 + row - 5)"></i>
+                            </div>
+                            <h5 :id="`player-${line * 5 + row - 5}-name`" class=""> [[ PLAYER_LIST[line * 5 + row - 5]["playerName"] ]] </h5>
+                        </div>
+                    </div>
+                    <div class="col-md-1"> </div>
+                </div>
+            </div>
+            <button type="submit" @click.prevent="reload" class="btn btn-primary">刷新面板</button>
+            <!-- Modal -->
+            <div class="modal fade" id="kick-modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+              <div class="modal-dialog">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">开除队友</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                  <div class="modal-body">
+                    确定要开除 <p id="kick-target" class="d-inline"> [[kickTarget]] </p> 吗？这会移除其角色信息及所有的出价信息。 <br>
+                    部分物品在移除出价信息后可能会错乱，需要单独重置物品的出价。（暂未实装）
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">放弃</button>
+                    <button type="button" class="btn btn-primary" data-dismiss="modal" @click.prevent="kick()">开除</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+        </div>
+    </div>
+
+	<div class="container bottom">
+	</div>
 
     <div id="float-alert" class="container float-alert">
         <div class="row">
