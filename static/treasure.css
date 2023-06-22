@@ -11,19 +11,25 @@
 .item-icon{
     width: 30px;
     height: 30px;
-    display: inline-block;
     margin-right: 20px;
 }
-
-.item-name, .item-sketch, .item-attrib{
-    display: inline-block;
-}
-
 .item-name{
     width: 180px;
 }
 
 .item-sketch{
+    width: 180px;
+}
+
+.item-attrib{
+    width: 120px;
+}
+
+.item-owner{
+    width: 120px;
+}
+
+.item-price{
     width: 120px;
 }
 
@@ -41,6 +47,18 @@
     padding: 10px;
     display: none;
     width: 300px;
+}
+
+.favorite{
+    background-color: rgb(255, 128, 128);
+}
+
+.favorite.owner{
+    background-color: rgb(255, 255, 128);
+}
+
+.available-bid{
+    background-color: rgb(128, 255, 128);
 }
 
 .bid-line{

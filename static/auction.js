@@ -1,6 +1,8 @@
 
 AUCTION_BY_BOSS = {};
 AUCTION_BY_ID = {};
+ITEM_OPEN = {};
+CURRENT_ID = -1;
 
 //function analyse_treasure(treasure){
 //    console.log(treasure);
@@ -57,19 +59,32 @@ $(document).ready(function () {
                 if (i == itemNum - 1) {
                     item["lowestPrice"] = item["basePrice"] + item["minimalStep"];
                 }
+                bids[i]["available"] = 1;
+            } else {
+                bids[i]["available"] = 0;
             }
         }
+        if (res["player"] == PLAYER_NAME && FAVORITE_ITEM[res["itemID"]] == 0) {
+            activate_favorite(res["itemID"], 0);
+        }
+        if (item["currentOwner"].indexOf(PLAYER_NAME) != -1) {
+            $(`#item-${res["itemID"]}`).addClass("owner");
+        } else {
+            $(`#item-${res["itemID"]}`).removeClass("owner");
+        }
         V_treasure_list.reloadBids();
-        // console.log(bids);
     });
 });
 
 function show_attrib(){
     var group_content = {};
     SIMUL_CONTENT = {};
+    FAVORITE_ITEM = {};
+    ITEM_OPEN = {};
     // 展示打包拍卖、同步拍卖等特殊情况
     for (var i in AUCTION_BY_ID) {
         var item = AUCTION_BY_ID[i];
+        ITEM_OPEN[i] = 1;
         // 判断打包拍卖
         if (item["groupID"] != -1 && item["groupID"] != i) {
             // 添加打包拍卖的显示
@@ -92,6 +107,7 @@ function show_attrib(){
             } else {
                 group_content[item["groupID"]][item["name"]] += 1;
             }
+            ITEM_OPEN[i] = 0;
         }
         // 判断同步拍卖
         if (item["simulID"] != -1 && item["simulID"] != i) {
@@ -112,9 +128,10 @@ function show_attrib(){
                 SIMUL_CONTENT[item["simulID"]] = 1;
             }
             SIMUL_CONTENT[item["simulID"]] += 1;
+            ITEM_OPEN[i] = 0;
         }
     }
-    // 再扫一次，为主要物品添加描述
+    // 展示打包拍卖、同步拍卖的主要物品
     for (var i in AUCTION_BY_ID) {
         var item = AUCTION_BY_ID[i];
         // 判断打包拍卖
@@ -141,6 +158,58 @@ function show_attrib(){
             obj.attr("title", "这件物品是同步拍卖的主要物品。\n这件物品的" + SIMUL_CONTENT[i] + "个最高出价都有效，每个出价都会分得一件。");
         }
     }
+    // 计算是否在初始时就处于收藏状态与拥有状态
+    for (var i in AUCTION_BY_ID) {
+        FAVORITE_ITEM[i] = 0;
+        var item = AUCTION_BY_ID[i];
+        var itemNum = 1;
+        if (item["simulID"] != -1) {
+            itemNum = SIMUL_CONTENT[item["simulID"]];
+        }
+        for (var j in item["bids"]) {
+            var bid = item["bids"][j];
+            if (bid["player"] == PLAYER_NAME) {
+                FAVORITE_ITEM[i] = 1;
+                activate_favorite(i, 0);
+            }
+            if (j < itemNum) {
+                bid["available"] = 1;
+                $(`#bid-${i}-${j}`).addClass("available-bid");
+            } else {
+                $(`#bid-${i}-${j}`).removeClass("available-bid");
+            }
+        }
+        if (item["currentOwner"].indexOf(PLAYER_NAME) != -1) {
+            $(`#item-${i}`).addClass("owner");
+        }
+    }
+}
+
+function activate_favorite(itemID, isPress){
+    $(`#item-${itemID}`).addClass("favorite");
+    if (isPress == 0) {
+        $(`#favorite-${itemID}`).addClass("active");
+        $(`#favorite-${itemID}`).attr("aria-pressed", "true");
+    }
+}
+
+function deactivate_favorite(itemID, isPress){
+    $(`#item-${itemID}`).removeClass("favorite");
+    if (isPress == 0) {
+        $(`#favorite-${itemID}`).removeClass("active");
+        $(`#favorite-${itemID}`).attr("aria-pressed", "false");
+    }
+}
+
+function favorite(itemID) {
+    // 切换收藏状态，也即同时处理开/关两种情况。
+    if (FAVORITE_ITEM[itemID] == 0) {
+        FAVORITE_ITEM[itemID] = 1;
+        activate_favorite(itemID, 1);
+    } else {
+        FAVORITE_ITEM[itemID] = 0;
+        deactivate_favorite(itemID, 1);
+    }
 }
 
 function analyse_auction(auctionInfo){
@@ -163,7 +232,6 @@ function analyse_auction(auctionInfo){
     PLAYER_XINFA = auctionInfo["xinfa"];
 
     setTimeout("show_attrib()", 500);
-
 }
 
 ALERT_VISIBLE = [0, 0, 0, 0, 0];
@@ -190,8 +258,18 @@ function auto_bid(itemID){
 
 }
 
-function bid(itemID){
+function bid(itemID, ensure=0){
+    var lowestPrice = get_lowest_price(itemID);
     var price = $(`#bidnum-${itemID}`).val();
+    if (price < lowestPrice) {
+        error(901);
+        return;
+    } else if (price >= 10 * lowestPrice && ensure == 0) {
+        CURRENT_ID = itemID;
+        $('#bid-verify-num').html(price);
+        $('#bid-modal').modal();
+        return;
+    }
     var str = `/bid?playerName=${PLAYER_NAME}&DungeonID=${DUNGEON_ID}&itemID=${itemID}&price=${price}&num=1&PlayerToken=${PLAYER_TOKEN}`;
     $.get(str, function(result){
         if (result["status"] != 0) {
@@ -203,7 +281,11 @@ function bid(itemID){
     });
 }
 
-function bid_low(itemID){
+function verify_bid() {
+    bid(CURRENT_ID, 1);
+}
+
+function get_lowest_price(itemID){
     var item = AUCTION_BY_ID[itemID];
     var bids = item["bids"];
     var lowestPrice = item["basePrice"];
@@ -218,6 +300,11 @@ function bid_low(itemID){
             }
         }
     }
+    return lowestPrice;
+}
+
+function bid_low(itemID){
+    var lowestPrice = get_lowest_price(itemID);
     $(`#bidnum-${itemID}`).val(lowestPrice);
 }
 
@@ -413,6 +500,12 @@ function reload_filter(){
                 display = 0;
             }
         }
+        if (V_filter.favoriteOnly && FAVORITE_ITEM[id] == 0) {
+            display = 0;
+        }
+        if (V_filter.openOnly && ITEM_OPEN[id] == 0) {
+            display = 0;
+        }
         if (display == 1) {
             $(`#item-${id}`).removeClass("d-none");
         } else  {
@@ -428,6 +521,8 @@ V_filter = new Vue({
         ignoreMaterials: false,
         schoolOnly: false,
         xinfaOnly: false,
+        favoriteOnly: false,
+        openOnly: false,
     },
     methods: {
     }
