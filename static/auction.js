@@ -65,6 +65,7 @@ $(document).ready(function () {
             }
         }
         if (res["player"] == PLAYER_NAME && FAVORITE_ITEM[res["itemID"]] == 0) {
+            FAVORITE_ITEM[i] = 1;
             activate_favorite(res["itemID"], 0);
         }
         if (item["currentOwner"].indexOf(PLAYER_NAME) != -1) {
