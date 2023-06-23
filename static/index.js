@@ -69,7 +69,6 @@ V_member = new Vue({
         CURRENT_NAME = this.name;
         CURRENT_DUNGEON = this.dungeon;
         $.get(`/registerTeam?DungeonID=${this.dungeon}&playerName=${this.name}&xinfa=${this.xinfa}&position=${pos}`, function(result){
-            console.log("2");
             analyse_register(result, this.name, this.dungeon);
         });
     }
@@ -113,9 +112,14 @@ function analyse_register(result, playerName, DungeonID){
     console.log(result);
     if (result["status"] != "0") {
         error(result["status"]);
-    } else {
+    } else if (result["auctionStart"] == 0) {
         var PlayerToken = result["PlayerToken"]
         var msg = `加入团队成功！你的团员令牌为：${PlayerToken}，点击<a href="/treasure.html?playerName=${CURRENT_NAME}&DungeonID=${CURRENT_DUNGEON}&PlayerToken=${PlayerToken}" class="alert-link" target="_blank">此处</a>进入掉落页面。`;
+        $("#alert4 p").html(msg);
+        $("#alert4").show(msg);
+    } else {
+        var PlayerToken = result["PlayerToken"]
+        var msg = `加入团队成功！你的团员令牌为：${PlayerToken}，点击<a href="/auction.html?playerName=${CURRENT_NAME}&DungeonID=${CURRENT_DUNGEON}&PlayerToken=${PlayerToken}" class="alert-link" target="_blank">此处</a>进入拍卖页面。`;
         $("#alert4 p").html(msg);
         $("#alert4").show(msg);
     }

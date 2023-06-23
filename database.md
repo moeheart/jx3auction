@@ -35,7 +35,7 @@
 - `playerToken` 团员令牌。
 
 ``CREATE TABLE player (
-         id INT PRIMARY KEY,
+         id VARCHAR(40) PRIMARY KEY,
          dungeonID INT,
          position INT,
          playerName VARCHAR(32),
@@ -59,7 +59,7 @@
 - `minimalStep` (TODO)最小加价。在拍卖开始时进行设定。
 
 ``CREATE TABLE treasure (
-         id INT PRIMARY KEY,
+         id VARCHAR(40) PRIMARY KEY,
          dungeonID INT,
          itemID INT,
          name VARCHAR(32),
@@ -83,9 +83,9 @@
 - `auto` 是否来源于自动出价。
 
 ``CREATE TABLE auction (
-         id INT PRIMARY KEY,
-         playerID INT,
-         treasureID INT,
+         id VARCHAR(40) PRIMARY KEY,
+         playerID VARCHAR(40),
+         treasureID VARCHAR(40),
          time INT,
          price INT,
          effective INT,
@@ -104,9 +104,9 @@
 - `num` 需求的数量，用于同步出价。
 
 ``CREATE TABLE autobid (
-         id INT PRIMARY KEY,
-         playerID INT,
-         treasureID INT,
+         id VARCHAR(40) PRIMARY KEY,
+         playerID VARCHAR(40),
+         treasureID VARCHAR(40),
          time INT,
          price INT,
          num INT

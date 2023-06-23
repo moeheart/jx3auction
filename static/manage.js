@@ -14,7 +14,11 @@ V_treasure = new Vue({
     submit: function() {
         CURRENT_BOSS = this.boss;
         $.get(`/setTreasure?AdminToken=${ADMIN_TOKEN}&DungeonID=${DUNGEON_ID}&boss=${this.boss}&treasure=${this.treasure}`, function(result){
-            analyse_treasure(result);
+            if (result["status"] != 0) {
+                error(result["status"]);
+            } else {
+                analyse_treasure(result);
+            }
         });
     }
   }
@@ -48,6 +52,9 @@ function analyse_treasure(result){
         var DungeonID = result["DungeonID"]
         var AdminToken = result["AdminToken"]
         var msg = `上传${CURRENT_BOSS}的记录成功！其他队友可以在团员界面看到所有的掉落，你可以继续上传其它BOSS，或者开始拍卖。`;
+        if (result["replace"] == 1) {
+            var msg = `覆盖${CURRENT_BOSS}的记录成功！其他队友可以在团员界面看到所有的掉落，你可以继续上传其它BOSS，或者开始拍卖。`;
+        }
         $("#alert2 p").html(msg);
         $("#alert2").show();
     }
@@ -59,10 +66,10 @@ V_treasure = new Vue({
   data: {
     baseNormal: 2000,
     baseCoupon: 20000,
-    baseWeapon: 15000,
+    baseWeapon: 30000,
     baseJingjian: 30000,
-    baseTexiaoyaozhui: 3000,
-    baseTexiaowuqi: 30000,
+    baseTexiaoyaozhui: 30000,
+    baseTexiaowuqi: 50000,
     stepEquip: 1000,
     baseMaterials: 500,
     stepMaterials: 500,
@@ -84,12 +91,15 @@ V_treasure = new Vue({
     stepHanzi: 100,
     combineHanziRaw: true,
     combineHanzi: 1,
+    tnHalfRaw: true,
+    tnHalf: 1,
   },
   methods: {
     submit: function() {
       var str = `/startAuction?AdminToken=${ADMIN_TOKEN}&DungeonID=${DUNGEON_ID}`;
       this.combineCharacter = this.combineCharacterRaw ? 1 : 0;
       this.combineHanzi = this.combineHanziRaw ? 1 : 0;
+      this.tnHalf = this.tnHalfRaw ? 1 : 0;
       dataArray = [
           "baseNormal",
           "baseCoupon",
@@ -115,7 +125,8 @@ V_treasure = new Vue({
           "stepOther",
           "baseHanzi",
           "stepHanzi",
-          "combineHanzi"
+          "combineHanzi",
+          "tnHalf",
       ];
       for (var i in dataArray) {
         var s = dataArray[i];
@@ -224,6 +235,22 @@ V_player = new Vue({
     },
     reload: function(){
         refresh_player();
+    },
+  }
+});
+
+V_item = new Vue({
+  el: '#item-list',
+  delimiters: ['[[',']]'],
+  data: {
+    reload_item: false,
+  },
+  methods: {
+    load: function(){
+        this.reload_item = false;
+        this.$nextTick(function() {
+            this.reload_item = true;
+        })
     },
   }
 });

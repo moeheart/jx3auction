@@ -38,6 +38,15 @@
 			<label class="form-check-label" for="xinfaOnly">只看自己心法</label>
 		  </div>
 		</div>
+		<div class="row">
+		  <div class="form-group col-md-4" v-on:change="reload_filter()">
+		  </div>
+		  <div class="form-group col-md-4" v-on:change="reload_filter()">
+		  </div>
+		  <div class="form-group form-check col-md-4" v-on:change="reload_filter()">
+			  <button type="submit" @click.prevent="refresh" class="btn btn-primary">刷新</button>
+		  </div>
+		</div>
 	</div>
 
 	<div class="container">
@@ -58,11 +67,11 @@
 				<ul class="list-group">
 					<li class="list-group-item" v-for="item in TREASURE_BY_BOSS[boss]" :id='`item-${item["itemID"]}`'>
 						<div>
-							<img class="item-icon" :src="`https://icon.jx3box.com/icon/${item['property']['icon']}.png`">
-							<div class="item-name">
+							<img class="item-icon d-inline-block" :src="`https://icon.jx3box.com/icon/${item['property']['icon']}.png`">
+							<div class="item-name d-inline-block">
 								<p class="item-text" :itemID="`${item['itemID']}`" v-on:mouseOver="item_over" v-on:mouseOut="item_out" :class="'text-'+item['property']['quality']"> [[ item["name"] ]] </p>
 							</div>
-							<div class="item-sketch">
+							<div class="item-sketch d-inline-block">
 								<p class="item-sketch-text" :itemID="`${item['itemID']}`"> [[ getSketch(item) ]] </p>
 							</div>
 						</div>
@@ -76,7 +85,6 @@
 	</div>
 
 	<div class="container bottom">
-
 
 	</div>
 
@@ -94,6 +102,28 @@
             <div class="col-md-3"> </div>
         </div>
     </div>
+
+<!-- Modal -->
+<div class="modal fade" id="finish-modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+	<div class="modal-content">
+	  <div class="modal-header">
+		<h5 class="modal-title" id="exampleModalLabel">进行拍卖</h5>
+		<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+		  <span aria-hidden="true">&times;</span>
+		</button>
+	  </div>
+	  <div class="modal-body">
+		拍卖已经开始！点击[确认]进入拍卖页面。<br>
+	    如果你不想占用系统资源，也可以点击[放弃]，留在这里只看掉落。
+	  </div>
+	  <div class="modal-footer">
+		<button type="button" class="btn btn-secondary" data-dismiss="modal">放弃</button>
+		<button type="button" class="btn btn-primary" data-dismiss="modal" onclick="finish()">确认</button>
+	  </div>
+	</div>
+  </div>
+</div>
 
 <div id="desc-tooltip" class="desc-tooltip">
 	<div id="desc-tooltip-content">

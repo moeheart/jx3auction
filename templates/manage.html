@@ -33,6 +33,9 @@
               <select v-model="boss" id="inputBoss" class="form-control" >
                 <option v-for="bb in bosses">[[bb]]</option>
               </select>
+              <div class="m-2">
+                  注意：选择重复的首领时，后上传的掉落会覆盖之前上传的内容。
+              </div>
             </div>
             <div class="form-group col-md-6">
               <label for="inputTreasure">掉落列表</label>
@@ -66,8 +69,10 @@
               <label for="input3">普通武器起拍价</label>
               <input v-model="baseWeapon" class="form-control" id="input3">
             </div>
-            <div class="form-group col-md-3">
-            </div>
+		    <div class="form-group form-check col-md-2" v-on:change="console.log('tnhalf')">
+			  <input type="checkbox" class="form-check-input" id="input311" v-model="tnHalf">
+			  <label class="form-check-label" for="input311">T奶半价</label>
+		    </div>
           </div>
           <div class="form-row">
             <div class="form-group col-md-3">
@@ -222,6 +227,15 @@
                 </div>
               </div>
             </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="p-2 bg-info rounded mt-3">
+            <h5>物品情况</h5>
+        </div>
+        <div class="container" id="item-list" v-if="reload_player">
+
         </div>
     </div>
 

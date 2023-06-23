@@ -128,8 +128,26 @@ function refresh_page(){
     });
 }
 
+function finish(){
+    window.location.href = `/auction.html?playerName=${PLAYER_NAME}&DungeonID=${DUNGEON_ID}&PlayerToken=${PLAYER_TOKEN}`;
+}
+
+function refresh(){
+    location.reload();
+}
+
 $(document).ready(function () {
     refresh_page();
+
+    $.get(`/getDungeon?DungeonID=${DUNGEON_ID}`, function(result){
+        if (result["status"] != 0) {
+            error(result["status"]);
+        } else {
+            if (result["auctionStart"] != 0) {
+                $('#finish-modal').modal();
+            }
+        }
+    });
 });
 
 V_treasure_list = new Vue({

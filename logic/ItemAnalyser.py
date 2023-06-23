@@ -483,13 +483,13 @@ class ItemAnalyser():
                 # elif special[0] == "":
                 #     pass
             # 套装效果，东西有点多，还是不写了
-            if item["subtype"] == "近身武器":
-                main = "武器"
-            elif main == "未知":
-                if item["setID"] != "":
-                    main = "套装"
-                else:
-                    main = item["magickind"]
+            # if item["subtype"] == "近身武器":
+            #     main = "武器"
+            # elif main == "未知":
+            if item["setID"] != "":
+                main = "套装"
+            else:
+                main = item["magickind"]
             if sketch == [] and hasZhiLiao:
                 sketch = ["纯疗"]
             if hasSpecial:
