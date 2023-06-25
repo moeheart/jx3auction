@@ -55,8 +55,10 @@
 - `boss` 掉落对应的BOSS。
 - `groupID` 打包拍卖的主元素itemID。如果为-1表示不是打包拍卖。在拍卖开始时进行设定。
 - `simulID` 同步拍卖的主元素itemID。如果为-1表示不是同步拍卖。在拍卖开始时进行设定。
-- `basePrice` (TODO)起拍价。在拍卖开始时进行设定。
-- `minimalStep` (TODO)最小加价。在拍卖开始时进行设定。
+- `basePrice` 起拍价。在拍卖开始时进行设定。
+- `minimalStep` 最小加价。在拍卖开始时进行设定。
+- `lockTime` 物品处于锁定状态的时间。如果为-1表示不锁定，为0表示锁定，其它情况下在这个时间戳后锁定。
+- `countdownBase` 倒计时的基准时间，以秒计。为-1表示不处于倒计时状态。
 
 ``CREATE TABLE treasure (
          id VARCHAR(40) PRIMARY KEY,
@@ -67,7 +69,8 @@
          groupID INT,
          simulID INT,
          basePrice INT,
-         minimalStep INT
+         minimalStep INT,
+         lockTime INT
 ) DEFAULT CHARSET utf8mb4;``
 
 ## auction

@@ -25,6 +25,8 @@ V_treasure = new Vue({
 });
 
 ALERT_VISIBLE = [0, 0, 0, 0, 0];
+TREASURE_BY_BOSS = {};
+TREASURE_BY_ID = {};
 
 function showError(msg, i) {
     $(`#alert-${i} p`).html(msg);
@@ -65,7 +67,9 @@ V_treasure = new Vue({
   delimiters: ['[[',']]'],
   data: {
     baseNormal: 2000,
-    baseCoupon: 20000,
+    baseCoupon: 10000,
+    multiplierCouponRaw: "1/2/2/2/2",
+    multiplierCoupon: "1,2,2,2,2",
     baseWeapon: 30000,
     baseJingjian: 30000,
     baseTexiaoyaozhui: 30000,
@@ -100,9 +104,11 @@ V_treasure = new Vue({
       this.combineCharacter = this.combineCharacterRaw ? 1 : 0;
       this.combineHanzi = this.combineHanziRaw ? 1 : 0;
       this.tnHalf = this.tnHalfRaw ? 1 : 0;
+      this.multiplierCoupon = this.multiplierCouponRaw.replace(/\//g, ',');
       dataArray = [
           "baseNormal",
           "baseCoupon",
+          "multiplierCoupon",
           "baseWeapon",
           "baseJingjian",
           "baseTexiaoyaozhui",
@@ -175,14 +181,14 @@ function hideAlert(i){
 PLAYER_LIST = {}
 
 function refresh_player(){
-    $.get(`/getTeam?DungeonID=${DUNGEON_ID}`, function(result){
+    $.get(`/getTeamExtend?DungeonID=${DUNGEON_ID}&AdminToken=${ADMIN_TOKEN}`, function(result){
         console.log(result);
         if (result["status"] != 0) {
             error(result["status"]);
         } else {
             PLAYER_LIST = {};
             for (var i = 1; i <= 25; i++) {
-                PLAYER_LIST[i] = {"playerName": "", "xinfa": ""}
+                PLAYER_LIST[i] = {"playerName": "", "xinfa": "", "bill": 0, "paid": false}
             }
             for (var player of result["team"]) {
                 var pos = player["position"];
@@ -212,11 +218,18 @@ function start_kick(pos){
     V_player.kickTarget = PLAYER_LIST[pos]["playerName"];
 }
 
+function pay(pos){
+    // 在已付款与未付款状态切换
+    PLAYER_LIST[pos]["paid"] = !PLAYER_LIST[pos]["paid"];
+    V_player.load();
+}
+
 $(document).ready(function () {
     for (var i = 1; i <= 25; i++) {
-        PLAYER_LIST[i] = {"playerName": "", "xinfa": ""}
+        PLAYER_LIST[i] = {"playerName": "", "xinfa": "", "bill": 0, "paid": false}
     }
     refresh_player();
+    refresh_treasure();
 });
 
 V_player = new Vue({
@@ -253,6 +266,157 @@ V_item = new Vue({
         })
     },
   }
+});
+
+function store_treasure(treasure){
+    console.log(treasure);
+    var res = treasure["treasure"];
+    for (var i in res) {
+        var item = res[i];
+        var boss = item["boss"];
+        if (!(boss in TREASURE_BY_BOSS)) {
+            TREASURE_BY_BOSS[boss] = [];
+        }
+        TREASURE_BY_BOSS[boss].push({"name": item["name"], "itemID": item["itemID"], "property": item["property"]});
+        TREASURE_BY_ID[item["itemID"]] = {"name": item["name"], "boss": item["boss"], "property": item["property"]}
+    }
+    console.log(TREASURE_BY_BOSS);
+    V_treasure_list.load();
+    PLAYER_XINFA = treasure["xinfa"];
+}
+
+function refresh_treasure(){
+    $.get(`/getTreasure?DungeonID=${DUNGEON_ID}&AdminToken=${ADMIN_TOKEN}`, function(result){
+        if (result["status"] != 0) {
+            error(result["status"]);
+        } else {
+            store_treasure(result);
+        }
+    });
+}
+
+function clear(itemID){
+    // 重置某个物品
+    $.get(`/clearAuction?DungeonID=${DUNGEON_ID}&AdminToken=${ADMIN_TOKEN}&itemID=${itemID}`, function(result){
+        if (result["status"] != 0) {
+            error(result["status"]);
+        } else {
+            $(`#iteminfo-${itemID}`).html("重置成功！");
+        }
+    });
+}
+
+function clear_boss(boss){
+    // 重置某个BOSS的全部物品
+    $.get(`/clearAuction?DungeonID=${DUNGEON_ID}&AdminToken=${ADMIN_TOKEN}&boss=${boss}`, function(result){
+        if (result["status"] != 0) {
+            error(result["status"]);
+        } else {
+            for (var item of TREASURE_BY_BOSS[boss]) {
+                var itemID = item["itemID"];
+                $(`#iteminfo-${itemID}`).html("重置成功！");
+            }
+        }
+    });
+}
+
+function lock(itemID){
+    // 锁定某个物品
+    $.get(`/lockAuction?DungeonID=${DUNGEON_ID}&AdminToken=${ADMIN_TOKEN}&itemID=${itemID}&switch=1`, function(result){
+        if (result["status"] != 0) {
+            error(result["status"]);
+        } else {
+            $(`#iteminfo-${itemID}`).html("锁定成功！");
+        }
+    });
+}
+
+function lock_boss(boss){
+    // 锁定某个BOSS的全部物品
+    $.get(`/lockAuction?DungeonID=${DUNGEON_ID}&AdminToken=${ADMIN_TOKEN}&boss=${boss}&switch=1`, function(result){
+        if (result["status"] != 0) {
+            error(result["status"]);
+        } else {
+            for (var item of TREASURE_BY_BOSS[boss]) {
+                var itemID = item["itemID"];
+                $(`#iteminfo-${itemID}`).html("锁定成功！");
+            }
+        }
+    });
+}
+
+function unlock(itemID){
+    // 解锁某个物品
+    $.get(`/lockAuction?DungeonID=${DUNGEON_ID}&AdminToken=${ADMIN_TOKEN}&itemID=${itemID}&switch=0`, function(result){
+        if (result["status"] != 0) {
+            error(result["status"]);
+        } else {
+            $(`#iteminfo-${itemID}`).html("解锁成功！");
+        }
+    });
+}
+
+function unlock_boss(boss){
+    // 解锁某个BOSS的全部物品
+    $.get(`/lockAuction?DungeonID=${DUNGEON_ID}&AdminToken=${ADMIN_TOKEN}&boss=${boss}&switch=0`, function(result){
+        if (result["status"] != 0) {
+            error(result["status"]);
+        } else {
+            for (var item of TREASURE_BY_BOSS[boss]) {
+                var itemID = item["itemID"];
+                $(`#iteminfo-${itemID}`).html("解锁成功！");
+            }
+        }
+    });
+}
+
+function countdown(itemID){
+    // 倒数某个物品
+    time = V_treasure_list.countdownValue;
+    $.get(`/countdownAuction?DungeonID=${DUNGEON_ID}&AdminToken=${ADMIN_TOKEN}&itemID=${itemID}&time=${time}`, function(result){
+        console.log(result);
+        if (result["status"] != 0) {
+            error(result["status"]);
+        } else {
+            for (var itemID of result["success"]) {
+                $(`#iteminfo-${itemID}`).html("倒数成功！");
+            }
+        }
+    });
+}
+
+function countdown_boss(boss){
+    // 倒数某个BOSS的全部物品
+    time = V_treasure_list.countdownValue;
+    $.get(`/countdownAuction?DungeonID=${DUNGEON_ID}&AdminToken=${ADMIN_TOKEN}&boss=${boss}&time=${time}`, function(result){
+        console.log(result);
+        if (result["status"] != 0) {
+            error(result["status"]);
+        } else {
+            for (var itemID of result["success"]) {
+                $(`#iteminfo-${itemID}`).html("倒数成功！");
+            }
+        }
+    });
+}
+
+V_treasure_list = new Vue({
+    el: '#treasure-div',
+    delimiters: ['[[',']]'],
+    data: {
+        reload_treasure: false,
+        bosses: [],
+        countdownValue: 20,
+    },
+    methods: {
+        load: function(){
+            this.bosses = [];
+    	    for (var key in TREASURE_BY_BOSS) {
+    	        this.bosses.push(key)
+    	    }
+    	    this.reload_treasure = true;
+        },
+    }
 });
 
 

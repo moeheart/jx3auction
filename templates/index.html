@@ -5,6 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>剑三拍卖助手</title>
+    <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
 
 <!--    <script src="/static/vue.min.js"></script>-->
 <!--    <script src="/static/jquery.min.js"></script>-->
@@ -96,6 +97,33 @@
         <div id="alert4" class="alert alert-primary alert-dismissible fade show" role="alert">
           <p> </p>
         </div>
+    </div>
+
+    <div class="container" id="history-div">
+      <div class="p-2 bg-info rounded mt-3 mb-3">
+        <h5>历史记录</h5>
+      </div>
+
+      <div v-if="reload_history">
+        <ul class="list-group">
+            <li class="list-group-item" v-for="key of CURRENT_KEYS">
+                  <div class="row">
+                    <div class="col-3">
+                        身份：[[ key["type"] ]]
+                    </div>
+                    <div class="col-3">
+                        副本ID：[[ key["id"] ]]
+                    </div>
+                    <div class="col-3">
+                        角色名：[[ key["name"] ]]
+                    </div>
+                    <div class="col-3">
+                        <a :href=`${key['link']}` target="_blank">链接</a>
+                    </div>
+                  </div>
+            </li>
+        </ul>
+      </div>
     </div>
 
     <div id="float-alert" class="container float-alert">

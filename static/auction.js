@@ -3,38 +3,23 @@ AUCTION_BY_BOSS = {};
 AUCTION_BY_ID = {};
 ITEM_OPEN = {};
 CURRENT_ID = -1;
-
-//function analyse_treasure(treasure){
-//    console.log(treasure);
-//    var res = treasure["treasure"];
-//    for (var i in res) {
-//        var item = res[i];
-//        var boss = item["boss"];
-//        if (!(boss in AUCTION_BY_BOSS)) {
-//            AUCTION_BY_BOSS[boss] = [];
-//        }
-//        AUCTION_BY_BOSS[boss].push({"name": item["name"], "itemID": item["itemID"], "property": item["property"]});
-//        AUCTION_BY_ID[item["itemID"]] = {"name": item["name"], "boss": item["boss"], "property": item["property"]}
-//    }
-//    console.log(AUCTION_BY_BOSS);
-//    V_treasure_list.loadTreasure();
-//    PLAYER_XINFA = treasure["xinfa"];
-//}
+COPIED = {};
+PLAYER_INFO = {};
+PLAYER_INFO_UPDATED = 0;
 
 $(document).ready(function () {
     namespace = '/auction_info';
     var socket = io.connect(location.protocol + "//" + document.domain + ":" + location.port + namespace);
 
-      socket.on('connect', () => {
-
-        // Automatically connect to general channel
-        socket.emit('join',{"channel": DUNGEON_ID, "username":PLAYER_NAME});
-      });
+    socket.on('connect', () => {
+      // Automatically connect to general channel
+      socket.emit('join',{"channel": DUNGEON_ID, "username":PLAYER_NAME});
+    });
 
     socket.on('bid', function(res) {
-        console.log("receive from socket");
+        console.log("[Socketio] bid");
         console.log(res);
-        // 添加这次更新的内容
+        // 添加变化的内容
         var item = AUCTION_BY_ID[res["itemID"]];
         var bids = item["bids"];
         bids.push({
@@ -48,8 +33,8 @@ $(document).ready(function () {
             itemNum = SIMUL_CONTENT[item["simulID"]];
         }
         // 重新计算这次拍卖的最高价，与最低出价
-        item["currentOwner"] = [];
-        item["currentPrice"] = [];
+        item["currentOwner"].length = 0;
+        item["currentPrice"].length = 0;
         item["lowestPrice"] = item["basePrice"];
         for (var i in bids) {
             bids[i]["bidID"] = i;
@@ -73,19 +58,232 @@ $(document).ready(function () {
         } else {
             $(`#item-${res["itemID"]}`).removeClass("owner");
         }
+        get_lowest_price(res["itemID"]);
+        // 刷新时间
+        if (item["countdownBase"] != -1) {
+            item["remainTime"] = Math.max(0, item["countdownBase"] - 2);
+        }
+        // 有出价说明物品已经解锁
+        item["lock"] = 0;
+        var obj = $(`#lock-${item["itemID"]}`);
+        obj.addClass("hidden");
+        $(`#item-${item["itemID"]}`).removeClass("disable-color");
+
+        // 计算总和
+        V_summary.personal_sum = 0;
+        V_summary.group_sum = 0;
+        for (var i in AUCTION_BY_ID) {
+            var item = AUCTION_BY_ID[i];
+            for (var j in item["bids"]) {
+                var bid = item["bids"][j];
+                if (j < itemNum) {
+                    $(`#bid-${i}-${j}`).addClass("available-bid");
+                    V_summary.group_sum += bid["price"];
+                    if (bid["player"] == PLAYER_NAME) {
+                        V_summary.personal_sum += bid["price"];
+                    }
+                }
+            }
+        }
         V_treasure_list.reloadBids();
     });
+
+    socket.on('clear', function(res) {
+        console.log("[Socketio] clear");
+        console.log(res);
+        var item = AUCTION_BY_ID[res["itemID"]];
+        if (item["groupID"] != -1 && item["groupID"] != item["itemID"]) {
+            return;
+        }
+        if (item["simulID"] != -1 && item["simulID"] != item["itemID"]) {
+            return;
+        }
+        item["bids"].length = 0;
+        item["currentOwner"].length = 0;
+        item["currentPrice"].length = 0;
+        item["lowestPrice"] = item["basePrice"];
+        $(`#item-${res["itemID"]}`).removeClass("owner");
+        get_lowest_price(res["itemID"]);
+        V_treasure_list.reloadBids();
+    });
+
+    socket.on('clear_boss', function(res) {
+        console.log("[Socketio] clear_boss");
+        console.log(res);
+        if (!(res["boss"] in AUCTION_BY_BOSS))
+            return;
+        for (var item of AUCTION_BY_BOSS[res["boss"]]) {
+            if (item["groupID"] != -1 && item["groupID"] != item["itemID"]) {
+                continue;
+            }
+            if (item["simulID"] != -1 && item["simulID"] != item["itemID"]) {
+                continue;
+            }
+            item["bids"].length = 0;
+            item["currentOwner"].length = 0;
+            item["currentPrice"].length = 0;
+            item["lowestPrice"] = item["basePrice"];
+            $(`#item-${item["itemID"]}`).removeClass("owner");
+            get_lowest_price(item["itemID"]);
+            V_treasure_list.reloadBids();
+        }
+    });
+
+    socket.on('lock', function(res) {
+        console.log("[Socketio] lock");
+        console.log(res);
+        var item = AUCTION_BY_ID[res["itemID"]];
+        if (item["groupID"] != -1 && item["groupID"] != item["itemID"]) {
+            return;
+        }
+        if (item["simulID"] != -1 && item["simulID"] != item["itemID"]) {
+            return;
+        }
+        if (res["switch"] == 0) {
+            // 上锁
+            item["lock"] = 1;
+            $(`#clock-${item["itemID"]}`).addClass("hidden");
+            item["countdownBase"] = -1;
+            item["remainTime"] = -1;
+            var obj = $(`#lock-${item["itemID"]}`);
+            obj.removeClass("hidden");
+            obj.attr("data-toggle", "tooltip");
+            obj.attr("data-placement", "top");
+            obj.attr("title", "这件物品已经锁定，不能再出价。");
+            $(`#item-${item["itemID"]}`).addClass("disable-color");
+        } else {
+            // 解锁
+            item["lock"] = 0;
+            $(`#clock-${item["itemID"]}`).addClass("hidden");
+            item["countdownBase"] = -1;
+            item["remainTime"] = -1;
+            var obj = $(`#lock-${item["itemID"]}`);
+            obj.addClass("hidden");
+            $(`#item-${item["itemID"]}`).removeClass("disable-color");
+        }
+        V_treasure_list.reloadBids();
+    });
+
+    socket.on('lock_boss', function(res) {
+        console.log("[Socketio] lock_boss");
+        console.log(res);
+        if (!(res["boss"] in AUCTION_BY_BOSS))
+            return;
+        for (var item of AUCTION_BY_BOSS[res["boss"]]) {
+            if (item["groupID"] != -1 && item["groupID"] != item["itemID"]) {
+                continue;
+            }
+            if (item["simulID"] != -1 && item["simulID"] != item["itemID"]) {
+                continue;
+            }
+            if (res["switch"] == 0) {
+                // 上锁
+                item["lock"] = 1;
+                $(`#clock-${item["itemID"]}`).addClass("hidden");
+                item["countdownBase"] = -1;
+                item["remainTime"] = -1;
+                var obj = $(`#lock-${item["itemID"]}`);
+                obj.removeClass("hidden");
+                obj.attr("data-toggle", "tooltip");
+                obj.attr("data-placement", "top");
+                obj.attr("title", "这件物品已经锁定，不能再出价。");
+                $(`#item-${item["itemID"]}`).addClass("disable-color");
+
+            } else {
+                // 解锁
+                item["lock"] = 0;
+                $(`#clock-${item["itemID"]}`).addClass("hidden");
+                item["countdownBase"] = -1;
+                item["remainTime"] = -1;
+                var obj = $(`#lock-${item["itemID"]}`);
+                obj.addClass("hidden");
+                $(`#item-${item["itemID"]}`).removeClass("disable-color");
+            }
+        }
+        V_treasure_list.reloadBids();
+    });
+
+    socket.on('countdown', function(res) {
+        console.log("[Socketio] countdown");
+        console.log(res);
+        var item = AUCTION_BY_ID[res["itemID"]];
+        if (item["groupID"] != -1 && item["groupID"] != item["itemID"]) {
+            return;
+        }
+        if (item["simulID"] != -1 && item["simulID"] != item["itemID"]) {
+            return;
+        }
+        item["countdownBase"] = res["countdownBase"];
+        item["remainTime"] = Math.max(0, res["countdownBase"] - 2);
+        var obj = $(`#clock-${item["itemID"]}`);
+        obj.removeClass("hidden");
+        obj.attr("data-toggle", "tooltip");
+        obj.attr("data-placement", "top");
+        obj.attr("title", "这件物品处于倒计时中，倒计时结束后会锁定，出价可以刷新倒计时。\n由于网络延迟等原因，卡秒出价可能会导致出价失败。");
+        V_treasure_list.reloadBids();
+    });
+
+    socket.on('countdown_boss', function(res) {
+        console.log("[Socketio] countdown_boss");
+        console.log(res);
+        if (!(res["boss"] in AUCTION_BY_BOSS))
+            return;
+        for (var item of AUCTION_BY_BOSS[res["boss"]]) {
+            if (item["groupID"] != -1 && item["groupID"] != item["itemID"]) {
+                continue;
+            }
+            if (item["simulID"] != -1 && item["simulID"] != item["itemID"]) {
+                continue;
+            }
+            if (item["lock"] == 1) {
+                continue;
+            }
+            item["countdownBase"] = res["countdownBase"];
+            item["remainTime"] = Math.max(0, res["countdownBase"] - 2);
+            var obj = $(`#clock-${item["itemID"]}`);
+            obj.removeClass("hidden");
+            obj.attr("data-toggle", "tooltip");
+            obj.attr("data-placement", "top");
+            obj.attr("title", "这件物品处于倒计时中，倒计时结束后会锁定，出价可以刷新倒计时。\n由于网络延迟等原因，卡秒出价可能会导致出价失败。");
+        }
+        V_treasure_list.reloadBids();
+    });
+
 });
+
+function timepass(){
+    // 每经过1秒，尝试减少倒计时的时间
+    for (var i in AUCTION_BY_ID) {
+        var item = AUCTION_BY_ID[i];
+        if (item["remainTime"] == 0) {
+            $(`#clock-${i}`).addClass("hidden");
+            // 将其锁定
+            item["lock"] = 1;
+            var obj = $(`#lock-${i}`);
+            obj.removeClass("hidden");
+            obj.attr("data-toggle", "tooltip");
+            obj.attr("data-placement", "top");
+            obj.attr("title", "这件物品已经锁定，不能再出价。");
+            $(`#item-${i}`).addClass("disable-color");
+        }
+        if (item["remainTime"] != -1) {
+            item["remainTime"] -= 1;
+        }
+    }
+    V_treasure_list.loadAuction();
+}
 
 function show_attrib(){
     var group_content = {};
     SIMUL_CONTENT = {};
     FAVORITE_ITEM = {};
     ITEM_OPEN = {};
+    LOWEST_PRICE = {};
     // 展示打包拍卖、同步拍卖等特殊情况
     for (var i in AUCTION_BY_ID) {
         var item = AUCTION_BY_ID[i];
         ITEM_OPEN[i] = 1;
+        COPIED[i] = 0;
         // 判断打包拍卖
         if (item["groupID"] != -1 && item["groupID"] != i) {
             // 添加打包拍卖的显示
@@ -108,7 +306,10 @@ function show_attrib(){
             } else {
                 group_content[item["groupID"]][item["name"]] += 1;
             }
+            // 同步这件物品的属性，实际上是软拷贝，后续不需要再调整
+            item["currentOwner"] = AUCTION_BY_ID[item["groupID"]]["currentOwner"];
             ITEM_OPEN[i] = 0;
+            COPIED[i] = 1;
         }
         // 判断同步拍卖
         if (item["simulID"] != -1 && item["simulID"] != i) {
@@ -129,7 +330,11 @@ function show_attrib(){
                 SIMUL_CONTENT[item["simulID"]] = 1;
             }
             SIMUL_CONTENT[item["simulID"]] += 1;
+            // 同步这件物品的属性，实际上是软拷贝，后续不需要再调整
+            item["currentOwner"] = AUCTION_BY_ID[item["simulID"]]["currentOwner"];
+            item["currentPrice"] = AUCTION_BY_ID[item["simulID"]]["currentPrice"];
             ITEM_OPEN[i] = 0;
+            COPIED[i] = 1;
         }
     }
     // 展示打包拍卖、同步拍卖的主要物品
@@ -142,7 +347,7 @@ function show_attrib(){
             obj.removeClass("hidden");
             obj.attr("data-toggle", "tooltip");
             obj.attr("data-placement", "top");
-            var resArray = []
+            var resArray = [];
             for (var key in group_content[i]) {
                 resArray.push("[" + key + "]*" + group_content[i][key])
             }
@@ -159,8 +364,10 @@ function show_attrib(){
             obj.attr("title", "这件物品是同步拍卖的主要物品。\n这件物品的" + SIMUL_CONTENT[i] + "个最高出价都有效，每个出价都会分得一件。");
         }
     }
-    // 计算是否在初始时就处于收藏状态与拥有状态
+    V_summary.personal_sum = 0;
+    V_summary.group_sum = 0;
     for (var i in AUCTION_BY_ID) {
+        // 计算初始时的各项属性
         FAVORITE_ITEM[i] = 0;
         var item = AUCTION_BY_ID[i];
         var itemNum = 1;
@@ -176,6 +383,10 @@ function show_attrib(){
             if (j < itemNum) {
                 bid["available"] = 1;
                 $(`#bid-${i}-${j}`).addClass("available-bid");
+                V_summary.group_sum += bid["price"];
+                if (bid["player"] == PLAYER_NAME) {
+                    V_summary.personal_sum += bid["price"];
+                }
             } else {
                 $(`#bid-${i}-${j}`).removeClass("available-bid");
             }
@@ -183,11 +394,34 @@ function show_attrib(){
         if (item["currentOwner"].indexOf(PLAYER_NAME) != -1) {
             $(`#item-${i}`).addClass("owner");
         }
+        if (item["lock"] == 1) {
+            var obj = $(`#lock-${i}`);
+            obj.removeClass("hidden");
+            obj.attr("data-toggle", "tooltip");
+            obj.attr("data-placement", "top");
+            obj.attr("title", "这件物品已经锁定，不能再出价。");
+            $(`#item-${i}`).addClass("disable-color");
+        }
+        if (item["remainTime"] != -1) {
+            var obj = $(`#clock-${i}`);
+            obj.removeClass("hidden");
+            obj.attr("data-toggle", "tooltip");
+            obj.attr("data-placement", "top");
+            obj.attr("title", "这件物品处于倒计时中，倒计时结束后会锁定，出价可以刷新倒计时。\n由于网络延迟等原因，卡秒出价可能会导致出价失败。");
+        }
+        // 计算最小出价
+        get_lowest_price(i);
     }
+    timepass();
+    setInterval(timepass, 1000);
+    V_summary.load_summary = true;
+    // 刷新一次，有的属性没有同步到页面上
+    V_treasure_list.loadAuction();
 }
 
 function activate_favorite(itemID, isPress){
     $(`#item-${itemID}`).addClass("favorite");
+    $(`#lowest-${itemID}`).removeAttr("disabled");
     if (isPress == 0) {
         $(`#favorite-${itemID}`).addClass("active");
         $(`#favorite-${itemID}`).attr("aria-pressed", "true");
@@ -196,6 +430,7 @@ function activate_favorite(itemID, isPress){
 
 function deactivate_favorite(itemID, isPress){
     $(`#item-${itemID}`).removeClass("favorite");
+    $(`#lowest-${itemID}`).attr("disabled", 1);
     if (isPress == 0) {
         $(`#favorite-${itemID}`).removeClass("active");
         $(`#favorite-${itemID}`).attr("aria-pressed", "false");
@@ -259,18 +494,7 @@ function auto_bid(itemID){
 
 }
 
-function bid(itemID, ensure=0){
-    var lowestPrice = get_lowest_price(itemID);
-    var price = $(`#bidnum-${itemID}`).val();
-    if (price < lowestPrice) {
-        error(901);
-        return;
-    } else if (price >= 10 * lowestPrice && ensure == 0) {
-        CURRENT_ID = itemID;
-        $('#bid-verify-num').html(price);
-        $('#bid-modal').modal();
-        return;
-    }
+function bid_implement(itemID, price) {
     var str = `/bid?playerName=${PLAYER_NAME}&DungeonID=${DUNGEON_ID}&itemID=${itemID}&price=${price}&num=1&PlayerToken=${PLAYER_TOKEN}`;
     $.get(str, function(result){
         if (result["status"] != 0) {
@@ -280,6 +504,25 @@ function bid(itemID, ensure=0){
         }
         console.log(result);
     });
+}
+
+function bid(itemID, ensure=0){
+    var lowestPrice = LOWEST_PRICE[itemID];
+    var price = $(`#bidnum-${itemID}`).val();
+    if (AUCTION_BY_ID[itemID]["lock"] == 1) {
+        error(902);
+        return;
+    }
+    if (price < lowestPrice) {
+        error(901);
+        return;
+    } else if (price >= 10 * lowestPrice && ensure == 0) {
+        CURRENT_ID = itemID;
+        $('#bid-verify-num').html(price);
+        $('#bid-modal').modal();
+        return;
+    }
+    bid_implement(itemID, price);
 }
 
 function verify_bid() {
@@ -301,12 +544,16 @@ function get_lowest_price(itemID){
             }
         }
     }
-    return lowestPrice;
+    LOWEST_PRICE[itemID] = lowestPrice;
+    $(`#lowest-${itemID}`).html("最小出价：" + lowestPrice);
 }
 
 function bid_low(itemID){
-    var lowestPrice = get_lowest_price(itemID);
-    $(`#bidnum-${itemID}`).val(lowestPrice);
+    if (AUCTION_BY_ID[itemID]["lock"] == 1) {
+        error(902);
+        return;
+    }
+    bid_implement(itemID, LOWEST_PRICE[itemID]);
 }
 
 function render_desc(desc_id, property){
@@ -467,7 +714,7 @@ function xinfa_match(xinfa, property){
     } else if (attrib_extend == "元气" || attrib_extend == "根骨") {
         attrib_extend = "内功";
     }
-    if (property["type"] == "coupon") {
+    if (property["type"] == "coupon" || (property["type"] == "equipment" && property["subtype"] == "近身武器")) {
         return (school == property["school"] || property["school"] == "通用");
     } else {
         return attrib == property["main"] || attrib_extend == property["main"];
@@ -501,10 +748,13 @@ function reload_filter(){
                 display = 0;
             }
         }
+        if (V_filter.fmOnly && item["property"]["class"] != "enchant") {
+            display = 0;
+        }
         if (V_filter.favoriteOnly && FAVORITE_ITEM[id] == 0) {
             display = 0;
         }
-        if (V_filter.openOnly && ITEM_OPEN[id] == 0) {
+        if (V_filter.openOnly && (ITEM_OPEN[id] == 0 || item["lock"] == 1)) {
             display = 0;
         }
         if (display == 1) {
@@ -524,6 +774,7 @@ V_filter = new Vue({
         xinfaOnly: false,
         favoriteOnly: false,
         openOnly: false,
+        fmOnly: false,
     },
     methods: {
     }
@@ -535,7 +786,7 @@ Vue.filter('ownerFormat', function(originVal){
 });
 
 Vue.filter('priceFormat', function(originVal){
-    if (originVal.length == 0) return "0";
+    if (originVal.length == 0) return "-";
     else return originVal.join(",");
 });
 
@@ -548,6 +799,16 @@ Vue.filter('dateFormat', function(originVal){
     const m = (dt.getMinutes() + '').padStart(2, '0');
     const s = (dt.getSeconds() + '').padStart(2, '0');
     return `${y}-${M}-${d} ${h}:${m}:${s}`;
+});
+
+Vue.filter('countdownFormat', function(originVal){
+    if (originVal == -1) {
+        return "";
+    } else {
+        const m = (parseInt(originVal / 60) + '').padStart(2, '0');
+        const s = (originVal % 60 + '').padStart(2, '0');
+        return `${m}:${s}`;
+    }
 });
 
 V_alert = new Vue({
@@ -567,4 +828,71 @@ function hideAlert(i){
     $(`#alert-${i}`).hide();
     ALERT_VISIBLE[i-1] = 0;
 }
+
+function getRpos(player) {
+    if (player in PLAYER_INFO) {
+        return RPOS_DICT[PLAYER_INFO[player]];
+    } else {
+        return "?";
+    }
+}
+
+function export_boss_handle(boss) {
+    var lines = [];
+    for (var item of AUCTION_BY_BOSS[boss]) {
+        var owners = [];
+        for (var i in item["currentOwner"]) {
+            var rpos = getRpos(item["currentOwner"][i]);
+            var str = `(${rpos})${item["currentOwner"][i]}`;
+            if (i < item["currentPrice"].length) {
+                str = `(${rpos})${item["currentOwner"][i]} ${item["currentPrice"][i]}`;
+            }
+            owners.push(str);
+        }
+        var str = owners.join(',')
+        var res = `[${item["name"]}] ${str}`;
+        lines.push(res);
+    }
+    var result = lines.join('<br>');
+    $('#copyboard').html(result);
+    $('#copyboard-modal').modal();
+//    var el = document.createElement('input');
+//    el.setAttribute('value', result);
+//    document.body.appendChild(el);
+//    el.select();
+//    document.execCommand('copy');
+//    document.body.removeChild(el);
+//    alert("已导出到剪贴板！");
+}
+
+function export_boss(boss){
+    if (PLAYER_INFO_UPDATED == 0) {
+        $.get(`/getTeam?DungeonID=${DUNGEON_ID}`, function(result){
+            console.log(result);
+            if (result["status"] != 0) {
+                error(result["status"]);
+            } else {
+                for (var player of result["team"]) {
+                    PLAYER_INFO[player["playerName"]] = player["xinfa"];
+                }
+            }
+            PLAYER_INFO_UPDATED = 1;
+            export_boss_handle(boss);
+        });
+    } else {
+        export_boss_handle(boss);
+    }
+}
+
+V_summary = new Vue({
+    el: '#summary',
+    delimiters: ['[[',']]'],
+    data: {
+        personal_sum: 0,
+        group_sum: 0,
+        load_summary: false,
+    },
+    methods: {
+    }
+});
 

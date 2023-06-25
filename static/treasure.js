@@ -1,6 +1,6 @@
 
 TREASURE_BY_BOSS = {};
-TREASURE_BY_ID = {}
+TREASURE_BY_ID = {};
 
 function analyse_treasure(treasure){
     console.log(treasure);
@@ -187,7 +187,7 @@ function xinfa_match(xinfa, property){
     } else if (attrib_extend == "元气" || attrib_extend == "根骨") {
         attrib_extend = "内功";
     }
-    if (property["type"] == "coupon") {
+    if (property["type"] == "coupon" || (property["type"] == "equipment" && property["subtype"] == "近身武器")) {
         return (school == property["school"] || property["school"] == "通用");
     } else {
         return attrib == property["main"] || attrib_extend == property["main"];
@@ -221,6 +221,9 @@ function reload_filter(){
                 display = 0;
             }
         }
+        if (V_filter.fmOnly && item["property"]["class"] != "enchant") {
+            display = 0;
+        }
         if (display == 1) {
             $(`#item-${id}`).removeClass("d-none");
         } else  {
@@ -236,6 +239,7 @@ V_filter = new Vue({
         ignoreMaterials: false,
         schoolOnly: false,
         xinfaOnly: false,
+        fmOnly: false,
     },
     methods: {
     }

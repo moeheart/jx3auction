@@ -4,7 +4,8 @@
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>拍卖界面</title>
+    <title>拍卖页面</title>
+	<link rel="icon" href="/static/favicon.ico" type="image/x-icon">
 
     <script src="https://cdn.bootcdn.net/ajax/libs/vue/2.7.9/vue.min.js"></script>
     <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
@@ -45,14 +46,16 @@
 		</div>
 		<div class="form-row">
 		  <div class="form-group form-check col-md-4" v-on:change="reload_filter()">
+			<input type="checkbox" class="form-check-input" id="fmOnly" v-model="fmOnly">
+			<label class="form-check-label" for="fmOnly">只看附魔</label>
+		  </div>
+		  <div class="form-group form-check col-md-4" v-on:change="reload_filter()">
 			<input type="checkbox" class="form-check-input" id="favoriteOnly" v-model="favoriteOnly">
 			<label class="form-check-label" for="favoriteOnly">只看收藏</label>
 		  </div>
 		  <div class="form-group form-check col-md-4" v-on:change="reload_filter()">
 			<input type="checkbox" class="form-check-input" id="openOnly" v-model="openOnly">
 			<label class="form-check-label" for="openOnly">只看可出价的</label>
-		  </div>
-		  <div class="form-group form-check col-md-4" v-on:change="reload_filter()">
 		  </div>
 		</div>
 	</div>
@@ -67,6 +70,7 @@
 				<button class="btn btn-link btn-block text-left" type="button" data-toggle="collapse" :data-target='`#collapse-${boss}`' aria-expanded="true" :aria-controls='`collapse-${boss}`'>
 					[[ boss ]]
 				</button>
+				<button type="submit" @click.prevent="export_boss(boss)" class="btn btn-primary" style="position:absolute; right:20px; top: 10px;">导出</button>
 			  </h2>
 			</div>
 
@@ -90,55 +94,67 @@
 								<i :id='`anony-${item["itemID"]}`' class="bi bi-emoji-sunglasses hidden"></i>
 							</div>
 							<div class="item-owner d-inline-block">
-								<p class="d-inline" :id='`current-player-${item["itemID"]}`' class="">[[ item['currentOwner'] | ownerFormat ]]</p>
+								<p class="d-inline" :id='`current-player-${item["itemID"]}`' :class='COPIED[item["itemID"]] ? "text-copied" : ""'>[[ item['currentOwner'] | ownerFormat ]]</p>
 							</div>
 							<div class="item-price d-inline-block">
-								<h5 class="d-inline" :id='`current-price-${item["itemID"]}`' class="">[[ item['currentPrice'] | priceFormat ]]</h5>
+								<h5 class="d-inline" :id='`current-price-${item["itemID"]}`' :class='COPIED[item["itemID"]] ? "text-copied" : ""'>[[ item['currentPrice'] | priceFormat ]]</h5>
+							</div>
+							<div class="item-countdown d-inline-block">
+								<h5 class="d-inline text-danger" :id='`current-countdown-${item["itemID"]}`'>[[ item['remainTime'] | countdownFormat ]]</h5>
 							</div>
 						</div>
 
 						<div class="collapse bid-container mt-3" :id='`auction-${item["itemID"]}`'>
 							<div class="container">
 							  <div class="row">
-									<p class="d-inline col-md-1 text-primary">起拍</p>
-									<p class="d-inline col-md-2 font-weight-bold" :id='`base-price-${item["itemID"]}`' class="">[[ item['basePrice'] ]]</p>
-									<p class="d-inline text-primary col-md-1" >单次</p>
-									<p class="d-inline font-weight-bold col-md-2" :id='`single-price-${item["itemID"]}`' class="">[[ item['minimalStep'] ]]</p>
+									<p class="d-inline col-2 text-primary">起拍</p>
+									<p class="d-inline col-2 font-weight-bold" :id='`base-price-${item["itemID"]}`' class="">[[ item['basePrice'] ]]</p>
+									<p class="d-inline text-primary col-2" >单次</p>
+									<p class="d-inline font-weight-bold col-2" :id='`single-price-${item["itemID"]}`' class="">[[ item['minimalStep'] ]]</p>
 							  </div>
 							</div>
 							<div>
 							  <div class="row">
-								<div class="col-md-2">
-									<p> </p>
+							    <div class="col-md-6">
+								  <div class="row">
+									<div class="col-2">
+										<p> </p>
+									</div>
+									<div class="col-4">
+										<button :id=`favorite-${item["itemID"]}` type="submit" @click.prevent='favorite(item["itemID"])' class="btn btn-warning" data-toggle="button" aria-pressed="false">收藏</button>
+									</div>
+									<div class="col-6">
+										<button :id=`lowest-${item["itemID"]}` type="submit" @click.prevent='bid_low(item["itemID"])' class="btn btn-info" data-toggle="tooltip" data-placement="top" title="出价最低的合法数值。
+为防止误触，在收藏后才生效。" disabled>出价最低</button>
+									</div>
+								  </div>
 								</div>
-								<div class="col-md-2">
-									<button :id=`favorite-${item["itemID"]}` type="submit" @click.prevent='favorite(item["itemID"])' class="btn btn-warning" data-toggle="button" aria-pressed="false">收藏</button>
-								</div>
-								<div class="col-md-2">
-          							<button type="submit" @click.prevent='bid_low(item["itemID"])' class="btn btn-info">填入最低</button>
-								</div>
-								<input class="col-md-2" :id='`bidnum-${item["itemID"]}`'>
-								<div class="col-md-2">
-									<button type="submit" @click.prevent='bid(item["itemID"])' class="btn btn-primary">出价</button>
-								</div>
-								<div class="col-md-2">
-									<button type="submit" @click.prevent='autobid(item["itemID"])' class="btn btn-danger" data-toggle="tooltip" data-placement="top" title="自动以最小间隔加价，直到达到填入的价格为止。在此之后仍可继续出价。
-暂未实装，要期待更美好的未来！" disabled>自动出价</button>
+							    <div class="col-md-6">
+								  <div class="row">
+									<input class="col-4" :id='`bidnum-${item["itemID"]}`'>
+									<div class="col-4">
+										<button type="submit" @click.prevent='bid(item["itemID"])' class="btn btn-primary">出价</button>
+									</div>
+									<div class="col-4">
+										<button type="submit" @click.prevent='autobid(item["itemID"])' class="btn btn-danger" data-toggle="tooltip" data-placement="top" title="自动以最小间隔加价，直到达到填入的价格为止。在此之后仍可继续出价。
+	暂未实装，要期待更美好的未来！" disabled>自动出价</button>
+									</div>
+								  </div>
 								</div>
 							  </div>
 							</div>
 							<ul class="list-group p-2" v-if="reload_bids">
 								<li :class="bid['available'] == 1 ? 'list-group-item available-bid p-0' : 'list-group-item p-0'" v-for='bid in item["bids"]' :id='`bid-${item["itemID"]}-${bid["bidID"]}`'>
 									<div class="row">
-										<div class="col-md-3">
+										<div class="col-3">
 										</div>
-										<div class="col-md-3">
+										<div class="col-3">
 											<p class="bid-line"> [[ bid['player'] ]] </p>
 										</div>
-										<div class="col-md-2">
+										<div class="col-2">
 											<p class="bid-line"> [[ bid['price'] ]] </p>
 										</div>
-										<div class="col-md-4">
+										<div class="col-4">
 											<p class="bid-line"> [[ bid['time'] | dateFormat ]] </p>
 										</div>
 									</div>
@@ -154,8 +170,17 @@
 		</div>
 	</div>
 
-	<div class="container bottom">
+    <div class="container mt-2" id="summary" v-if="load_summary">
+        <h4>消费统计</h4>
+		<div>
+			<p class="d-inline"> 个人消费： </p> <h5 class="d-inline"> [[personal_sum]] </h5>
+		</div>
+		<div>
+			<p class="d-inline"> 金团总计： </p> <h5 class="d-inline"> [[group_sum]] </h5>
+		</div>
+    </div>
 
+	<div class="container bottom">
 
 	</div>
 
@@ -191,6 +216,25 @@
 	  <div class="modal-footer">
 		<button type="button" class="btn btn-secondary" data-dismiss="modal">放弃</button>
 		<button type="button" class="btn btn-primary" data-dismiss="modal" onclick="verify_bid()">确认</button>
+	  </div>
+	</div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="copyboard-modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+	<div class="modal-content">
+	  <div class="modal-header">
+		<h5 class="modal-title" id="copyModalLabel">导出结果</h5>
+		<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+		  <span aria-hidden="true">&times;</span>
+		</button>
+	  </div>
+	  <div class="modal-body" id="copyboard">
+	  </div>
+	  <div class="modal-footer">
+		<button type="button" class="btn btn-primary" data-dismiss="modal">关闭</button>
 	  </div>
 	</div>
   </div>

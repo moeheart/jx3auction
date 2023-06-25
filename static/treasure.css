@@ -37,10 +37,6 @@
     display: none;
 }
 
-.disable-color{
-    background-color: rgb(192, 192, 192);
-}
-
 .desc-tooltip{
     background-color: rgb(192, 192, 192);
     position: absolute;
@@ -55,6 +51,14 @@
 
 .favorite.owner{
     background-color: rgb(255, 255, 128);
+}
+
+.disable-color{
+    background-color: rgb(192, 192, 192)!important;
+}
+
+.text-copied{
+    color: rgb(128, 128, 128);
 }
 
 .available-bid{

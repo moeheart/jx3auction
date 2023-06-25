@@ -5,6 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>管理页面</title>
+    <link rel="icon" href="/static/favicon.ico" type="image/x-icon">
 
     <script src="https://cdn.bootcdn.net/ajax/libs/vue/2.7.9/vue.min.js"></script>
     <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
@@ -57,13 +58,17 @@
         </div>
         <form id="form-startauction">
           <div class="form-row">
-            <div class="form-group col-md-3">
+            <div class="form-group col-md-2">
               <label for="input1">散件起拍价</label>
               <input v-model="baseNormal" class="form-control" id="input1">
             </div>
-            <div class="form-group col-md-3">
-              <label for="input2">兑换牌起拍价</label>
+            <div class="form-group col-md-2">
+              <label for="input2">兑换牌起拍基数</label>
               <input v-model="baseCoupon" class="form-control" id="input2">
+            </div>
+            <div class="form-group col-md-2">
+              <label for="input2">兑换牌倍率</label>
+              <input v-model="multiplierCouponRaw" class="form-control" id="input211">
             </div>
             <div class="form-group col-md-3">
               <label for="input3">普通武器起拍价</label>
@@ -186,7 +191,7 @@
     </div>
 
     <div class="container">
-        <div class="p-2 bg-info rounded mt-3">
+        <div class="p-2 bg-info rounded mt-3 mb-3">
             <h5>团队情况 </h5>
         </div>
         <div class="container" id="player-list" v-if="reload_player">
@@ -194,12 +199,16 @@
                 <div class="row">
                     <div class="col-md-1"> </div>
                     <div class="col-md-2 border" v-for="line in 5">
-                        <div :id="`player-${line * 5 + row - 5}`">
+                        <div :id="`player-${line * 5 + row - 5}`" :class="PLAYER_LIST[line * 5 + row - 5]['paid'] ? 'bg-success' : ''">
                             <div>
                                 <div :id="`player-${line * 5 + row - 5}-xinfa`" class="d-inline"> [[ PLAYER_LIST[line * 5 + row - 5]["xinfa"] ]] </div>
                                 <i :id='`player-${line * 5 + row - 5}-kick`' class="bi bi-trash float-right hidden" data-toggle="modal" data-target="#kick-modal" @click.prevent="start_kick(line * 5 + row - 5)"></i>
                             </div>
-                            <h5 :id="`player-${line * 5 + row - 5}-name`" class=""> [[ PLAYER_LIST[line * 5 + row - 5]["playerName"] ]] </h5>
+                            <h5 :id="`player-${line * 5 + row - 5}-name`" class="mb-0"> [[ PLAYER_LIST[line * 5 + row - 5]["playerName"] ]] </h5>
+                            <div>
+                                <div :id="`player-${line * 5 + row - 5}-bill`" class="d-inline"> [[ PLAYER_LIST[line * 5 + row - 5]["bill"] ]] </div>
+                                <i :id='`player-${line * 5 + row - 5}-pay`' class="bi bi-currency-dollar float-right hidden" data-toggle="modal" @click.prevent="pay(line * 5 + row - 5)"></i>
+                            </div>
                         </div>
                     </div>
                     <div class="col-md-1"> </div>
@@ -218,7 +227,7 @@
                   </div>
                   <div class="modal-body">
                     确定要开除 <p id="kick-target" class="d-inline"> [[kickTarget]] </p> 吗？这会移除其角色信息及所有的出价信息。 <br>
-                    部分物品在移除出价信息后可能会错乱，需要单独重置物品的出价。（暂未实装）
+                    部分物品在移除出价信息后可能会错乱，需要单独重置物品的出价。
                   </div>
                   <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">放弃</button>
@@ -230,13 +239,46 @@
         </div>
     </div>
 
-    <div class="container">
-        <div class="p-2 bg-info rounded mt-3">
-            <h5>物品情况</h5>
-        </div>
-        <div class="container" id="item-list" v-if="reload_player">
+    <div class="container" v-if="reload_treasure" id="treasure-div">
+      <div class="p-2 bg-info rounded mt-3 mb-3">
+        <h5>物品情况</h5>
+      </div>
 
+      <div class="mb-3">
+          <button type="submit" @click.prevent="refresh_treasure()" class="btn btn-primary">刷新掉落</button>
+          <p class="d-inline-block"> 倒数时间： </p> <input v-model="countdownValue" class="d-inline-block" id="countdown-value"> <p class="d-inline-block"> 秒 </p>
+      </div>
+
+      <div>
+		<div v-for="boss in bosses">
+          <div>
+            <ul class="list-group">
+                <li class="list-group-item list-group-item-info">
+                    <div>
+                      <h5 class="mb-0 d-inline mr-3"> [[ boss ]] </h5>
+                      <button type="submit" @click.prevent="countdown_boss(boss)" class="btn btn-primary">倒数全部</button>
+                      <button type="submit" @click.prevent="lock_boss(boss)" class="btn btn-primary">锁定全部</button>
+                      <button type="submit" @click.prevent="unlock_boss(boss)" class="btn btn-success">解锁全部</button>
+                      <button type="submit" @click.prevent="clear_boss(boss)" class="btn btn-danger">重置全部</button>
+                    </div>
+                </li>
+                <li class="list-group-item pt-0 pb-0" v-for="item in TREASURE_BY_BOSS[boss]" :id='`item-${item["itemID"]}`'>
+                    <div>
+                        <img class="item-icon d-inline-block" :src="`https://icon.jx3box.com/icon/${item['property']['icon']}.png`">
+                        <div class="item-name d-inline-block">
+                            <p class="item-text mb-0" :itemID="`${item['itemID']}`" :class="'text-'+item['property']['quality']"> [[ item["name"] ]] </p>
+                        </div>
+                        <button type="submit" @click.prevent="countdown(item['itemID'])" class="btn btn-primary">倒数</button>
+                        <button type="submit" @click.prevent="lock(item['itemID'])" class="btn btn-primary">锁定</button>
+                        <button type="submit" @click.prevent="unlock(item['itemID'])" class="btn btn-success">解锁</button>
+                        <button type="submit" @click.prevent="clear(item['itemID'])" class="btn btn-danger">重置</button>
+                        <div class="d-inline ml-3" :id='`iteminfo-${item["itemID"]}`'> </div>
+                    </div>
+                </li>
+            </ul>
+          </div>
         </div>
+      </div>
     </div>
 
 	<div class="container bottom">

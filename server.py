@@ -235,6 +235,68 @@ def getTeam():
 
     return jsonify({'status': 0, 'team': team})
 
+@app.route('/getTeamExtend', methods=['GET'])
+def getTeamExtend():
+    # http://127.0.0.1:8009/getTeam?DungeonID=2
+    try:
+        DungeonID = request.args.get('DungeonID')
+        if DungeonID is None:
+            return jsonify({'status': 101})
+        AdminToken = request.args.get('AdminToken')
+        if AdminToken is None:
+            return jsonify({'status': 101})
+    except:
+        return jsonify({'status': 100})
+
+    name = config.get('jx3auction', 'username')
+    pwd = config.get('jx3auction', 'password')
+    db = pymysql.connect(host=IP, user=name, password=pwd, database="jx3auction", port=3306, charset='utf8mb4')
+    cursor = db.cursor()
+
+    try:
+        # 检验团长权限
+        sql = '''SELECT id FROM dungeon WHERE id=%d AND adminToken="%s";''' % (int(DungeonID), AdminToken)
+        cursor.execute(sql)
+        result = cursor.fetchall()
+        if not result:
+            return jsonify({'status': 202})
+
+        # 查询拍卖记录
+        sql = '''SELECT playerName, price FROM player, auction WHERE playerID=player.id AND dungeonID=%d AND effective=1;''' % (int(DungeonID))
+        cursor.execute(sql)
+        result = cursor.fetchall()
+
+        playerSum = {}
+        for line in result:
+            if line[0] not in playerSum:
+                playerSum[line[0]] = 0
+            playerSum[line[0]] += line[1]
+
+        # 进行查询
+        sql = '''SELECT position, playerName, xinfa, profile FROM player WHERE dungeonID=%d;''' % (int(DungeonID))
+        cursor.execute(sql)
+        result = cursor.fetchall()
+
+        team = []
+        for line in result:
+            team.append({
+                "position": line[0],
+                "playerName": line[1],
+                "xinfa": line[2],
+                "profile": line[3],
+                "bill": playerSum.get(line[1], 0),
+            })
+
+    except Exception as e:
+        traceback.print_exc()
+        return jsonify({'status': 200})
+
+    finally:
+        db.commit()
+        db.close()
+
+    return jsonify({'status': 0, 'team': team})
+
 
 @app.route('/kickPlayer', methods=['GET'])
 def kickPlayer():
@@ -371,7 +433,7 @@ def setTreasure():
             itemID = result[0][0] + 1
         for singleTreasure in treasureList:
             id = str(uuid.uuid1())
-            sql = '''INSERT INTO treasure VALUES ("%s", %d, %d, "%s", "%s", -1, -1, 0, 0);''' % (id, int(DungeonID), itemID, singleTreasure, boss)
+            sql = '''INSERT INTO treasure VALUES ("%s", %d, %d, "%s", "%s", -1, -1, 0, 0, -1, -1);''' % (id, int(DungeonID), itemID, singleTreasure, boss)
             cursor.execute(sql)
             itemID += 1
 
@@ -393,12 +455,17 @@ def getTreasure():
         playerName = request.args.get('playerName')
         DungeonID = request.args.get('DungeonID')
         PlayerToken = request.args.get('PlayerToken')
+        AdminToken = request.args.get('AdminToken')
         if playerName is None:
-            return jsonify({'status': 101})
+            playerName = ""
         if DungeonID is None:
             return jsonify({'status': 101})
         if PlayerToken is None:
             PlayerToken = ""
+        if AdminToken is None:
+            AdminToken = ""
+        if AdminToken != "" and PlayerToken != "":
+            return jsonify({'status': 105})
     except:
         return jsonify({'status': 100})
 
@@ -416,13 +483,22 @@ def getTreasure():
             return jsonify({'status': 201})
         map = result[0][0]
 
-        # 检验成员权限
-        sql = '''SELECT xinfa FROM player WHERE dungeonID=%d AND playerName="%s" AND playerToken="%s";''' % (int(DungeonID), playerName, PlayerToken)
-        cursor.execute(sql)
-        result = cursor.fetchall()
-        if not result:
-            return jsonify({'status': 203})
-        xinfa = result[0][0]
+        xinfa = "unknown"
+        if PlayerToken != "":
+            # 检验成员权限
+            sql = '''SELECT xinfa FROM player WHERE dungeonID=%d AND playerName="%s" AND playerToken="%s";''' % (int(DungeonID), playerName, PlayerToken)
+            cursor.execute(sql)
+            result = cursor.fetchall()
+            if not result:
+                return jsonify({'status': 203})
+
+        if AdminToken != "":
+            # 检验团长权限
+            sql = '''SELECT id FROM dungeon WHERE id=%d AND adminToken="%s";''' % (int(DungeonID), AdminToken)
+            cursor.execute(sql)
+            result = cursor.fetchall()
+            if not result:
+                return jsonify({'status': 202})
 
         # 获取所有掉落
         treasureRes = []
@@ -437,6 +513,8 @@ def getTreasure():
             property = app.item_analyser.GetExtendItemByName({"name": name, "map": map, "xinfa": xinfa})
             treasureRes.append({"itemID": itemID, "name": name, "boss": boss, "property": property})
 
+        treasureRes.sort(key=lambda x:x["itemID"])
+
     except Exception as e:
         traceback.print_exc()
         return jsonify({'status': 200})
@@ -448,7 +526,7 @@ def getTreasure():
     return jsonify({'status': 0, 'treasure': treasureRes, 'xinfa': xinfa})
 
 
-AUCTION_PARAMS = ["baseNormal", "baseCoupon", "baseWeapon", "baseJingjian", "baseTexiaoyaozhui", "baseTexiaowuqi",
+AUCTION_PARAMS = ["baseNormal", "baseCoupon", "multiplierCoupon", "baseWeapon", "baseJingjian", "baseTexiaoyaozhui", "baseTexiaowuqi",
                   "stepEquip", "baseMaterials", "stepMaterials", "combineCharacter", "baseCharacter", "stepCharacter",
                   "baseXiaofumo", "stepXiaofumo", "baseDafumo", "stepDafumo", "baseXiaotie", "stepXiaotie",
                   "baseDatie", "stepDatie", "baseOther", "stepOther", "combineHanzi", "baseHanzi", "stepHanzi", "tnHalf"]
@@ -466,11 +544,19 @@ baseXiaotie=6000&stepXiaotie=3000&baseDatie=0&stepDatie=10000&baseOther=0&stepOt
         if DungeonID is None:
             return jsonify({'status': 101})
         params = {}
+        multiplier = [1,1,1,1,1]
         for param in AUCTION_PARAMS:
             params[param] = request.args.get(param)
             if params[param] is None:
                 return jsonify({'status': 101})
-            params[param] = int(params[param])
+            if param != "multiplierCoupon":
+                params[param] = int(params[param])
+            else:
+                multiplier1 = params[param].split(',')
+                if len(multiplier1) != 5:
+                    return jsonify({'status': 106})
+                for i in range(5):
+                    multiplier[i] = float(multiplier1[i])
     except:
         return jsonify({'status': 100})
 
@@ -496,7 +582,9 @@ baseXiaotie=6000&stepXiaotie=3000&baseDatie=0&stepDatie=10000&baseOther=0&stepOt
         # 检验每一个属于这个拍卖的物品，并为之赋予状态.
         sql = '''SELECT itemID, name FROM treasure WHERE dungeonID=%d;''' % int(DungeonID)
         cursor.execute(sql)
-        result = cursor.fetchall()
+        result = list(cursor.fetchall())
+
+        result.sort(key=lambda x:x[0])
 
         # 获取所有掉落的详细信息.
         allTreasures = {}
@@ -571,6 +659,16 @@ baseXiaotie=6000&stepXiaotie=3000&baseDatie=0&stepDatie=10000&baseOther=0&stepOt
                         base = params["baseWeapon"]
                 else:
                     base = params["baseCoupon"]
+                    if "护腕" in treasure["name"]:
+                        base *= multiplier[0]
+                    elif "腰带" in treasure["name"]:
+                        base *= multiplier[1]
+                    elif "鞋" in treasure["name"]:
+                        base *= multiplier[2]
+                    elif "帽" in treasure["name"]:
+                        base *= multiplier[3]
+                    elif "衣" in treasure["name"]:
+                        base *= multiplier[4]
             else:
                 if treasure["class"] == "materials":
                     base = params["baseMaterials"]
@@ -676,7 +774,7 @@ def getAuction():
 
         # 获取所有掉落
         treasureRes = []
-        sql = '''SELECT itemID, name, boss, id, basePrice, minimalStep, groupID, simulID FROM treasure WHERE dungeonID=%d;''' % int(DungeonID)
+        sql = '''SELECT itemID, name, boss, id, basePrice, minimalStep, groupID, simulID, lockTime, countdownBase FROM treasure WHERE dungeonID=%d;''' % int(DungeonID)
         cursor.execute(sql)
         result = cursor.fetchall()
 
@@ -689,6 +787,17 @@ def getAuction():
             minimalStep = treasure[5]
             groupID = treasure[6]
             simulID = treasure[7]
+            lockTime = treasure[8]
+            countdownBase = treasure[9]
+            remainTime = -1
+            lock = 0
+            if lockTime != -1:
+                if int(time.time()) >= lockTime:
+                    lock = 1
+                else:
+                    remainTime = lockTime - int(time.time())
+            else:
+                countdownBase = -1
             # print("[Test]", {"name": name, "map": map, "xinfa": xinfa})
             property = app.item_analyser.GetExtendItemByName({"name": name, "map": map, "xinfa": xinfa})
 
@@ -729,8 +838,13 @@ def getAuction():
                                 "minimalStep": minimalStep,
                                 "groupID": groupID,
                                 "simulID": simulID,
-                                "autobid": autobid
+                                "autobid": autobid,
+                                "lock": lock,
+                                "countdownBase": countdownBase,
+                                "remainTime": remainTime,
                                 })
+
+        treasureRes.sort(key=lambda x:x["itemID"])
 
     except Exception as e:
         traceback.print_exc()
@@ -765,7 +879,30 @@ def on_join(data):
 def broadcast_bid(dungeonID, itemID, player, price, nowTime):
     data = {"type": "bid", "itemID": itemID, "player": player, "price": price, "time": nowTime}
     socketio.emit('bid', data, namespace='/auction_info', room=str(dungeonID))
-    pass
+
+def broadcast_clear(dungeonID, itemID=-1, boss=""):
+    if boss == "":
+        data = {"type": "clear", "itemID": itemID}
+        socketio.emit('clear', data, namespace='/auction_info', room=str(dungeonID))
+    else:
+        data = {"type": "clear_boss", "boss": boss}
+        socketio.emit('clear_boss', data, namespace='/auction_info', room=str(dungeonID))
+
+def broadcast_lock(dungeonID, switch, itemID=-1, boss=""):
+    if boss == "":
+        data = {"type": "lock", "itemID": itemID, 'switch': switch}
+        socketio.emit('lock', data, namespace='/auction_info', room=str(dungeonID))
+    else:
+        data = {"type": "lock_boss", "boss": boss, 'switch': switch}
+        socketio.emit('lock_boss', data, namespace='/auction_info', room=str(dungeonID))
+
+def broadcast_countdown(dungeonID, countdownBase, itemID=-1, boss=""):
+    if boss == "":
+        data = {"type": "lock", "itemID": itemID, 'countdownBase': countdownBase}
+        socketio.emit('countdown', data, namespace='/auction_info', room=str(dungeonID))
+    else:
+        data = {"type": "lock_boss", "boss": boss, 'countdownBase': countdownBase}
+        socketio.emit('countdown_boss', data, namespace='/auction_info', room=str(dungeonID))
 
 @app.route('/bid', methods=['GET'])
 def bid():
@@ -802,18 +939,22 @@ def bid():
         playerID = result[0][0]
 
         # 检查物品是否存在
-
-        sql = '''SELECT id, groupID, simulID, basePrice, minimalStep FROM treasure WHERE dungeonID=%d AND itemID=%d;''' % (int(DungeonID), itemID)
+        sql = '''SELECT id, groupID, simulID, basePrice, minimalStep, lockTime, countdownBase FROM treasure WHERE dungeonID=%d AND itemID=%d;''' % (int(DungeonID), itemID)
         cursor.execute(sql)
         result = cursor.fetchall()
         if not result:
             return jsonify({'status': 211})
+
         result = result[0]
         treasureID = result[0]
         groupID = result[1]
         simulID = result[2]
         basePrice = result[3]
         minimalStep = result[4]
+        lockTime = result[5]
+        countdownBase = result[6]
+        updateLockTime = -1
+
         if price < basePrice:
             return jsonify({'status': 212})
         if price % minimalStep != 0:
@@ -822,6 +963,11 @@ def bid():
             return jsonify({'status': 214})
         if simulID != -1 and simulID != itemID:
             return jsonify({'status': 214})
+        if lockTime != -1:
+            if lockTime <= int(time.time()):
+                return jsonify({'status': 217})
+            else:
+                updateLockTime = int(time.time() + countdownBase)
 
         # 判断是否是同步拍卖. 如果是，那么记录其数量.
         itemNum = 1
@@ -911,14 +1057,8 @@ def bid():
             i += 1
             nowNum += line["num"]
 
-        # auctionNum = 1
-        # sql = '''SELECT MAX(id) FROM auction;'''
-        # cursor.execute(sql)
-        # result = cursor.fetchall()
-        # if result and result[0][0] is not None:
-        #     auctionNum = result[0][0] + 1
-
         nowTime = int(time.time())
+        hasbid = 0
 
         if activeNum == 0:
             if autobidAppear == 0:
@@ -931,6 +1071,7 @@ def bid():
                 cursor.execute(sql)
                 # TODO websocket出价
                 broadcast_bid(DungeonID, itemID, playerName, price, nowTime)
+                hasbid = 1
         else:
             # 如果出价有效并且没有被顶掉
             for i in range(activeNum):
@@ -939,6 +1080,7 @@ def bid():
                 cursor.execute(sql)
                 # TODO websocket出价
                 broadcast_bid(DungeonID, itemID, playerName, price, nowTime)
+                hasbid = 1
 
         # 考虑成功的自动出价，为其安排最合适的出价
         for line in bids:
@@ -948,6 +1090,11 @@ def bid():
                 cursor.execute(sql)
                 # TODO websocket出价
                 broadcast_bid(DungeonID, itemID, playerName, price, nowTime)
+                hasbid = 1
+
+        if hasbid and updateLockTime != -1:
+            sql = '''UPDATE treasure SET lockTime=%d WHERE dungeonID=%d AND itemID=%d;''' % (updateLockTime, int(DungeonID), itemID)
+            cursor.execute(sql)
 
         # 关闭低于阈值的自动出价
         for playerID in autobids:
@@ -1171,6 +1318,212 @@ def autobid():
         db.close()
 
     return jsonify({'status': 0})
+
+
+@app.route('/clearAuction', methods=['GET'])
+def clearAuction():
+    try:
+        AdminToken = request.args.get('AdminToken')
+        DungeonID = request.args.get('DungeonID')
+        boss = request.args.get('boss')
+        itemID = request.args.get('itemID')
+        availableNum = 2
+        if DungeonID is None:
+            return jsonify({'status': 101})
+        if AdminToken is None:
+            return jsonify({'status': 101})
+        if boss is None:
+            boss = ""
+            availableNum -= 1
+        if boss not in ["张景超", "刘展", "苏凤楼", "韩敬青", "藤原佑野", "李重茂", "其它", "关卡", "时风", "乐临川", "牛波", "和正", "武云阙", "翁幼之", ""]:
+            return jsonify({'status': 205})
+        if itemID is None:
+            itemID = -1
+            availableNum -= 1
+        itemID = int(itemID)
+        if availableNum == 2:
+            return jsonify({'status': 105})
+        elif availableNum == 0:
+            return jsonify({'status': 101})
+    except:
+        return jsonify({'status': 100})
+
+    name = config.get('jx3auction', 'username')
+    pwd = config.get('jx3auction', 'password')
+    db = pymysql.connect(host=IP, user=name, password=pwd, database="jx3auction", port=3306, charset='utf8mb4')
+    cursor = db.cursor()
+
+    try:
+        # 检验团长权限
+        sql = '''SELECT id FROM dungeon WHERE id=%d AND adminToken="%s";''' % (int(DungeonID), AdminToken)
+        cursor.execute(sql)
+        result = cursor.fetchall()
+        if not result:
+            return jsonify({'status': 202})
+
+        if itemID != -1:
+            sql = '''DELETE auction FROM auction, treasure WHERE treasureID=treasure.id AND dungeonID=%d AND itemID=%d;''' % (int(DungeonID), itemID)
+            cursor.execute(sql)
+            result = cursor.fetchall()
+            # 按itemID删除出价记录
+        else:
+            sql = '''DELETE auction FROM auction, treasure WHERE treasureID=treasure.id AND dungeonID=%d AND boss="%s";''' % (int(DungeonID), boss)
+            cursor.execute(sql)
+            result = cursor.fetchall()
+        broadcast_clear(int(DungeonID), itemID, boss)
+
+    except Exception as e:
+        traceback.print_exc()
+        return jsonify({'status': 200})
+
+    finally:
+        db.commit()
+        db.close()
+
+    return jsonify({'status': 0})
+
+
+@app.route('/lockAuction', methods=['GET'])
+def lockAuction():
+    try:
+        AdminToken = request.args.get('AdminToken')
+        DungeonID = request.args.get('DungeonID')
+        boss = request.args.get('boss')
+        itemID = request.args.get('itemID')
+        switch = request.args.get('switch')
+        availableNum = 2
+        if DungeonID is None:
+            return jsonify({'status': 101})
+        if AdminToken is None:
+            return jsonify({'status': 101})
+        if switch is None:
+            return jsonify({'status': 101})
+        if int(switch) not in [0, 1]:
+            return jsonify({'status': 107})
+        if boss is None:
+            boss = ""
+            availableNum -= 1
+        if boss not in ["张景超", "刘展", "苏凤楼", "韩敬青", "藤原佑野", "李重茂", "其它", "关卡", "时风", "乐临川", "牛波", "和正", "武云阙", "翁幼之", ""]:
+            return jsonify({'status': 205})
+        if itemID is None:
+            itemID = -1
+            availableNum -= 1
+        itemID = int(itemID)
+        if availableNum == 2:
+            return jsonify({'status': 105})
+        elif availableNum == 0:
+            return jsonify({'status': 101})
+    except:
+        return jsonify({'status': 100})
+
+    name = config.get('jx3auction', 'username')
+    pwd = config.get('jx3auction', 'password')
+    db = pymysql.connect(host=IP, user=name, password=pwd, database="jx3auction", port=3306, charset='utf8mb4')
+    cursor = db.cursor()
+
+    try:
+        # 检验团长权限
+        sql = '''SELECT id FROM dungeon WHERE id=%d AND adminToken="%s";''' % (int(DungeonID), AdminToken)
+        cursor.execute(sql)
+        result = cursor.fetchall()
+        if not result:
+            return jsonify({'status': 202})
+
+        switch = int(switch) - 1
+        if itemID != -1:
+            sql = '''UPDATE treasure SET lockTime=%d, countdownBase=-1 WHERE dungeonID=%d AND itemID=%d;''' % (switch, int(DungeonID), itemID)
+            cursor.execute(sql)
+            result = cursor.fetchall()
+        else:
+            sql = '''UPDATE treasure SET lockTime=%d, countdownBase=-1 WHERE dungeonID=%d AND boss="%s";''' % (switch, int(DungeonID), boss)
+            cursor.execute(sql)
+            result = cursor.fetchall()
+        broadcast_lock(int(DungeonID), switch, itemID, boss)
+
+    except Exception as e:
+        traceback.print_exc()
+        return jsonify({'status': 200})
+
+    finally:
+        db.commit()
+        db.close()
+
+    return jsonify({'status': 0})
+
+@app.route('/countdownAuction', methods=['GET'])
+def countdownAuction():
+    try:
+        AdminToken = request.args.get('AdminToken')
+        DungeonID = request.args.get('DungeonID')
+        boss = request.args.get('boss')
+        itemID = request.args.get('itemID')
+        countdownBase = request.args.get('time')
+        availableNum = 2
+        if DungeonID is None:
+            return jsonify({'status': 101})
+        if AdminToken is None:
+            return jsonify({'status': 101})
+        if countdownBase is None:
+            return jsonify({'status': 101})
+        countdownBase = int(countdownBase)
+        if boss is None:
+            boss = ""
+            availableNum -= 1
+        if boss not in ["张景超", "刘展", "苏凤楼", "韩敬青", "藤原佑野", "李重茂", "其它", "关卡", "时风", "乐临川", "牛波", "和正", "武云阙", "翁幼之", ""]:
+            return jsonify({'status': 205})
+        if itemID is None:
+            itemID = -1
+            availableNum -= 1
+        itemID = int(itemID)
+        if availableNum == 2:
+            return jsonify({'status': 105})
+        elif availableNum == 0:
+            return jsonify({'status': 101})
+    except:
+        return jsonify({'status': 100})
+
+    name = config.get('jx3auction', 'username')
+    pwd = config.get('jx3auction', 'password')
+    db = pymysql.connect(host=IP, user=name, password=pwd, database="jx3auction", port=3306, charset='utf8mb4')
+    cursor = db.cursor()
+
+    try:
+        # 检验团长权限
+        sql = '''SELECT id FROM dungeon WHERE id=%d AND adminToken="%s";''' % (int(DungeonID), AdminToken)
+        cursor.execute(sql)
+        result = cursor.fetchall()
+        if not result:
+            return jsonify({'status': 202})
+        nowTime = int(time.time())
+        newLockTime = nowTime + countdownBase
+        if itemID != -1:
+            sql = '''SELECT itemID from treasure WHERE dungeonID=%d AND itemID=%d AND (lockTime=-1 OR lockTime>%d);''' % (int(DungeonID), itemID, nowTime)
+            cursor.execute(sql)
+            result1 = cursor.fetchall()
+            sql = '''UPDATE treasure SET countdownBase=%d, lockTime=%d WHERE dungeonID=%d AND itemID=%d AND (lockTime=-1 OR lockTime>%d);''' % (countdownBase, newLockTime, int(DungeonID), itemID, nowTime)
+            cursor.execute(sql)
+            result = cursor.fetchall()
+        else:
+            sql = '''SELECT itemID from treasure WHERE dungeonID=%d AND boss="%s" AND (lockTime=-1 OR lockTime>%d);''' % (int(DungeonID), boss, nowTime)
+            cursor.execute(sql)
+            result1 = cursor.fetchall()
+            sql = '''UPDATE treasure SET countdownBase=%d, lockTime=%d WHERE dungeonID=%d AND boss="%s" AND (lockTime=-1 OR lockTime>%d);''' % (countdownBase, newLockTime, int(DungeonID), boss, nowTime)
+            cursor.execute(sql)
+            result = cursor.fetchall()
+        itemList = []
+        for line in result1:
+            itemList.append(line[0])
+        broadcast_countdown(int(DungeonID), countdownBase, itemID, boss)
+
+    except Exception as e:
+        traceback.print_exc()
+        return jsonify({'status': 200})
+
+    finally:
+        db.commit()
+        db.close()
+
+    return jsonify({'status': 0, 'success': itemList})
 
 
 # 下面是网页

@@ -391,7 +391,7 @@ class ItemAnalyser():
         # if len(idList) > 1:
         #     return output
 
-        item = self.item[idList[0]]
+        item = self.item[idList[-1]]
         output = {"available": 1,
                   "name": input["name"],
                   "icon": item["iconid"],
@@ -546,7 +546,11 @@ class ItemAnalyser():
             - `related` 这里不再是字符串，而是再次调用GetSingleItemByName的结果.
         '''
         output = self.GetSingleItemByName(input)
-        for i in range(len(output["related"])):
+        length = 0
+        # print("[output]", output)
+        if "related" in output:
+            length = len(output["related"])
+        for i in range(length):
             equipName = output["related"][i]
             if type(equipName) is type("123"):
                 childResult = self.GetSingleItemByName({"name": equipName, "map": input["map"], "xinfa": input["xinfa"]})

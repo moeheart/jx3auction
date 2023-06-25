@@ -5,6 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>掉落列表</title>
+	<link rel="icon" href="/static/favicon.ico" type="image/x-icon">
 
     <script src="https://cdn.bootcdn.net/ajax/libs/vue/2.7.9/vue.min.js"></script>
     <script src="https://cdn.bootcdn.net/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
@@ -38,8 +39,10 @@
 			<label class="form-check-label" for="xinfaOnly">只看自己心法</label>
 		  </div>
 		</div>
-		<div class="row">
-		  <div class="form-group col-md-4" v-on:change="reload_filter()">
+		<div class="form-row">
+		  <div class="form-group form-check col-md-4" v-on:change="reload_filter()">
+			<input type="checkbox" class="form-check-input" id="fmOnly" v-model="fmOnly">
+			<label class="form-check-label" for="fmOnly">只看附魔</label>
 		  </div>
 		  <div class="form-group col-md-4" v-on:change="reload_filter()">
 		  </div>
