@@ -21,7 +21,7 @@ import uuid
 from logic.ItemAnalyser import ItemAnalyser
 
 IP = "120.48.95.56"  # IP
-EDITION = "0.1.0"
+EDITION = "0.1.1"
 
 app = Flask(__name__)
 CORS(app)
@@ -133,6 +133,8 @@ def registerTeam():
             return jsonify({'status': 101})
         if int(position) < 1 or int(position) > 25:
             return jsonify({'status': 103})
+        if playerName == "":
+            return jsonify({'status': 108})
     except:
         return jsonify({'status': 100})
 

@@ -70,7 +70,8 @@
          simulID INT,
          basePrice INT,
          minimalStep INT,
-         lockTime INT
+         lockTime INT,
+         countdownBase INT,
 ) DEFAULT CHARSET utf8mb4;``
 
 ## auction

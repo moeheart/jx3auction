@@ -39,17 +39,18 @@ sql = """CREATE TABLE dungeon (
 cursor.execute(sql)
 
 sql = """CREATE TABLE player (
-         id INT PRIMARY KEY,
+         id VARCHAR(40) PRIMARY KEY,
          dungeonID INT,
          position INT,
          playerName VARCHAR(32),
          xinfa VARCHAR(32),
-         profile VARCHAR(32)
+         profile VARCHAR(32),
+         playerToken VARCHAR(32)
 ) DEFAULT CHARSET utf8mb4;"""
 cursor.execute(sql)
 
 sql = """CREATE TABLE treasure (
-         id INT PRIMARY KEY,
+         id VARCHAR(40) PRIMARY KEY,
          dungeonID INT,
          itemID INT,
          name VARCHAR(32),
@@ -57,28 +58,20 @@ sql = """CREATE TABLE treasure (
          groupID INT,
          simulID INT,
          basePrice INT,
-         minimalStep INT
+         minimalStep INT,
+         lockTime INT,
+         countdownBase INT,
 ) DEFAULT CHARSET utf8mb4;"""
 cursor.execute(sql)
 
 sql = """CREATE TABLE auction (
-         id INT PRIMARY KEY,
-         playerID INT,
-         treasureID INT,
+         id VARCHAR(40) PRIMARY KEY,
+         playerID VARCHAR(40),
+         treasureID VARCHAR(40),
          time INT,
          price INT,
          effective INT,
          auto INT
-) DEFAULT CHARSET utf8mb4;"""
-cursor.execute(sql)
-
-sql = """CREATE TABLE autobid (
-         id INT PRIMARY KEY,
-         playerID INT,
-         treasureID INT,
-         time INT,
-         price INT,
-         num INT
 ) DEFAULT CHARSET utf8mb4;"""
 cursor.execute(sql)
 
