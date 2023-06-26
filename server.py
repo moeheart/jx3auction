@@ -21,7 +21,7 @@ import uuid
 from logic.ItemAnalyser import ItemAnalyser
 
 IP = "120.48.95.56"  # IP
-EDITION = "0.0.2"
+EDITION = "0.1.0"
 
 app = Flask(__name__)
 CORS(app)
