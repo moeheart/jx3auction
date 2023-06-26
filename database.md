@@ -95,7 +95,7 @@
          auto INT
 ) DEFAULT CHARSET utf8mb4;``
 
-## autobid
+## autobid（已废弃，现在直接在前端循环就行）
 
 自动出价记录表。用于记录自动出价信息。这个表会实时更新，无效的自动出价操作需要被删除。
 

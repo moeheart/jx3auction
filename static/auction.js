@@ -6,6 +6,7 @@ CURRENT_ID = -1;
 COPIED = {};
 PLAYER_INFO = {};
 PLAYER_INFO_UPDATED = 0;
+FOLD_ITEM = {};
 
 $(document).ready(function () {
     namespace = '/auction_info';
@@ -53,12 +54,21 @@ $(document).ready(function () {
             FAVORITE_ITEM[res["itemID"]] = 1;
             activate_favorite(res["itemID"], 0);
         }
+        get_lowest_price(res["itemID"]);
         if (item["currentOwner"].indexOf(PLAYER_NAME) != -1) {
             $(`#item-${res["itemID"]}`).addClass("owner");
         } else {
             $(`#item-${res["itemID"]}`).removeClass("owner");
+            // 如果不再是最高价，就同时关闭自动出价
+            if (item["autobidPrice"] >= LOWEST_PRICE[res["itemID"]]) {
+                bid_implement(res["itemID"], LOWEST_PRICE[res["itemID"]]);
+            } else {
+                $(`#autobid-${res["itemID"]}`).html("自动出价");
+                $(`#bidnum-${res["itemID"]}`).removeAttr("disabled");
+                $(`#bid-${res["itemID"]}`).removeAttr("disabled");
+                item["autobidPrice"] = -1;
+            }
         }
-        get_lowest_price(res["itemID"]);
         // 刷新时间
         if (item["countdownBase"] != -1) {
             item["remainTime"] = Math.max(0, item["countdownBase"] - 2);
@@ -103,6 +113,10 @@ $(document).ready(function () {
         item["currentPrice"].length = 0;
         item["lowestPrice"] = item["basePrice"];
         $(`#item-${res["itemID"]}`).removeClass("owner");
+        $(`#autobid-${res["itemID"]}`).html("自动出价");
+        $(`#bidnum-${res["itemID"]}`).removeAttr("disabled");
+        $(`#bid-${res["itemID"]}`).removeAttr("disabled");
+        item["autobidPrice"] = -1;
         get_lowest_price(res["itemID"]);
         V_treasure_list.reloadBids();
     });
@@ -124,6 +138,10 @@ $(document).ready(function () {
             item["currentPrice"].length = 0;
             item["lowestPrice"] = item["basePrice"];
             $(`#item-${item["itemID"]}`).removeClass("owner");
+            $(`#autobid-${item["itemID"]}`).html("自动出价");
+            $(`#bidnum-${item["itemID"]}`).removeAttr("disabled");
+            $(`#bid-${item["itemID"]}`).removeAttr("disabled");
+            item["autobidPrice"] = -1;
             get_lowest_price(item["itemID"]);
             V_treasure_list.reloadBids();
         }
@@ -277,6 +295,7 @@ function show_attrib(){
     var group_content = {};
     SIMUL_CONTENT = {};
     FAVORITE_ITEM = {};
+    FOLD_ITEM = {}
     ITEM_OPEN = {};
     LOWEST_PRICE = {};
     // 展示打包拍卖、同步拍卖等特殊情况
@@ -369,6 +388,7 @@ function show_attrib(){
     for (var i in AUCTION_BY_ID) {
         // 计算初始时的各项属性
         FAVORITE_ITEM[i] = 0;
+        FOLD_ITEM[i] = 0;
         var item = AUCTION_BY_ID[i];
         var itemNum = 1;
         if (item["simulID"] != -1) {
@@ -409,6 +429,13 @@ function show_attrib(){
             obj.attr("data-placement", "top");
             obj.attr("title", "这件物品处于倒计时中，倒计时结束后会锁定，出价可以刷新倒计时。\n由于网络延迟等原因，卡秒出价可能会导致出价失败。");
         }
+        item["autobidPrice"] = -1;
+//        if (item["autobidPrice"] != -1) {
+//            // 已经有自动出价
+//            $(`#autobid-${i}`).html("出价中...");
+//            $(`#bidnum-${i}`).attr("disabled", "1");
+//            $(`#bidnum-${i}`).val(item["autobidPrice"]);
+//        }
         // 计算最小出价
         get_lowest_price(i);
     }
@@ -445,6 +472,19 @@ function favorite(itemID) {
     } else {
         FAVORITE_ITEM[itemID] = 0;
         deactivate_favorite(itemID, 1);
+    }
+}
+
+function fold(itemID) {
+    // 切换折叠状态，也即同时处理开/关两种情况。
+    if (FOLD_ITEM[itemID] == 0) {
+        FOLD_ITEM[itemID] = 1;
+//        $(`#fold-${itemID}`).addClass("active");
+//        $(`#fold-${itemID}`).attr("aria-pressed", "true");
+    } else {
+        FOLD_ITEM[itemID] = 0;
+//        $(`#fold-${itemID}`).removeClass("active");
+//        $(`#fold-${itemID}`).attr("aria-pressed", "false");
     }
 }
 
@@ -490,8 +530,61 @@ function error(code) {
     showError(msg, i+1);
 }
 
-function auto_bid(itemID){
-
+function autobid(itemID){
+    item = AUCTION_BY_ID[itemID];
+    if (item["autobidPrice"] != -1) {
+        // 已经有自动出价
+//        var str = `/autobid?playerName=${PLAYER_NAME}&DungeonID=${DUNGEON_ID}&itemID=${itemID}&price=0&num=0&PlayerToken=${PLAYER_TOKEN}`;
+//        console.log(str);
+//        $.get(str, function(result){
+//            console.log(result);
+//            if (result["status"] != 0) {
+//                error(result["status"]);
+//            } else {
+//                $(`#autobid-${result["itemID"]}`).html("自动出价");
+//                $(`#bidnum-${result["itemID"]}`).removeAttr("disabled");
+//                AUCTION_BY_ID[result["itemID"]]["autobidPrice"] = -1;
+//            }
+//        });
+        $(`#autobid-${itemID}`).html("自动出价");
+        $(`#bidnum-${itemID}`).removeAttr("disabled");
+        $(`#bid-${itemID}`).removeAttr("disabled");
+        AUCTION_BY_ID[itemID]["autobidPrice"] = -1;
+    } else {
+        var lowestPrice = LOWEST_PRICE[itemID];
+        var price = $(`#bidnum-${itemID}`).val();
+        if (AUCTION_BY_ID[itemID]["lock"] == 1) {
+            error(902);
+            return;
+        }
+        if (price < lowestPrice) {
+            error(901);
+            return;
+        }
+//        $(`#autobid-${itemID}`).attr("disabled", 1);
+//        var str = `/autobid?playerName=${PLAYER_NAME}&DungeonID=${DUNGEON_ID}&itemID=${itemID}&price=${price}&num=1&PlayerToken=${PLAYER_TOKEN}`;
+//        console.log(str);
+//        $.get(str, function(result){
+//            if (result["status"] != 0) {
+//                error(result["status"]);
+//            } else if (result["success"] == 0) {
+//                error(302);
+//            } else {
+//                AUCTION_BY_ID[itemID]["autobidPrice"] = result["price"];
+//            }
+//            $(`#autobid-${result["itemID"]}`).removeAttr("disabled");
+//            $(`#autobid-${result["itemID"]}`).html("出价中...");
+//            $(`#bidnum-${result["itemID"]}`).attr("disabled", 1);
+//            console.log(result);
+//        });
+        $(`#autobid-${itemID}`).html("出价中...");
+        $(`#bidnum-${itemID}`).attr("disabled", 1);
+        $(`#bid-${itemID}`).attr("disabled", 1);
+        AUCTION_BY_ID[itemID]["autobidPrice"] = price;
+        if (item["currentOwner"].indexOf(PLAYER_NAME) == -1) {
+            bid_implement(itemID, LOWEST_PRICE[itemID]);
+        }
+    }
 }
 
 function bid_implement(itemID, price) {

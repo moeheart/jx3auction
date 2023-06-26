@@ -117,10 +117,10 @@
 							  <div class="row">
 							    <div class="col-md-6">
 								  <div class="row">
-									<div class="col-2">
-										<p> </p>
+									<div class="col-3">
+										<button :id=`fold-${item["itemID"]}` type="submit" @click.prevent='fold(item["itemID"])' class="btn btn-secondary" data-toggle="button" aria-pressed="false">折叠</button>
 									</div>
-									<div class="col-4">
+									<div class="col-3">
 										<button :id=`favorite-${item["itemID"]}` type="submit" @click.prevent='favorite(item["itemID"])' class="btn btn-warning" data-toggle="button" aria-pressed="false">收藏</button>
 									</div>
 									<div class="col-6">
@@ -133,11 +133,10 @@
 								  <div class="row">
 									<input class="col-4" :id='`bidnum-${item["itemID"]}`'>
 									<div class="col-4">
-										<button type="submit" @click.prevent='bid(item["itemID"])' class="btn btn-primary">出价</button>
+										<button type="submit" :id=`bid-${item["itemID"]}` @click.prevent='bid(item["itemID"])' class="btn btn-primary">出价</button>
 									</div>
 									<div class="col-4">
-										<button type="submit" @click.prevent='autobid(item["itemID"])' class="btn btn-danger" data-toggle="tooltip" data-placement="top" title="自动以最小间隔加价，直到达到填入的价格为止。在此之后仍可继续出价。
-	暂未实装，要期待更美好的未来！" disabled>自动出价</button>
+										<button type="submit" :id=`autobid-${item["itemID"]}` @click.prevent='autobid(item["itemID"])' class="btn btn-danger" data-toggle="tooltip" data-placement="top" title="自动以最小间隔加价，直到达到填入的价格为止。在此之后仍可继续出价。">自动出价</button>
 									</div>
 								  </div>
 								</div>
@@ -145,7 +144,7 @@
 							</div>
 							<ul class="list-group p-2" v-if="reload_bids">
 								<li :class="bid['available'] == 1 ? 'list-group-item available-bid p-0' : 'list-group-item p-0'" v-for='bid in item["bids"]' :id='`bid-${item["itemID"]}-${bid["bidID"]}`'>
-									<div class="row">
+									<div class="row" v-if='FOLD_ITEM[item["itemID"]] == 0 || bid["bidID"] < 5'>
 										<div class="col-3">
 										</div>
 										<div class="col-3">
@@ -156,6 +155,21 @@
 										</div>
 										<div class="col-4">
 											<p class="bid-line"> [[ bid['time'] | dateFormat ]] </p>
+										</div>
+									</div>
+								</li>
+								<li :class="bid['available'] == 1 ? 'list-group-item available-bid p-0' : 'list-group-item p-0'" :id='`bid-${item["itemID"]}-extra`'>
+									<div class="row" v-if='item["bids"].length > 5 && FOLD_ITEM[item["itemID"]] == 1'>
+										<div class="col-3">
+										</div>
+										<div class="col-3">
+											<p class="bid-line"> ... </p>
+										</div>
+										<div class="col-2">
+											<p class="bid-line"> ... </p>
+										</div>
+										<div class="col-4">
+											<p class="bid-line"> ... </p>
 										</div>
 									</div>
 								</li>

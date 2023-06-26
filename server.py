@@ -341,9 +341,9 @@ def kickPlayer():
         cursor.execute(sql)
         result = cursor.fetchall()
 
-        sql = '''DELETE FROM autobid WHERE playerID="%s";''' % (playerID)
-        cursor.execute(sql)
-        result = cursor.fetchall()
+        # sql = '''DELETE FROM autobid WHERE playerID="%s";''' % (playerID)
+        # cursor.execute(sql)
+        # result = cursor.fetchall()
 
         sql = '''DELETE FROM player WHERE id="%s";''' % (playerID)
         cursor.execute(sql)
@@ -804,7 +804,7 @@ def getAuction():
             bids = []
             currentPrice = []
             currentOwner = []
-            autobid = -1
+            # autobid = -1
             if (groupID == -1 or groupID == itemID) and (simulID == -1 or simulID == simulID):
                 sql = '''SELECT playerID, time, price, effective, playerName FROM auction, player WHERE treasureID="%s" AND playerID=player.id;''' % treasureID
                 cursor.execute(sql)
@@ -821,11 +821,11 @@ def getAuction():
                         currentPrice.append(bid[2])
                         currentOwner.append(bid[4])
 
-                sql = '''SELECT price FROM autobid WHERE playerID="%s" AND treasureID="%s";''' % (playerID, treasureID)
-                cursor.execute(sql)
-                result = cursor.fetchall()
-                if result:
-                    autobid = result[0][0]
+                # sql = '''SELECT price FROM autobid WHERE playerID="%s" AND treasureID="%s";''' % (playerID, treasureID)
+                # cursor.execute(sql)
+                # result = cursor.fetchall()
+                # if result:
+                #     autobid = result[0][0]
 
             treasureRes.append({"itemID": itemID,
                                 "name": name,
@@ -838,7 +838,7 @@ def getAuction():
                                 "minimalStep": minimalStep,
                                 "groupID": groupID,
                                 "simulID": simulID,
-                                "autobid": autobid,
+                                # "autobidPrice": autobid,
                                 "lock": lock,
                                 "countdownBase": countdownBase,
                                 "remainTime": remainTime,
@@ -969,6 +969,13 @@ def bid():
             else:
                 updateLockTime = int(time.time() + countdownBase)
 
+        # 检查是否已经有自动出价
+        # sql = '''SELECT autobid.id FROM treasure, autobid WHERE treasureID=treasure.id AND dungeonID=%d AND itemID=%d AND playerID="%s";''' % (int(DungeonID), itemID, playerID)
+        # cursor.execute(sql)
+        # result = cursor.fetchall()
+        # if result:
+        #     return jsonify({'status': 218})
+
         # 判断是否是同步拍卖. 如果是，那么记录其数量.
         itemNum = 1
         if simulID != -1:
@@ -981,7 +988,7 @@ def bid():
             return jsonify({'status': 215})
 
         bids = []
-        autobids = {}
+        # autobids = {}
 
         # 获取所有出价信息
         sql = '''SELECT playerID, time, price, effective, playerName, auction.id FROM auction, player WHERE treasureID="%s" AND playerID=player.id AND effective=1;''' % treasureID
@@ -996,17 +1003,17 @@ def bid():
                          "source": "auction"})
 
         # 获取所有自动出价信息
-        sql = '''SELECT price, playerID, autobid.id, num, time, playerName FROM autobid, player WHERE treasureID="%s" AND playerID=player.id;''' % (treasureID)
-        cursor.execute(sql)
-        result = cursor.fetchall()
-        for bid in result:
-            autobids[bid[1]] = {
-                 "price": bid[0],
-                 "autobidID": bid[2],
-                 "num": bid[3],
-                 "time": bid[4],
-                 "playerName": bid[5],
-            }
+        # sql = '''SELECT price, playerID, autobid.id, num, time, playerName FROM autobid, player WHERE treasureID="%s" AND playerID=player.id;''' % (treasureID)
+        # cursor.execute(sql)
+        # result = cursor.fetchall()
+        # for bid in result:
+        #     autobids[bid[1]] = {
+        #          "price": bid[0],
+        #          "autobidID": bid[2],
+        #          "num": bid[3],
+        #          "time": bid[4],
+        #          "playerName": bid[5],
+        #     }
 
         # 记录自己的出价信息
         bids.append({
@@ -1025,7 +1032,7 @@ def bid():
         toRemove = max(0, len(bids) - itemNum)
         nowNum = 0
         activeNum = num
-        autobidAppear = 0
+        # autobidAppear = 0
         maxDeleted = 0
 
         while nowNum < toRemove:
@@ -1036,24 +1043,25 @@ def bid():
                 sql = '''UPDATE auction SET effective=0 WHERE id="%s";''' % (line["auctionID"])
                 cursor.execute(sql)
                 maxDeleted = line["price"]
-                if line["playerID"] in autobids:
-                    # 如果顶掉的这个出价有对应的自动出价，就尝试自动出价.
-                    autobid = autobids[line["playerID"]]
-                    if autobid["price"] > line["price"]:
-                        bids.append({"playerID": line["playerID"],
-                                     "playerName": autobid["playerName"],
-                                     "price": autobid["price"],
-                                     "num": 1,
-                                     "source": "autobid"})
-                        bids.sort(key=lambda x: x["price"] + {"auction": 0, "current": 0, "autobid": -1, "unavailable": -1}[x["source"]] - x["time"] / 1e+10)
-                        autobidAppear = 1
-                        toRemove += 1
+                # if line["playerID"] in autobids:
+                #     # 如果顶掉的这个出价有对应的自动出价，就尝试自动出价.
+                #     autobid = autobids[line["playerID"]]
+                #     if autobid["price"] > line["price"]:
+                #         bids.append({"playerID": line["playerID"],
+                #                      "playerName": autobid[line["playerID"]],
+                #                      "price": autobid["price"],
+                #                      "num": 1,
+                #                      "time": int(time.time()),
+                #                      "source": "autobid"})
+                #         bids.sort(key=lambda x: x["price"] + {"auction": 0, "current": 0, "autobid": -1, "unavailable": -1}[x["source"]] - x["time"] / 1e+10)
+                #         autobidAppear = 1
+                #         toRemove += 1
             # 当前出价，计算可以生效多少个
             elif line["source"] == "current":
                 activeNum = max(0, num - (toRemove - i))
             # 预定自动出价也可能被移除
-            elif line["source"] == "autobid":
-                line["source"] = "unavailable"
+            # elif line["source"] == "autobid":
+            #     line["source"] = "unavailable"
             i += 1
             nowNum += line["num"]
 
@@ -1061,47 +1069,47 @@ def bid():
         hasbid = 0
 
         if activeNum == 0:
-            if autobidAppear == 0:
-                # 如果出价完全无效
-                return jsonify({'status': 0, 'success': 0})
-            else:
+            return jsonify({'status': 0, 'success': 0})
+            # if autobidAppear == 0:
+            #     # 如果出价完全无效
+            #
+            # else:
+            #
                 # 如果出价有效，但是被自动出价顶掉
-                id = str(uuid.uuid1())
-                sql = '''INSERT INTO auction VALUES ("%s", "%s" "%s", %d, %d, 0, 0);''' % (id, playerID, treasureID, nowTime, price)
-                cursor.execute(sql)
-                # TODO websocket出价
-                broadcast_bid(DungeonID, itemID, playerName, price, nowTime)
-                hasbid = 1
+                # id = str(uuid.uuid1())
+                # sql = '''INSERT INTO auction VALUES ("%s", "%s" "%s", %d, %d, 0, 0);''' % (id, playerID, treasureID, nowTime, price)
+                # cursor.execute(sql)
+                # broadcast_bid(DungeonID, itemID, playerName, price, nowTime)
+                # hasbid = 1
         else:
             # 如果出价有效并且没有被顶掉
             for i in range(activeNum):
                 id = str(uuid.uuid1())
                 sql = '''INSERT INTO auction VALUES ("%s", "%s", "%s", %d, %d, 1, 0);''' % (id, playerID, treasureID, nowTime, price)
                 cursor.execute(sql)
-                # TODO websocket出价
                 broadcast_bid(DungeonID, itemID, playerName, price, nowTime)
                 hasbid = 1
 
         # 考虑成功的自动出价，为其安排最合适的出价
-        for line in bids:
-            if line["source"] == "autobid":
-                id = str(uuid.uuid1())
-                sql = '''INSERT INTO auction VALUES ("%s", "%s", "%s", %d, %d, 1, 1);''' % (id, line["playerID"], treasureID, nowTime, maxDeleted + minimalStep)
-                cursor.execute(sql)
-                # TODO websocket出价
-                broadcast_bid(DungeonID, itemID, playerName, price, nowTime)
-                hasbid = 1
+        # for line in bids:
+        #     if line["source"] == "autobid":
+        #         id = str(uuid.uuid1())
+        #         sql = '''INSERT INTO auction VALUES ("%s", "%s", "%s", %d, %d, 1, 1);''' % (id, line["playerID"], treasureID, nowTime, maxDeleted + minimalStep)
+        #         cursor.execute(sql)
+        #         name = autobids[line["playerID"]]["playerName"]
+        #         broadcast_bid(DungeonID, itemID, name, maxDeleted + minimalStep, nowTime)
 
+        # 刷新倒计时
         if hasbid and updateLockTime != -1:
             sql = '''UPDATE treasure SET lockTime=%d WHERE dungeonID=%d AND itemID=%d;''' % (updateLockTime, int(DungeonID), itemID)
             cursor.execute(sql)
 
         # 关闭低于阈值的自动出价
-        for playerID in autobids:
-            line = autobids[playerID]
-            if line["price"] <= maxDeleted:
-                sql = '''UPDATE autobid SET effective=0 WHERE id="%s";''' % (line["autobidID"])
-                cursor.execute(sql)
+        # for playerID in autobids:
+        #     line = autobids[playerID]
+        #     if line["price"] <= maxDeleted:
+        #         sql = '''DELETE FROM autobid WHERE id="%s";''' % (line["autobidID"])
+        #         cursor.execute(sql)
 
     except Exception as e:
         traceback.print_exc()
@@ -1113,211 +1121,243 @@ def bid():
 
     return jsonify({'status': 0, 'success': 1})
 
-
-@app.route('/autobid', methods=['GET'])
-def autobid():
-    # http://127.0.0.1:8009/autobid?DungeonID=2&playerName=%E8%8A%B1%E5%A7%90&itemID=1&price=3000&num=1
-
-    try:
-        playerName = request.args.get('playerName')
-        DungeonID = request.args.get('DungeonID')
-        itemID = int(request.args.get('itemID'))
-        price = int(request.args.get('price'))
-        num = int(request.args.get('num'))
-        PlayerToken = int(request.args.get('PlayerToken'))
-        if playerName is None:
-            return jsonify({'status': 101})
-        if DungeonID is None:
-            return jsonify({'status': 101})
-        if PlayerToken is None:
-            PlayerToken = ""
-    except:
-        return jsonify({'status': 100})
-
-    name = config.get('jx3auction', 'username')
-    pwd = config.get('jx3auction', 'password')
-    db = pymysql.connect(host=IP, user=name, password=pwd, database="jx3auction", port=3306, charset='utf8mb4')
-    cursor = db.cursor()
-
-    try:
-        # 检查副本和玩家是否合法
-        sql = '''SELECT id, xinfa FROM player WHERE dungeonID=%d AND playerName="%s" AND playerToken="%s";''' % (int(DungeonID), playerName, PlayerToken)
-        cursor.execute(sql)
-        result = cursor.fetchall()
-        if not result:
-            return jsonify({'status': 203})
-        playerID = result[0][0]
-
-        # 检查物品是否存在
-
-        sql = '''SELECT id, groupID, simulID, basePrice, minimalStep FROM treasure WHERE dungeonID=%d AND itemID=%d;''' % (int(DungeonID), itemID)
-        cursor.execute(sql)
-        result = cursor.fetchall()
-        if not result:
-            return jsonify({'status': 211})
-        treasureID = result[0]
-        groupID = result[1]
-        simulID = result[2]
-        basePrice = result[3]
-        minimalStep = result[4]
-        if price < basePrice:
-            return jsonify({'status': 212})
-        if price % minimalStep != 0:
-            return jsonify({'status': 213})
-        if groupID != -1 and groupID != itemID:
-            return jsonify({'status': 214})
-        if simulID != -1 and simulID != itemID:
-            return jsonify({'status': 214})
-
-        # 判断是否是同步拍卖. 如果是，那么记录其数量.
-        itemNum = 1
-        if simulID != -1:
-            sql = '''SELECT id FROM treasure WHERE dungeonID=%d AND (itemID=%d OR simulID=%d);''' % (int(DungeonID), itemID, itemID)
-            cursor.execute(sql)
-            result = cursor.fetchall()
-            itemNum = len(result)
-
-        if num > itemNum:
-            return jsonify({'status': 215})
-
-        bids = []
-        autobids = {}
-
-        # 获取所有出价信息
-        sql = '''SELECT playerID, time, price, effective, playerName, id FROM auction, player WHERE treasureID="%s" AND playerID=player.id AND effective=1;''' % treasureID
-        cursor.execute(sql)
-        result = cursor.fetchall()
-        for bid in result:
-            bids.append({"playerID": bid[0],
-                         "price": bid[2],
-                         "auctionID": bid[5],
-                         "time": bid[1],
-                         "num": 1,
-                         "source": "auction"})
-
-        # 获取所有自动出价信息
-        sql = '''SELECT price, playerID, id, num, time FROM autobid WHERE treasureID="%s" AND effective=1;''' % (treasureID)
-        cursor.execute(sql)
-        result = cursor.fetchall()
-        for bid in result:
-            autobids[bid[1]] = {
-                 "price": bid[0],
-                 "autobidID": bid[2],
-                 "num": bid[3],
-                 "time": bid[4],
-            }
-
-        # 记录自己的出价信息
-        bids.append({
-            "playerID": playerID,
-            "price": price,
-            "num": num,
-            "time": int(time.time()),
-            "source": "current",
-        })
-
-        # 判断在正常出价中的排名，并移除出价低的
-        bids.sort(key=lambda x: x["price"] + {"auction": 0, "current": 0, "autobid": -1, "unavailable": -1}[x["source"]] - x["time"] / 1e+10)
-
-        # 按由低到高的顺序移除出价。需要移除的数量等于添加的数量。
-        i = 0
-        toRemove = num
-        if len(bids) < itemNum:
-            toRemove = num - itemNum + len(bids)
-        nowNum = 0
-        activeNum = num
-        autobidAppear = 0
-        maxDeleted = basePrice - minimalStep
-        while i < toRemove:
-            # 记录中的出价更低，被顶掉
-            line = bids[i]
-            if line["source"] == "auction":
-                sql = '''UPDATE auction SET effective=0 WHERE id="%s";''' % (line["auctionID"])
-                cursor.execute(sql)
-                maxDeleted = line["price"]
-                if line["playerID"] in autobids:
-                    # 如果顶掉的这个出价有对应的自动出价，就尝试自动出价.
-                    autobid = autobids[line["playerID"]]
-                    if autobid["price"] > line["price"]:
-                        bids.append({"playerID": line["playerID"],
-                                     "price": autobid["price"],
-                                     "num": 1,
-                                     "source": "autobid"})
-                        bids.sort(key=lambda x: x["price"] + {"auction": 0, "current": 0, "autobid": -1, "unavailable": -1}[x["source"]] - x["time"] / 1e+10)
-                        autobidAppear = 1
-                        toRemove += 1
-            # 当前出价，计算可以生效多少个
-            elif line["source"] == "current":
-                activeNum = max(0, line["num"] - toRemove)
-            # 预定自动出价也可能被移除
-            elif line["source"] == "current":
-                line["source"] = "unavailable"
-            i += 1
-            nowNum += line["num"]
-
-        auctionNum = 1
-        sql = '''SELECT MAX(id) FROM auction;'''
-        cursor.execute(sql)
-        result = cursor.fetchall()
-        if result and result[0][0] is not None:
-            auctionNum = result[0][0] + 1
-
-        if activeNum == 0:
-            if autobidAppear == 0:
-                # 如果出价无效
-                return jsonify({'status': 0, 'success': 0})
-            else:
-                # 如果出价有效，但是被自动出价顶掉
-                id = str(uuid.uuid1())
-                sql = '''INSERT INTO auction VALUES ("%s", "%s", "%s", %d, %d, 0, 0);''' % (id, playerID, treasureID, int(time.time()), price)
-                cursor.execute(sql)
-                auctionNum += 1
-                # TODO websocket出价
-        else:
-            # 如果出价有效并且没有被顶掉，那么为其安排最合适的出价
-            for i in range(activeNum):
-                id = str(uuid.uuid1())
-                sql = '''INSERT INTO auction VALUES ("%s", "%s", "%s", %d, %d, 1, 0);''' % (id, playerID, treasureID, int(time.time()), maxDeleted + minimalStep)
-                cursor.execute(sql)
-                auctionNum += 1
-                # TODO websocket出价
-
-        # 考虑其它成功的自动出价，为其安排最合适的出价
-        for line in bids:
-            if line["source"] == "autobid":
-                id = str(uuid.uuid1())
-                sql = '''INSERT INTO auction VALUES ("%s", "%s" "%s", %d, %d, 1, 1);''' % (id, line["playerID"], treasureID, int(time.time()), maxDeleted + minimalStep)
-                cursor.execute(sql)
-                auctionNum += 1
-                # TODO websocket出价
-
-        # 关闭低于阈值的自动出价
-        for playerID2 in autobids:
-            line = autobids[playerID2]
-            if line["price"] <= maxDeleted:
-                sql = '''UPDATE autobid SET effective=0 WHERE id="%s";''' % (line["autobidID"])
-                cursor.execute(sql)
-
-        # 如果自己的自动出价合适，那么加入到自动出价列表中
-        if activeNum == num and price > maxDeleted + minimalStep:
-            autobidNum = 1
-            sql = '''SELECT MAX(id) FROM autobid;'''
-            cursor.execute(sql)
-            result = cursor.fetchall()
-            if result and result[0][0] is not None:
-                autobidNum = result[0][0] + 1
-            sql = '''INSERT INTO autobid VALUES (%d, "%s", "%s", %d, %d, %d);''' % (autobidNum, playerID, treasureID, int(time.time()), maxDeleted + minimalStep, num)
-            cursor.execute(sql)
-
-    except Exception as e:
-        traceback.print_exc()
-        return jsonify({'status': 200})
-
-    finally:
-        db.commit()
-        db.close()
-
-    return jsonify({'status': 0})
+# @app.route('/autobid', methods=['GET'])
+# def autobid():
+#     # http://127.0.0.1:8009/autobid?DungeonID=2&playerName=%E8%8A%B1%E5%A7%90&itemID=1&price=3000&num=1
+#
+#     try:
+#         playerName = request.args.get('playerName')
+#         DungeonID = request.args.get('DungeonID')
+#         itemID = int(request.args.get('itemID'))
+#         price = int(request.args.get('price'))
+#         num = int(request.args.get('num'))
+#         PlayerToken = request.args.get('PlayerToken')
+#         if playerName is None:
+#             return jsonify({'status': 101})
+#         if DungeonID is None:
+#             return jsonify({'status': 101})
+#         if PlayerToken is None:
+#             PlayerToken = ""
+#     except:
+#         return jsonify({'status': 100})
+#
+#     name = config.get('jx3auction', 'username')
+#     pwd = config.get('jx3auction', 'password')
+#     db = pymysql.connect(host=IP, user=name, password=pwd, database="jx3auction", port=3306, charset='utf8mb4')
+#     cursor = db.cursor()
+#
+#     try:
+#         # 检查副本和玩家是否合法
+#         sql = '''SELECT id, xinfa FROM player WHERE dungeonID=%d AND playerName="%s" AND playerToken="%s";''' % (int(DungeonID), playerName, PlayerToken)
+#         cursor.execute(sql)
+#         result = cursor.fetchall()
+#         if not result:
+#             return jsonify({'status': 203})
+#         playerID = result[0][0]
+#
+#         # 检查物品是否存在
+#
+#         sql = '''SELECT id, groupID, simulID, basePrice, minimalStep, lockTime, countdownBase FROM treasure WHERE dungeonID=%d AND itemID=%d;''' % (int(DungeonID), itemID)
+#         cursor.execute(sql)
+#         result = cursor.fetchall()
+#         if not result:
+#             return jsonify({'status': 211})
+#
+#         result = result[0]
+#         treasureID = result[0]
+#         groupID = result[1]
+#         simulID = result[2]
+#         basePrice = result[3]
+#         minimalStep = result[4]
+#         lockTime = result[5]
+#         countdownBase = result[6]
+#         updateLockTime = -1
+#
+#         if num != 0:
+#             # 检查是否已经有自动出价
+#             sql = '''SELECT autobid.id FROM treasure, autobid WHERE treasureID=treasure.id AND dungeonID=%d AND itemID=%d AND playerID="%s";''' % (int(DungeonID), itemID, playerID)
+#             cursor.execute(sql)
+#             result = cursor.fetchall()
+#             if result:
+#                 return jsonify({'status': 218})
+#         else:
+#             # 移除自动出价
+#             sql = '''DELETE autobid FROM treasure, autobid WHERE treasureID=treasure.id AND dungeonID=%d AND itemID=%d AND playerID="%s";''' % (int(DungeonID), itemID, playerID)
+#             cursor.execute(sql)
+#             result = cursor.fetchall()
+#             return jsonify({'status': 0, 'itemID': itemID})
+#
+#         if price < basePrice:
+#             return jsonify({'status': 212})
+#         if price % minimalStep != 0:
+#             return jsonify({'status': 213})
+#         if groupID != -1 and groupID != itemID:
+#             return jsonify({'status': 214})
+#         if simulID != -1 and simulID != itemID:
+#             return jsonify({'status': 214})
+#         if lockTime != -1:
+#             if lockTime <= int(time.time()):
+#                 return jsonify({'status': 217})
+#             else:
+#                 updateLockTime = int(time.time() + countdownBase)
+#
+#         # 判断是否是同步拍卖. 如果是，那么记录其数量.
+#         itemNum = 1
+#         if simulID != -1:
+#             sql = '''SELECT id FROM treasure WHERE dungeonID=%d AND (itemID=%d OR simulID=%d);''' % (int(DungeonID), itemID, itemID)
+#             cursor.execute(sql)
+#             result = cursor.fetchall()
+#             itemNum = len(result)
+#
+#         if num > itemNum:
+#             return jsonify({'status': 215})
+#
+#         bids = []
+#         autobids = {}
+#
+#         # 获取所有出价信息
+#         sql = '''SELECT playerID, time, price, effective, playerName, auction.id FROM auction, player WHERE treasureID="%s" AND playerID=player.id AND effective=1;''' % treasureID
+#         cursor.execute(sql)
+#         result = cursor.fetchall()
+#         for bid in result:
+#             bids.append({"playerID": bid[0],
+#                          "price": bid[2],
+#                          "auctionID": bid[5],
+#                          "time": bid[1],
+#                          "num": 1,
+#                          "source": "auction"})
+#
+#         # 获取所有自动出价信息
+#         sql = '''SELECT price, playerID, autobid.id, num, time, playerName FROM autobid, player WHERE treasureID="%s" AND playerID=player.id;''' % (treasureID)
+#         cursor.execute(sql)
+#         result = cursor.fetchall()
+#         for bid in result:
+#             autobids[bid[1]] = {
+#                  "price": bid[0],
+#                  "autobidID": bid[2],
+#                  "num": bid[3],
+#                  "time": bid[4],
+#                  "playerName": bid[5],
+#             }
+#
+#         # 记录自己的出价信息
+#         bids.append({
+#             "playerID": playerID,
+#             "price": price,
+#             "num": num,
+#             "time": int(time.time()),
+#             "source": "current",
+#         })
+#
+#         # 判断在正常出价中的排名，并移除出价低的
+#         bids.sort(key=lambda x: x["price"] + {"auction": 0, "current": 0, "autobid": -1, "unavailable": -1}[x["source"]] - x["time"] / 1e+10)
+#
+#         # 按由低到高的顺序移除出价。需要移除的数量等于添加的数量。
+#         i = 0
+#         # toRemove = num
+#         # if len(bids) < itemNum:
+#         #     toRemove = num - itemNum + len(bids)
+#         toRemove = max(0, len(bids) - itemNum)
+#         nowNum = 0
+#         activeNum = num
+#         autobidAppear = 0
+#         # maxDeleted = basePrice - minimalStep
+#         maxDeleted = 0
+#         while nowNum < toRemove:
+#             # 记录中的出价更低，被顶掉
+#             line = bids[i]
+#             if line["source"] == "auction":
+#                 sql = '''UPDATE auction SET effective=0 WHERE id="%s";''' % (line["auctionID"])
+#                 cursor.execute(sql)
+#                 maxDeleted = line["price"]
+#                 if line["playerID"] in autobids:
+#                     # 如果顶掉的这个出价有对应的自动出价，就尝试自动出价.
+#                     autobid = autobids[line["playerID"]]
+#                     if autobid["price"] > line["price"]:
+#                         bids.append({"playerID": line["playerID"],
+#                                      "playerName": autobid[line["playerID"]],
+#                                      "price": autobid["price"],
+#                                      "num": 1,
+#                                      "time": int(time.time()),
+#                                      "source": "autobid"})
+#                         bids.sort(key=lambda x: x["price"] + {"auction": 0, "current": 0, "autobid": -1, "unavailable": -1}[x["source"]] - x["time"] / 1e+10)
+#                         autobidAppear = 1
+#                         toRemove += 1
+#             # 当前出价，计算可以生效多少个
+#             elif line["source"] == "current":
+#                 activeNum = max(0, num - (toRemove - i))
+#             # 预定自动出价也可能被移除
+#             elif line["source"] == "autobid":
+#                 line["source"] = "unavailable"
+#             i += 1
+#             nowNum += line["num"]
+#
+#         # auctionNum = 1
+#         # sql = '''SELECT MAX(id) FROM auction;'''
+#         # cursor.execute(sql)
+#         # result = cursor.fetchall()
+#         # if result and result[0][0] is not None:
+#         #     auctionNum = result[0][0] + 1
+#
+#         nowTime = int(time.time())
+#         hasbid = 0
+#
+#         if activeNum == 0:
+#             if autobidAppear == 0:
+#                 # 如果出价无效
+#                 return jsonify({'status': 0, 'success': 0})
+#             else:
+#                 # 如果出价有效，但是被自动出价顶掉
+#                 id = str(uuid.uuid1())
+#                 sql = '''INSERT INTO auction VALUES ("%s", "%s", "%s", %d, %d, 0, 1);''' % (id, playerID, treasureID, nowTime, price)
+#                 cursor.execute(sql)
+#                 broadcast_bid(DungeonID, itemID, playerName, price, nowTime)
+#                 hasbid = 1
+#         else:
+#             # 如果出价有效并且没有被顶掉，那么为其安排最合适的出价
+#             for i in range(activeNum):
+#                 id = str(uuid.uuid1())
+#                 sql = '''INSERT INTO auction VALUES ("%s", "%s", "%s", %d, %d, 1, 1);''' % (id, playerID, treasureID, nowTime, maxDeleted + minimalStep)
+#                 cursor.execute(sql)
+#                 broadcast_bid(DungeonID, itemID, playerName, maxDeleted + minimalStep, nowTime)
+#                 hasbid = 1
+#
+#         # 考虑其它成功的自动出价，为其安排最合适的出价
+#         for line in bids:
+#             if line["source"] == "autobid":
+#                 id = str(uuid.uuid1())
+#                 sql = '''INSERT INTO auction VALUES ("%s", "%s" "%s", %d, %d, 1, 1);''' % (id, line["playerID"], treasureID, nowTime, maxDeleted + minimalStep)
+#                 cursor.execute(sql)
+#                 name = autobids[line["playerID"]]["playerName"]
+#                 broadcast_bid(DungeonID, itemID, name, maxDeleted + minimalStep, nowTime)
+#                 hasbid = 1
+#
+#         if hasbid and updateLockTime != -1:
+#             sql = '''UPDATE treasure SET lockTime=%d WHERE dungeonID=%d AND itemID=%d;''' % (updateLockTime, int(DungeonID), itemID)
+#             cursor.execute(sql)
+#
+#         # 关闭低于阈值的自动出价
+#         for playerID2 in autobids:
+#             line = autobids[playerID2]
+#             if line["price"] <= maxDeleted:
+#                 sql = '''DELETE FROM autobid WHERE id="%s";''' % (line["autobidID"])
+#                 cursor.execute(sql)
+#
+#         # 如果自己的自动出价合适，那么加入到自动出价列表中
+#         if activeNum == num and price > maxDeleted + minimalStep:
+#             id = str(uuid.uuid1())
+#             sql = '''INSERT INTO autobid VALUES ("%s", "%s", "%s", %d, %d, %d);''' % (id, playerID, treasureID, nowTime, price, num)
+#             cursor.execute(sql)
+#
+#     except Exception as e:
+#         traceback.print_exc()
+#         return jsonify({'status': 200})
+#
+#     finally:
+#         db.commit()
+#         db.close()
+#
+#     return jsonify({'status': 0, 'success': 1, 'itemID': itemID, 'price': price})
 
 
 @app.route('/clearAuction', methods=['GET'])
@@ -1365,9 +1405,14 @@ def clearAuction():
             sql = '''DELETE auction FROM auction, treasure WHERE treasureID=treasure.id AND dungeonID=%d AND itemID=%d;''' % (int(DungeonID), itemID)
             cursor.execute(sql)
             result = cursor.fetchall()
-            # 按itemID删除出价记录
+            sql = '''DELETE autobid FROM autobid, treasure WHERE treasureID=treasure.id AND dungeonID=%d AND itemID=%d;''' % (int(DungeonID), itemID)
+            cursor.execute(sql)
+            result = cursor.fetchall()
         else:
             sql = '''DELETE auction FROM auction, treasure WHERE treasureID=treasure.id AND dungeonID=%d AND boss="%s";''' % (int(DungeonID), boss)
+            cursor.execute(sql)
+            result = cursor.fetchall()
+            sql = '''DELETE autobid FROM autobid, treasure WHERE treasureID=treasure.id AND dungeonID=%d AND boss="%s";''' % (int(DungeonID), boss)
             cursor.execute(sql)
             result = cursor.fetchall()
         broadcast_clear(int(DungeonID), itemID, boss)
