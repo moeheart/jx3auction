@@ -59,7 +59,7 @@ sql = """CREATE TABLE treasure (
          basePrice INT,
          minimalStep INT,
          lockTime INT,
-         countdownBase INT,
+         countdownBase INT
 ) DEFAULT CHARSET utf8mb4;"""
 cursor.execute(sql)
 
