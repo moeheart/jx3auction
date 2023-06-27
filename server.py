@@ -20,8 +20,8 @@ import uuid
 
 from logic.ItemAnalyser import ItemAnalyser
 
-IP = "120.48.95.56"  # IP
-EDITION = "0.1.1"
+# app.ip = "120.48.95.56"  # app.ip
+EDITION = "0.1.2"
 
 app = Flask(__name__)
 CORS(app)
@@ -54,7 +54,7 @@ def createDungeon():
 
     name = config.get('jx3auction', 'username')
     pwd = config.get('jx3auction', 'password')
-    db = pymysql.connect(host=IP, user=name, password=pwd, database="jx3auction", port=3306, charset='utf8mb4')
+    db = pymysql.connect(host=app.ip, user=name, password=pwd, database="jx3auction", port=3306, charset='utf8mb4')
     cursor = db.cursor()
 
     try:
@@ -91,7 +91,7 @@ def getDungeon():
 
     name = config.get('jx3auction', 'username')
     pwd = config.get('jx3auction', 'password')
-    db = pymysql.connect(host=IP, user=name, password=pwd, database="jx3auction", port=3306, charset='utf8mb4')
+    db = pymysql.connect(host=app.ip, user=name, password=pwd, database="jx3auction", port=3306, charset='utf8mb4')
     cursor = db.cursor()
 
     try:
@@ -140,7 +140,7 @@ def registerTeam():
 
     name = config.get('jx3auction', 'username')
     pwd = config.get('jx3auction', 'password')
-    db = pymysql.connect(host=IP, user=name, password=pwd, database="jx3auction", port=3306, charset='utf8mb4')
+    db = pymysql.connect(host=app.ip, user=name, password=pwd, database="jx3auction", port=3306, charset='utf8mb4')
     cursor = db.cursor()
 
     try:
@@ -202,7 +202,7 @@ def getTeam():
 
     name = config.get('jx3auction', 'username')
     pwd = config.get('jx3auction', 'password')
-    db = pymysql.connect(host=IP, user=name, password=pwd, database="jx3auction", port=3306, charset='utf8mb4')
+    db = pymysql.connect(host=app.ip, user=name, password=pwd, database="jx3auction", port=3306, charset='utf8mb4')
     cursor = db.cursor()
 
     try:
@@ -252,7 +252,7 @@ def getTeamExtend():
 
     name = config.get('jx3auction', 'username')
     pwd = config.get('jx3auction', 'password')
-    db = pymysql.connect(host=IP, user=name, password=pwd, database="jx3auction", port=3306, charset='utf8mb4')
+    db = pymysql.connect(host=app.ip, user=name, password=pwd, database="jx3auction", port=3306, charset='utf8mb4')
     cursor = db.cursor()
 
     try:
@@ -320,7 +320,7 @@ def kickPlayer():
 
     name = config.get('jx3auction', 'username')
     pwd = config.get('jx3auction', 'password')
-    db = pymysql.connect(host=IP, user=name, password=pwd, database="jx3auction", port=3306, charset='utf8mb4')
+    db = pymysql.connect(host=app.ip, user=name, password=pwd, database="jx3auction", port=3306, charset='utf8mb4')
     cursor = db.cursor()
 
     try:
@@ -396,7 +396,7 @@ def setTreasure():
 
     name = config.get('jx3auction', 'username')
     pwd = config.get('jx3auction', 'password')
-    db = pymysql.connect(host=IP, user=name, password=pwd, database="jx3auction", port=3306, charset='utf8mb4')
+    db = pymysql.connect(host=app.ip, user=name, password=pwd, database="jx3auction", port=3306, charset='utf8mb4')
     cursor = db.cursor()
 
     replace = 0
@@ -473,7 +473,7 @@ def getTreasure():
 
     name = config.get('jx3auction', 'username')
     pwd = config.get('jx3auction', 'password')
-    db = pymysql.connect(host=IP, user=name, password=pwd, database="jx3auction", port=3306, charset='utf8mb4')
+    db = pymysql.connect(host=app.ip, user=name, password=pwd, database="jx3auction", port=3306, charset='utf8mb4')
     cursor = db.cursor()
 
     try:
@@ -564,7 +564,7 @@ baseXiaotie=6000&stepXiaotie=3000&baseDatie=0&stepDatie=10000&baseOther=0&stepOt
 
     name = config.get('jx3auction', 'username')
     pwd = config.get('jx3auction', 'password')
-    db = pymysql.connect(host=IP, user=name, password=pwd, database="jx3auction", port=3306, charset='utf8mb4')
+    db = pymysql.connect(host=app.ip, user=name, password=pwd, database="jx3auction", port=3306, charset='utf8mb4')
     cursor = db.cursor()
 
     try:
@@ -747,7 +747,7 @@ def getAuction():
 
     name = config.get('jx3auction', 'username')
     pwd = config.get('jx3auction', 'password')
-    db = pymysql.connect(host=IP, user=name, password=pwd, database="jx3auction", port=3306, charset='utf8mb4')
+    db = pymysql.connect(host=app.ip, user=name, password=pwd, database="jx3auction", port=3306, charset='utf8mb4')
     cursor = db.cursor()
 
     try:
@@ -928,7 +928,7 @@ def bid():
 
     name = config.get('jx3auction', 'username')
     pwd = config.get('jx3auction', 'password')
-    db = pymysql.connect(host=IP, user=name, password=pwd, database="jx3auction", port=3306, charset='utf8mb4')
+    db = pymysql.connect(host=app.ip, user=name, password=pwd, database="jx3auction", port=3306, charset='utf8mb4')
     cursor = db.cursor()
 
     try:
@@ -1145,7 +1145,7 @@ def bid():
 #
 #     name = config.get('jx3auction', 'username')
 #     pwd = config.get('jx3auction', 'password')
-#     db = pymysql.connect(host=IP, user=name, password=pwd, database="jx3auction", port=3306, charset='utf8mb4')
+#     db = pymysql.connect(host=app.ip, user=name, password=pwd, database="jx3auction", port=3306, charset='utf8mb4')
 #     cursor = db.cursor()
 #
 #     try:
@@ -1392,7 +1392,7 @@ def clearAuction():
 
     name = config.get('jx3auction', 'username')
     pwd = config.get('jx3auction', 'password')
-    db = pymysql.connect(host=IP, user=name, password=pwd, database="jx3auction", port=3306, charset='utf8mb4')
+    db = pymysql.connect(host=app.ip, user=name, password=pwd, database="jx3auction", port=3306, charset='utf8mb4')
     cursor = db.cursor()
 
     try:
@@ -1465,7 +1465,7 @@ def lockAuction():
 
     name = config.get('jx3auction', 'username')
     pwd = config.get('jx3auction', 'password')
-    db = pymysql.connect(host=IP, user=name, password=pwd, database="jx3auction", port=3306, charset='utf8mb4')
+    db = pymysql.connect(host=app.ip, user=name, password=pwd, database="jx3auction", port=3306, charset='utf8mb4')
     cursor = db.cursor()
 
     try:
@@ -1531,7 +1531,7 @@ def countdownAuction():
 
     name = config.get('jx3auction', 'username')
     pwd = config.get('jx3auction', 'password')
-    db = pymysql.connect(host=IP, user=name, password=pwd, database="jx3auction", port=3306, charset='utf8mb4')
+    db = pymysql.connect(host=app.ip, user=name, password=pwd, database="jx3auction", port=3306, charset='utf8mb4')
     cursor = db.cursor()
 
     try:
@@ -1607,6 +1607,7 @@ if __name__ == '__main__':
     
     app.dbname = config.get('jx3auction', 'username')
     app.dbpwd = config.get('jx3auction', 'password')
+    app.ip = config.get('jx3auction', 'ip')
     app.debug = config.getboolean('jx3auction', 'debug')
 
     app.item_analyser = ItemAnalyser()

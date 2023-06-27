@@ -5,8 +5,6 @@
 import pymysql
 import configparser
 
-IP = "120.48.95.56"
-
 print("This operation is DANGEROUS!")
 print("To continue, type 'yes':")
 res = input()
@@ -18,6 +16,7 @@ config.read_file(open('./settings.cfg'))
 
 name = config.get('jx3auction', 'username')
 pwd = config.get('jx3auction', 'password')
+IP = config.get('jx3auction', 'ip')
 db = pymysql.connect(host=IP, user=name, password=pwd, database="jx3auction", port=3306, charset='utf8mb4')
 
 cursor = db.cursor()
