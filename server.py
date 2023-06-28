@@ -21,7 +21,7 @@ import uuid
 from logic.ItemAnalyser import ItemAnalyser
 
 # app.ip = "120.48.95.56"  # app.ip
-EDITION = "0.1.2"
+EDITION = "0.1.3"
 
 app = Flask(__name__)
 CORS(app)
@@ -402,11 +402,13 @@ def setTreasure():
     replace = 0
     try:
         # 检验团长权限
-        sql = '''SELECT id FROM dungeon WHERE id=%d AND adminToken="%s";''' % (int(DungeonID), AdminToken)
+        sql = '''SELECT id, auctionStart FROM dungeon WHERE id=%d AND adminToken="%s";''' % (int(DungeonID), AdminToken)
         cursor.execute(sql)
         result = cursor.fetchall()
         if not result:
             return jsonify({'status': 202})
+        if result[0][1] != 0:
+            return jsonify({'status': 219})
 
         # 检验treasure表里有没有相同BOSS
         sql = '''SELECT id FROM treasure WHERE dungeonID=%d AND boss="%s";''' % (int(DungeonID), boss)
@@ -1407,16 +1409,16 @@ def clearAuction():
             sql = '''DELETE auction FROM auction, treasure WHERE treasureID=treasure.id AND dungeonID=%d AND itemID=%d;''' % (int(DungeonID), itemID)
             cursor.execute(sql)
             result = cursor.fetchall()
-            sql = '''DELETE autobid FROM autobid, treasure WHERE treasureID=treasure.id AND dungeonID=%d AND itemID=%d;''' % (int(DungeonID), itemID)
-            cursor.execute(sql)
-            result = cursor.fetchall()
+            # sql = '''DELETE autobid FROM autobid, treasure WHERE treasureID=treasure.id AND dungeonID=%d AND itemID=%d;''' % (int(DungeonID), itemID)
+            # cursor.execute(sql)
+            # result = cursor.fetchall()
         else:
             sql = '''DELETE auction FROM auction, treasure WHERE treasureID=treasure.id AND dungeonID=%d AND boss="%s";''' % (int(DungeonID), boss)
             cursor.execute(sql)
             result = cursor.fetchall()
-            sql = '''DELETE autobid FROM autobid, treasure WHERE treasureID=treasure.id AND dungeonID=%d AND boss="%s";''' % (int(DungeonID), boss)
-            cursor.execute(sql)
-            result = cursor.fetchall()
+            # sql = '''DELETE autobid FROM autobid, treasure WHERE treasureID=treasure.id AND dungeonID=%d AND boss="%s";''' % (int(DungeonID), boss)
+            # cursor.execute(sql)
+            # result = cursor.fetchall()
         broadcast_clear(int(DungeonID), itemID, boss)
 
     except Exception as e:
