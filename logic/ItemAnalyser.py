@@ -494,9 +494,11 @@ class ItemAnalyser():
                 sketch = ["纯疗"]
             if hasSpecial:
                 sketch = ["特效"] + sketch
-            lvl = int(item.get("maxstrengthlevel", 0))
+            lvl = item.get("maxstrengthlevel")
             if lvl == "":
                 lvl = 0
+            else:
+                lvl = int(lvl)
             if lvl < 6 and "特效" not in sketch:
                 sketch = ["精简"] + sketch
             if item.get("setID", "") != "":
