@@ -584,6 +584,8 @@ class ItemAnalyser():
                     content = line.strip('\n').split('\t')
                     name = content[header_index["Name"]]
                     subtype = content[header_index["SubType"]]
+                    if int(subtype) >= 11:
+                        continue
                     level = content[header_index["Level"]]
                     quality = content[header_index["Quality"]]
                     magickind = content[header_index["MagicKind"]]
