@@ -494,7 +494,10 @@ class ItemAnalyser():
                 sketch = ["纯疗"]
             if hasSpecial:
                 sketch = ["特效"] + sketch
-            if int(item.get("maxstrengthlevel", 0)) < 6 and "特效" not in sketch:
+            lvl = item.get("maxstrengthlevel", 0)
+            if lvl == "":
+                lvl = 0
+            if lvl < 6 and "特效" not in sketch:
                 sketch = ["精简"] + sketch
             if item.get("setID", "") != "":
                 suitAttribute.append("这件装备有套装效果。")
