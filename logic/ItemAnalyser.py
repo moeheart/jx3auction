@@ -195,6 +195,7 @@ MENPAI_DICT = {
     "无方": "药宗",
     "灵素": "药宗",
     "孤锋诀": "刀宗",
+    "山海心诀": "万灵",
 }
 
 def getAttributeDesc(attrib):
@@ -639,6 +640,7 @@ class ItemAnalyser():
                     # 记录武器
                     if subtype == "0" and content[header_index["GetType"]] == "副本":
                         map = "未知"
+                        map2 = "未知"
                         if level == "10150":
                             map = "神兵玉匣·普通西津渡"
                         elif level == "11150" and content[header_index["MaxStrengthLevel"]] == "6":
@@ -647,13 +649,23 @@ class ItemAnalyser():
                             map = "神兵玉匣·英雄西津渡·奇"
                         elif level == "12450" and content[header_index["MaxStrengthLevel"]] == "6":
                             map = "神兵玉匣·英雄武狱黑牢"
+                            map2 = "神兵玉匣·普通九老洞"
                         elif level == "12450" and content[header_index["MaxStrengthLevel"]] == "4":
                             map = "神兵玉匣·英雄武狱黑牢·奇"
+                            map2 = "神兵玉匣·普通九老洞·奇"
+                        elif level == "13800" and content[header_index["MaxStrengthLevel"]] == "6":
+                            map = "神兵玉匣·英雄九老洞"
+                        elif level == "13800" and content[header_index["MaxStrengthLevel"]] == "4":
+                            map = "神兵玉匣·英雄九老洞·奇"
                         menpai = content[header_index["BelongSchool"]]
                         if map in self.weapon:
                             if menpai not in self.weapon[map]:
                                 self.weapon[map][menpai] = []
                             self.weapon[map][menpai].append(name)
+                        if map2 in self.weapon:
+                            if menpai not in self.weapon[map2]:
+                                self.weapon[map2][menpai] = []
+                            self.weapon[map2][menpai].append(name)
 
     def LoadEquipTable(self):
         '''
@@ -746,7 +758,7 @@ class ItemAnalyser():
                         elif name in ["剑", "侠", "情", "缘"]:
                             self.item[itemid]["class"] = "hanzi"
                             self.item[itemid]["quality"] = "5"
-                        elif "展锋" in name or "揽江" in name or "濯心" in name or "藏剑武器" in name:
+                        elif "展锋" in name or "揽江" in name or "濯心" in name or "灵源" in name or "藏剑武器" in name:
                             self.item[itemid]["class"] = "coupon"
                             self.item[itemid]["type"] = "coupon"
                             self.item[itemid]["related"] = []
@@ -778,7 +790,8 @@ class ItemAnalyser():
         self.item = {}
         self.attrib = {}
         self.enchant = {}
-        self.weapon = {"神兵玉匣·普通西津渡": {}, "神兵玉匣·英雄西津渡": {}, "神兵玉匣·英雄西津渡·奇": {}, "神兵玉匣·英雄武狱黑牢": {}, "神兵玉匣·英雄武狱黑牢·奇": {}}
+        self.weapon = {"神兵玉匣·普通西津渡": {}, "神兵玉匣·英雄西津渡": {}, "神兵玉匣·英雄西津渡·奇": {}, "神兵玉匣·英雄武狱黑牢": {}, "神兵玉匣·英雄武狱黑牢·奇": {},
+                       "神兵玉匣·普通九老洞": {}, "神兵玉匣·普通九老洞·奇": {}, "神兵玉匣·英雄九老洞": {}, "神兵玉匣·英雄九老洞·奇": {}}
         self.LoadAttrib()
         self.LoadEquipTable()
         self.LoadEnchant()
