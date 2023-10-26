@@ -49,7 +49,7 @@ def createDungeon():
             return jsonify({'status': 101})
     except:
         return jsonify({'status': 100})
-    if map not in ["25人普通西津渡", "25人英雄西津渡", "25人普通武狱黑牢", "25人英雄武狱黑牢"]:
+    if map not in ["25人普通西津渡", "25人英雄西津渡", "25人普通武狱黑牢", "25人英雄武狱黑牢", "25人普通九老洞", "25人英雄九老洞"]:
         return jsonify({'status': 102})
 
     name = config.get('jx3auction', 'username')
@@ -376,7 +376,7 @@ def setTreasure():
             return jsonify({'status': 101})
         if boss is None:
             return jsonify({'status': 101})
-        if boss not in ["张景超", "刘展", "苏凤楼", "韩敬青", "藤原佑野", "李重茂", "其它", "关卡", "时风", "乐临川", "牛波", "和正", "武云阙", "翁幼之"]:
+        if boss not in ["张景超", "刘展", "苏凤楼", "韩敬青", "藤原佑野", "李重茂", "其它", "关卡", "时风", "乐临川", "牛波", "和正", "武云阙", "翁幼之", "魏华", "钟不归", "岑伤", "鬼筹", "麒麟", "翁幼之"]:
             return jsonify({'status': 205})
         if treasure is None:
             return jsonify({'status': 101})
@@ -1379,7 +1379,7 @@ def clearAuction():
         if boss is None:
             boss = ""
             availableNum -= 1
-        if boss not in ["张景超", "刘展", "苏凤楼", "韩敬青", "藤原佑野", "李重茂", "其它", "关卡", "时风", "乐临川", "牛波", "和正", "武云阙", "翁幼之", ""]:
+        if boss not in ["张景超", "刘展", "苏凤楼", "韩敬青", "藤原佑野", "李重茂", "其它", "关卡", "时风", "乐临川", "牛波", "和正", "武云阙", "翁幼之", "", "魏华", "钟不归", "岑伤", "鬼筹", "麒麟", "翁幼之"]:
             return jsonify({'status': 205})
         if itemID is None:
             itemID = -1
@@ -1452,7 +1452,7 @@ def lockAuction():
         if boss is None:
             boss = ""
             availableNum -= 1
-        if boss not in ["张景超", "刘展", "苏凤楼", "韩敬青", "藤原佑野", "李重茂", "其它", "关卡", "时风", "乐临川", "牛波", "和正", "武云阙", "翁幼之", ""]:
+        if boss not in ["张景超", "刘展", "苏凤楼", "韩敬青", "藤原佑野", "李重茂", "其它", "关卡", "时风", "乐临川", "牛波", "和正", "武云阙", "翁幼之", "", "魏华", "钟不归", "岑伤", "鬼筹", "麒麟", "翁幼之"]:
             return jsonify({'status': 205})
         if itemID is None:
             itemID = -1
@@ -1518,7 +1518,7 @@ def countdownAuction():
         if boss is None:
             boss = ""
             availableNum -= 1
-        if boss not in ["张景超", "刘展", "苏凤楼", "韩敬青", "藤原佑野", "李重茂", "其它", "关卡", "时风", "乐临川", "牛波", "和正", "武云阙", "翁幼之", ""]:
+        if boss not in ["张景超", "刘展", "苏凤楼", "韩敬青", "藤原佑野", "李重茂", "其它", "关卡", "时风", "乐临川", "牛波", "和正", "武云阙", "翁幼之", "", "魏华", "钟不归", "岑伤", "鬼筹", "麒麟", "翁幼之"]:
             return jsonify({'status': 205})
         if itemID is None:
             itemID = -1
