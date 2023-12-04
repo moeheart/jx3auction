@@ -27,6 +27,7 @@ ATTRIB_TYPE = {
     "atNeutralCriticalDamagePowerBase": ["会心效果", 1, 0, 0, 0, 1, 0, 0],
     "atPoisonCriticalDamagePowerBase": ["会心效果", 1, 0, 0, 0, 0, 1, 0],
     "atSolarAndLunarCriticalDamagePowerBase": ["会心效果", 1, 0, 1, 1, 0, 0, 0],
+    "atAllTypeCriticalDamagePowerBase": ["会心效果", 1, 1, 1, 1, 1, 1, 0],
     "atPhysicsCriticalDamagePowerBaseKiloNumRate": ["会心效果", 1, 1, 0, 0, 0, 0, 1/1024],
     "atMagicCriticalDamagePowerBaseKiloNumRate": ["会心效果", 1, 0, 1, 1, 1, 1, 1/1024],
     "atSolarCriticalDamagePowerBaseKiloNumRate": ["会心效果", 1, 0, 1, 0, 0, 0, 1/1024],
@@ -384,13 +385,14 @@ class ItemAnalyser():
         '''
 
         output = {"available": 0}
-        print("[Test2]", input["name"])
+        # print("[Test2]", input["name"])
         if input["name"] not in self.name:
             return output
 
         idList = self.name[input["name"]]
-        # if len(idList) > 1:
-        #     return output
+        if len(idList) > 1:
+            idList.sort(key=lambda x:int(x))
+        # print("[Item]", idList)
 
         item = self.item[idList[-1]]
         output = {"available": 1,
@@ -653,9 +655,9 @@ class ItemAnalyser():
                         elif level == "12450" and content[header_index["MaxStrengthLevel"]] == "4":
                             map = "神兵玉匣·英雄武狱黑牢·奇"
                             map2 = "神兵玉匣·普通九老洞·奇"
-                        elif level == "13800" and content[header_index["MaxStrengthLevel"]] == "6":
+                        elif level == "13950" and content[header_index["MaxStrengthLevel"]] == "6":
                             map = "神兵玉匣·英雄九老洞"
-                        elif level == "13800" and content[header_index["MaxStrengthLevel"]] == "4":
+                        elif level == "13950" and content[header_index["MaxStrengthLevel"]] == "4":
                             map = "神兵玉匣·英雄九老洞·奇"
                         menpai = content[header_index["BelongSchool"]]
                         if map in self.weapon:
@@ -800,36 +802,38 @@ class ItemAnalyser():
 
 if __name__ == "__main__":
     item_analyser = ItemAnalyser()
-    res = item_analyser.GetSingleItemByName({"name": "清蕊指环", "map": "25人英雄西津渡", "xinfa": "离经易道"})
-    res = item_analyser.GetSingleItemByName({"name": "清蕊坠", "map": "25人英雄西津渡", "xinfa": "离经易道"})
-    res = item_analyser.GetSingleItemByName({"name": "清蕊下裳", "map": "25人英雄西津渡", "xinfa": "离经易道"})
-    res = item_analyser.GetSingleItemByName({"name": "丹青誓", "map": "25人英雄西津渡", "xinfa": "离经易道"})
-    res = item_analyser.GetSingleItemByName({"name": "湘崖坠", "map": "25人英雄西津渡", "xinfa": "离经易道"})
-    res = item_analyser.GetSingleItemByName({"name": "湘崖护手", "map": "25人英雄西津渡", "xinfa": "离经易道"})
-    res = item_analyser.GetSingleItemByName({"name": "雪梅寒", "map": "25人英雄西津渡", "xinfa": "离经易道"})
-    res = item_analyser.GetSingleItemByName({"name": "凝青箭囊", "map": "25人英雄西津渡", "xinfa": "离经易道"})
-    res = item_analyser.GetSingleItemByName({"name": "怀南靴", "map": "25人英雄西津渡", "xinfa": "离经易道"})
-    res = item_analyser.GetSingleItemByName({"name": "山灵坠", "map": "25人英雄西津渡", "xinfa": "离经易道"})
-    res = item_analyser.GetSingleItemByName({"name": "擂川岳", "map": "25人英雄西津渡", "xinfa": "离经易道"})
-    res = item_analyser.GetSingleItemByName({"name": "笛泣", "map": "25人英雄西津渡", "xinfa": "离经易道"})
-    res = item_analyser.GetSingleItemByName({"name": "乱山横", "map": "25人英雄西津渡", "xinfa": "离经易道"})
-    res = item_analyser.GetSingleItemByName({"name": "闲璧裤", "map": "25人英雄西津渡", "xinfa": "离经易道"})
-    res = item_analyser.GetSingleItemByName({"name": "揽江·落华靴", "map": "25人英雄西津渡", "xinfa": "离经易道"})
-    res = item_analyser.GetSingleItemByName({"name": "揽江·挽沙靴", "map": "25人英雄西津渡", "xinfa": "离经易道"})
-    res = item_analyser.GetSingleItemByName({"name": "山灵靴", "map": "25人英雄西津渡", "xinfa": "离经易道"})
-    res = item_analyser.GetSingleItemByName({"name": "五行石（六级）", "map": "25人英雄西津渡", "xinfa": "离经易道"})
-    res = item_analyser.GetSingleItemByName({"name": "肆级五彩石", "map": "25人英雄西津渡", "xinfa": "离经易道"})
-    res = item_analyser.GetSingleItemByName({"name": "玛瑙", "map": "25人英雄西津渡", "xinfa": "离经易道"})
-    res = item_analyser.GetSingleItemByName({"name": "天堑奇琨·伤·腰", "map": "25人英雄西津渡", "xinfa": "离经易道"})
-    res = item_analyser.GetSingleItemByName({"name": "断流心岩·戒指（根骨）", "map": "25人英雄西津渡", "xinfa": "离经易道"})
-    res = item_analyser.GetSingleItemByName({"name": "上品茶饼", "map": "25人英雄西津渡", "xinfa": "离经易道"})
-    res = item_analyser.GetSingleItemByName({"name": "维峰丹", "map": "25人英雄西津渡", "xinfa": "离经易道"})
-    res = item_analyser.GetSingleItemByName({"name": "劫烬陨铁", "map": "25人英雄西津渡", "xinfa": "离经易道"})
-    res = item_analyser.GetSingleItemByName({"name": "太一玄晶", "map": "25人英雄西津渡", "xinfa": "离经易道"})
-    res = item_analyser.GetSingleItemByName({"name": "五行石（六级）", "map": "25人英雄西津渡", "xinfa": "离经易道"})
-    res = item_analyser.GetSingleItemByName({"name": "剑", "map": "25人英雄西津渡", "xinfa": "离经易道"})
-    res = item_analyser.GetSingleItemByName({"name": "《易筋经·秘卷》", "map": "25人英雄西津渡", "xinfa": "离经易道"})
-    res = item_analyser.GetSingleItemByName({"name": "焚金阙", "map": "25人英雄西津渡", "xinfa": "离经易道"})
-    res = item_analyser.GetSingleItemByName({"name": "揽江护腕·万花", "map": "25人英雄西津渡", "xinfa": "离经易道"})
-    res = item_analyser.GetSingleItemByName({"name": "神兵玉匣·英雄西津渡", "map": "25人英雄西津渡", "xinfa": "离经易道"})
-    res = item_analyser.GetSingleItemByName({"name": "藏剑武器·满楼行乐", "map": "25人英雄西津渡", "xinfa": "离经易道"})
+    # res = item_analyser.GetSingleItemByName({"name": "清蕊指环", "map": "25人英雄西津渡", "xinfa": "离经易道"})
+    # res = item_analyser.GetSingleItemByName({"name": "清蕊坠", "map": "25人英雄西津渡", "xinfa": "离经易道"})
+    # res = item_analyser.GetSingleItemByName({"name": "清蕊下裳", "map": "25人英雄西津渡", "xinfa": "离经易道"})
+    # res = item_analyser.GetSingleItemByName({"name": "丹青誓", "map": "25人英雄西津渡", "xinfa": "离经易道"})
+    # res = item_analyser.GetSingleItemByName({"name": "湘崖坠", "map": "25人英雄西津渡", "xinfa": "离经易道"})
+    # res = item_analyser.GetSingleItemByName({"name": "湘崖护手", "map": "25人英雄西津渡", "xinfa": "离经易道"})
+    # res = item_analyser.GetSingleItemByName({"name": "雪梅寒", "map": "25人英雄西津渡", "xinfa": "离经易道"})
+    # res = item_analyser.GetSingleItemByName({"name": "凝青箭囊", "map": "25人英雄西津渡", "xinfa": "离经易道"})
+    # res = item_analyser.GetSingleItemByName({"name": "怀南靴", "map": "25人英雄西津渡", "xinfa": "离经易道"})
+    # res = item_analyser.GetSingleItemByName({"name": "山灵坠", "map": "25人英雄西津渡", "xinfa": "离经易道"})
+    # res = item_analyser.GetSingleItemByName({"name": "擂川岳", "map": "25人英雄西津渡", "xinfa": "离经易道"})
+    # res = item_analyser.GetSingleItemByName({"name": "笛泣", "map": "25人英雄西津渡", "xinfa": "离经易道"})
+    # res = item_analyser.GetSingleItemByName({"name": "乱山横", "map": "25人英雄西津渡", "xinfa": "离经易道"})
+    # res = item_analyser.GetSingleItemByName({"name": "闲璧裤", "map": "25人英雄西津渡", "xinfa": "离经易道"})
+    # res = item_analyser.GetSingleItemByName({"name": "揽江·落华靴", "map": "25人英雄西津渡", "xinfa": "离经易道"})
+    # res = item_analyser.GetSingleItemByName({"name": "揽江·挽沙靴", "map": "25人英雄西津渡", "xinfa": "离经易道"})
+    # res = item_analyser.GetSingleItemByName({"name": "山灵靴", "map": "25人英雄西津渡", "xinfa": "离经易道"})
+    # res = item_analyser.GetSingleItemByName({"name": "五行石（六级）", "map": "25人英雄西津渡", "xinfa": "离经易道"})
+    # res = item_analyser.GetSingleItemByName({"name": "肆级五彩石", "map": "25人英雄西津渡", "xinfa": "离经易道"})
+    # res = item_analyser.GetSingleItemByName({"name": "玛瑙", "map": "25人英雄西津渡", "xinfa": "离经易道"})
+    # res = item_analyser.GetSingleItemByName({"name": "天堑奇琨·伤·腰", "map": "25人英雄西津渡", "xinfa": "离经易道"})
+    # res = item_analyser.GetSingleItemByName({"name": "断流心岩·戒指（根骨）", "map": "25人英雄西津渡", "xinfa": "离经易道"})
+    # res = item_analyser.GetSingleItemByName({"name": "上品茶饼", "map": "25人英雄西津渡", "xinfa": "离经易道"})
+    # res = item_analyser.GetSingleItemByName({"name": "维峰丹", "map": "25人英雄西津渡", "xinfa": "离经易道"})
+    # res = item_analyser.GetSingleItemByName({"name": "劫烬陨铁", "map": "25人英雄西津渡", "xinfa": "离经易道"})
+    # res = item_analyser.GetSingleItemByName({"name": "太一玄晶", "map": "25人英雄西津渡", "xinfa": "离经易道"})
+    # res = item_analyser.GetSingleItemByName({"name": "五行石（六级）", "map": "25人英雄西津渡", "xinfa": "离经易道"})
+    # res = item_analyser.GetSingleItemByName({"name": "剑", "map": "25人英雄西津渡", "xinfa": "离经易道"})
+    # res = item_analyser.GetSingleItemByName({"name": "《易筋经·秘卷》", "map": "25人英雄西津渡", "xinfa": "离经易道"})
+    # res = item_analyser.GetSingleItemByName({"name": "焚金阙", "map": "25人英雄西津渡", "xinfa": "离经易道"})
+    # res = item_analyser.GetSingleItemByName({"name": "揽江护腕·万花", "map": "25人英雄西津渡", "xinfa": "离经易道"})
+    # res = item_analyser.GetSingleItemByName({"name": "神兵玉匣·英雄西津渡", "map": "25人英雄西津渡", "xinfa": "离经易道"})
+    # res = item_analyser.GetSingleItemByName({"name": "藏剑武器·满楼行乐", "map": "25人英雄西津渡", "xinfa": "离经易道"})
+    res = item_analyser.GetSingleItemByName({"name": "变星霜", "map": "25人英雄九老洞", "xinfa": "离经易道"})
+    res = item_analyser.GetSingleItemByName({"name": "挽星腰带", "map": "25人英雄九老洞", "xinfa": "离经易道"})
