@@ -73,7 +73,7 @@ V_treasure = new Vue({
     multiplierCoupon: "1,2,2,2,3",
     baseWeapon: 30000,
     baseJingjian: 20000,
-    baseWutiJingjian: 30000
+    baseWutiJingjian: 30000,
     baseTexiaoyaozhui: 30000,
     baseTexiaowuqi: 50000,
     stepEquip: 1000,
