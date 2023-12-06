@@ -69,10 +69,11 @@ V_treasure = new Vue({
   data: {
     baseNormal: 2000,
     baseCoupon: 10000,
-    multiplierCouponRaw: "1/2/2/2/2",
-    multiplierCoupon: "1,2,2,2,2",
+    multiplierCouponRaw: "1/2/2/2/3",
+    multiplierCoupon: "1,2,2,2,3",
     baseWeapon: 30000,
-    baseJingjian: 30000,
+    baseJingjian: 20000,
+    baseWutiJingjian: 30000
     baseTexiaoyaozhui: 30000,
     baseTexiaowuqi: 50000,
     stepEquip: 1000,
@@ -112,6 +113,7 @@ V_treasure = new Vue({
           "multiplierCoupon",
           "baseWeapon",
           "baseJingjian",
+          "baseWutiJingjian",
           "baseTexiaoyaozhui",
           "baseTexiaowuqi",
           "stepEquip",

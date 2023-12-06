@@ -530,14 +530,14 @@ def getTreasure():
     return jsonify({'status': 0, 'treasure': treasureRes, 'xinfa': xinfa})
 
 
-AUCTION_PARAMS = ["baseNormal", "baseCoupon", "multiplierCoupon", "baseWeapon", "baseJingjian", "baseTexiaoyaozhui", "baseTexiaowuqi",
+AUCTION_PARAMS = ["baseNormal", "baseCoupon", "multiplierCoupon", "baseWeapon", "baseJingjian", "baseWutiJingjian", "baseTexiaoyaozhui", "baseTexiaowuqi",
                   "stepEquip", "baseMaterials", "stepMaterials", "combineCharacter", "baseCharacter", "stepCharacter",
                   "baseXiaofumo", "stepXiaofumo", "baseDafumo", "stepDafumo", "baseXiaotie", "stepXiaotie",
                   "baseDatie", "stepDatie", "baseOther", "stepOther", "combineHanzi", "baseHanzi", "stepHanzi", "tnHalf"]
 
 @app.route('/startAuction', methods=['GET'])
 def startAuction():
-    '''http://127.0.0.1:8009/startAuction?DungeonID=2&AdminToken=628546&baseNormal=2000&baseCoupon=10000&baseWeapon=20000&baseJingjian=10000&baseTexiaoyaozhui=10000&baseTexiaowuqi=30000&
+    '''http://127.0.0.1:8009/startAuction?DungeonID=2&AdminToken=628546&baseNormal=2000&baseCoupon=10000&baseWeapon=20000&baseJingjian=10000&baseWutiJingjian=10000&baseTexiaoyaozhui=10000&baseTexiaowuqi=30000&
 stepEquip=1000&baseMaterials=1000&stepMaterials=500&combineCharacter=1&baseCharacter=0&stepCharacter=0&baseXiaofumo=0&stepXiaofumo=500&baseDafumo=1000&stepDafumo=1000&
 baseXiaotie=6000&stepXiaotie=3000&baseDatie=0&stepDatie=10000&baseOther=0&stepOther=1000&combineHanzi=1&baseHanzi=0&stepHanzi=0'''
     try:
@@ -650,8 +650,10 @@ baseXiaotie=6000&stepXiaotie=3000&baseDatie=0&stepDatie=10000&baseOther=0&stepOt
                     base = params["baseTexiaoyaozhui"]
                     if params["tnHalf"] and treasure["main"] in ["治疗", "防御"]:
                         base /= 2
-                elif "精简" in treasure["sketch"]:
+                elif "精简" in treasure["sketch"] and treasure["maxlevel"] in ["4", 4]:
                     base = params["baseJingjian"]
+                elif "精简" in treasure["sketch"] and treasure["maxlevel"] in ["3", 3]:
+                    base = params["baseWutiJingjian"]
                 else:
                     base = params["baseNormal"]
             elif treasure["type"] == "coupon":
