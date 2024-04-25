@@ -416,7 +416,7 @@ ID	Name	UIID	AttriName	Attribute1ID	Attribute1Value1	Attribute1Value2	Score	Diam
 417	天罡磨石		气血上限永久提升132点（武器）	atMaxLifeBase	132	132	23																										0				0	0
 418	辉玉磨石		招架值永久提升9点（武器）	atParryBase	9	9	15																										0				0	0
 419	朱雀磨石		治疗量永久提升14点（武器）	atTherapyPowerBase	14	14	25																										0				0	0
-420	龙血磨石		吸血值永久提升21点（武器）	atDamageToLifeForSelf	21	21	952																										0				0	0
+420	龙血磨石		吸血值永久提升21点（武器）	atDamageToLifeForSelf	21	21	1050																										0				0	0
 421	鬼虎磨石		御劲值永久提升9点（武器）	atToughnessBase	9	9	15																										0				0	0
 422	青龙甲片（头部）		内功攻击永久提升16点（头部）	atMagicAttackPowerBase	16	16	26																										3				0	0
 423	青龙甲片（鞋子）		内功攻击永久提升16点（鞋子）	atMagicAttackPowerBase	16	16	26																										9				0	0
@@ -8019,9 +8019,9 @@ ID	Name	UIID	AttriName	Attribute1ID	Attribute1Value1	Attribute1Value2	Score	Diam
 11646	连雾·鞋·外功	鞋子	鞋子外功攻击提高130	atPhysicsAttackPowerBase	130	130	258																										9				0	0
 11647	连雾·鞋·内功	鞋子	鞋子内功攻击提高156	atMagicAttackPowerBase	156	156	258																										9				0	0
 11648	连雾·衣·无双	上装	上衣无双等级提高217	atStrainBase	217	217	258																										2					
-11649	连雾·衣·减仇	上装	上衣招式产生威胁降低5%	atActiveThreatCoefficient	0	-42	380																										2					
+11649	连雾·衣·减仇	上装	上衣招式产生威胁降低5%	atActiveThreatCoefficient	0	-42	419																										2					
 11650	连雾·腰·无双	腰带	腰带无双等级提高217	atStrainBase	217	217	258																										6				0	0
-11651	连雾·腰·减仇	腰带	腰带招式产生威胁降低5%	atActiveThreatCoefficient	0	-42	380																										6				0	0
+11651	连雾·腰·减仇	腰带	腰带招式产生威胁降低5%	atActiveThreatCoefficient	0	-42	419																										6				0	0
 11652	断流心岩·项链（体质）	项链	体质提升268点	atVitalityBase	268	268	644																										4					
 11653	断流心岩·项链（御劲）	项链	御劲提升362点	atToughnessBase	362	362	644																										4					
 11654	断流心岩·腰坠（体质）	腰坠	体质提升268点	atVitalityBase	268	268	644																										7					
@@ -8408,3 +8408,172 @@ ID	Name	UIID	AttriName	Attribute1ID	Attribute1Value1	Attribute1Value2	Score	Diam
 12035	天堑奇玿·伤·腕	护手限时大附魔		atSkillEventHandler	2554		1914																									60	10				3	0
 12036	天堑奇玿·伤·衣	上装限时大附魔		atExecuteScript	skill/装备/万灵当歌输出衣服附魔.lua		2737																									60	2				3	0
 12037	天堑奇玿·伤·帽	帽子限时大附魔		atExecuteScript	skill/装备/万灵当歌输出帽子附魔.lua		2461																									60	3				3	0
+12038	断浪·瀑沙熔锭（外攻）	武器限时	外功攻击提升658点	atPhysicsAttackPowerBase	658	658																										1800	0				3	0
+12039	断浪·坠宵熔锭（内攻）	武器限时	内功攻击提升786点	atMagicAttackPowerBase	786	786																										1800	0				3	0
+12040	断浪·絮泊熔锭（疗伤）	武器限时	疗伤成效提升710点	atTherapyPowerBase	710	710																										1800	0				3	0
+12041	断浪·巨灵熔锭（仇恨）	武器限时	仇恨百分比提升164%	atActiveThreatCoefficient	0	1679																										1800	0				3	0
+12042	断浪·兵·铸（外攻）	武器	外功攻击提升439点	atPhysicsAttackPowerBase	439	439	1050																										0				0	0
+12043	断浪·兵·铸（内攻）	武器	内功攻击提升524点	atMagicAttackPowerBase	524	524	1050																										0				0	0
+12044	断浪·兵·铸（疗伤）	武器	疗伤成效提升473点	atTherapyPowerBase	473	473	1050																										0				0	0
+12045	断浪·兵·铸（武伤）	武器	武器伤害提升658点	atMeleeWeaponDamageBase	658	658	1050																										0				0	0
+12046	断浪·兵·铸（仇恨）	武器	仇恨百分比提升109%	atActiveThreatCoefficient	0	1116	1050																										0				0	0
+12047	断浪·裤·铸（身法）	下装	身法提升218点	atAgilityBase	218	218	1050																										8				0	0
+12048	断浪·裤·铸（元气）	下装	元气提升218点	atSpunkBase	218	218	1050																										8				0	0
+12049	断浪·裤·铸（力道）	下装	力道提升218点	atStrengthBase	218	218	1050																										8				0	0
+12050	断浪·裤·铸（根骨）	下装	根骨提升218点	atSpiritBase	218	218	1050																										8				0	0
+12051	断浪·裤·铸（仇恨）	下装	仇恨百分比提升109%	atActiveThreatCoefficient	0	1116	1050																										8				0	0
+12052	断浪·裤·铸（外破）	下装	外功破防等级提升974点	atPhysicsOvercomeBase	974	974	1050																										8				0	0
+12053	断浪·裤·铸（内破）	下装	内功破防等级提升974点	atMagicOvercome	974	974	1050																										8				0	0
+12054	断浪·裤·铸（会心）	下装	全会心提升974点	atAllTypeCriticalStrike	974	974	1050																										8				0	0
+12055	断浪·裤·铸（无双）	下装	无双等级提升974点	atStrainBase	974	974	1050																										8				0	0
+12056	断浪·头·铸（外攻）	帽子	外功攻击提升439点	atPhysicsAttackPowerBase	439	439	1050																										3				0	0
+12057	断浪·头·铸（内攻）	帽子	内功攻击提升524点	atMagicAttackPowerBase	524	524	1050																										3				0	0
+12058	断浪·头·铸（治疗）	帽子	疗伤成效提升473点	atTherapyPowerBase	473	473	1050																										3				0	0
+12059	断浪·头·铸（破招）	帽子	破招提升974点	atSurplusValueBase	974	974	1050																										3				0	0
+12060	断浪·头·铸（急速）	帽子	加速提升974点	atHasteBase	974	974	1050																										3				0	0
+12061	断浪·腰·铸（体质）	腰带	体质提升361点	atVitalityBase	361	361	1050																										6				0	0
+12062	断浪·腰·铸（气血）	腰带	最大气血值提升4872点	atMaxLifeBase	4872	4872	1050																										6				0	0
+12063	断浪·腰·铸（格挡）	腰带	拆招提升6052点	atParryValueBase	6052	6052	1050																										6				0	0
+12064	断浪·腰·铸（闪避）	腰带	闪避提升487点	atDodge	487	487	1050																										6				0	0
+12065	断浪·腰·铸（外防）	腰带	外功防御提升487点	atPhysicsShieldAdditional	487	487	1050																										6				0	0
+12066	断浪·腰·铸（内防）	腰带	内功防御提升487点	atMagicShield	487	487	1050																										6				0	0
+12067	断浪·腰·铸（招架）	腰带	招架提升487点	atParryBase	487	487	1050																										6				0	0
+12068	断浪·腰·铸（御劲）	腰带	御劲提升487点	atToughnessBase	487	487	1050																										6				0	0
+12069	断浪·腰·铸（化劲）	腰带	化劲提升487点	atDecriticalDamagePowerBase	487	487	1050																										6				0	0
+12070	断浪·裤·甲（身法）	下装	身法提升109点	atAgilityBase	109	109	524																										8				0	0
+12071	断浪·裤·甲（元气）	下装	元气提升109点	atSpunkBase	109	109	524																										8				0	0
+12072	断浪·裤·甲（力道）	下装	力道提升109点	atStrengthBase	109	109	524																										8				0	0
+12073	断浪·裤·甲（根骨）	下装	根骨提升109点	atSpiritBase	109	109	524																										8				0	0
+12074	断浪·裤·甲（仇恨）	下装	仇恨百分比提升55%	atActiveThreatCoefficient	0	563	524																										8				0	0
+12075	断浪·裤·甲（外破）	下装	外功破防等级提升487点	atPhysicsOvercomeBase	487	487	524																										8				0	0
+12076	断浪·裤·甲（内破）	下装	内功破防等级提升487点	atMagicOvercome	487	487	524																										8				0	0
+12077	断浪·裤·甲（会心）	下装	全会心提升487点	atAllTypeCriticalStrike	487	487	524																										8				0	0
+12078	断浪·裤·甲（无双）	下装	无双等级提升487点	atStrainBase	487	487	524																										8				0	0
+12079	断浪·头·甲（外攻）	帽子	外功攻击提升219点	atPhysicsAttackPowerBase	219	219	524																										3				0	0
+12080	断浪·头·甲（内攻）	帽子	内功攻击提升262点	atMagicAttackPowerBase	262	262	524																										3				0	0
+12081	断浪·头·甲（治疗）	帽子	疗伤成效提升236点	atTherapyPowerBase	236	236	524																										3				0	0
+12082	断浪·头·甲（破招）	帽子	破招提升487点	atSurplusValueBase	487	487	524																										3				0	0
+12083	断浪·头·甲（急速）	帽子	加速提升487点	atHasteBase	487	487	524																										3				0	0
+12084	断浪·腰·甲（体质）	腰带	体质提升180点	atVitalityBase	180	180	524																										6				0	0
+12085	断浪·腰·甲（气血）	腰带	最大气血值提升2436点	atMaxLifeBase	2436	2436	524																										6				0	0
+12086	断浪·腰·甲（格挡）	腰带	拆招提升3026点	atParryValueBase	3026	3026	524																										6				0	0
+12087	断浪·腰·甲（闪避）	腰带	闪避提升243点	atDodge	243	243	524																										6				0	0
+12088	断浪·腰·甲（外防）	腰带	外功防御提升243点	atPhysicsShieldAdditional	243	243	524																										6				0	0
+12089	断浪·腰·甲（内防）	腰带	内功防御提升243点	atMagicShield	243	243	524																										6				0	0
+12090	断浪·腰·甲（招架）	腰带	招架提升243点	atParryBase	243	243	524																										6				0	0
+12091	断浪·腰·甲（化劲）	腰带	御劲提升243点	atDecriticalDamagePowerBase	243	243	524																										6				0	0
+12092	断浪·腰·甲（御劲）	腰带	化劲提升243点	atToughnessBase	243	243	524																										6				0	0
+12093	断浪·兵·甲（外攻）	武器	外功攻击提升219点	atPhysicsAttackPowerBase	219	219	524																										0				0	0
+12094	断浪·兵·甲（内攻）	武器	内功攻击提升262点	atMagicAttackPowerBase	262	262	524																										0				0	0
+12095	断浪·兵·甲（疗伤）	武器	疗伤成效提升236点	atTherapyPowerBase	236	236	524																										0				0	0
+12096	断浪·兵·甲（武伤）	武器	武器伤害提升329点	atMeleeWeaponDamageBase	329	329	524																										0				0	0
+12097	断浪·兵·甲（仇恨）	武器	仇恨百分比提升55%	atActiveThreatCoefficient	0	563	524																										0				0	0
+12098	断浪·瀑沙磨石（外攻）	武器限时	外功攻击提升329点	atPhysicsAttackPowerBase	329	329																										1800	0				3	0
+12099	断浪·坠宵磨石（内攻）	武器限时	内功攻击提升393点	atMagicAttackPowerBase	393	393																										1800	0				3	0
+12100	断浪·絮泊磨石（疗伤）	武器限时	疗伤成效提升355点	atTherapyPowerBase	355	355																										1800	0				3	0
+12101	断浪·巨灵磨石（仇恨）	武器限时	仇恨百分比提升82%	atActiveThreatCoefficient	0	839																										1800	0				3	0
+12102	断浪·腕·绣（身法）	护手	身法提升218点	atAgilityBase	218	218	1050																										10				0	0
+12103	断浪·腕·绣（元气）	护手	元气提升218点	atSpunkBase	218	218	1050																										10				0	0
+12104	断浪·腕·绣（力道）	护手	力道提升218点	atStrengthBase	218	218	1050																										10				0	0
+12105	断浪·腕·绣（根骨）	护手	根骨提升218点	atSpiritBase	218	218	1050																										10				0	0
+12106	断浪·腕·绣（仇恨）	护手	仇恨百分比提升109%	atActiveThreatCoefficient	0	1116	1050																										10				0	0
+12107	断浪·腕·绣（外破）	护手	外功破防等级提升974点	atPhysicsOvercomeBase	974	974	1050																										10				0	0
+12108	断浪·腕·绣（内破）	护手	内功破防等级提升974点	atMagicOvercome	974	974	1050																										10				0	0
+12109	断浪·腕·绣（会心）	护手	全会心提升974点	atAllTypeCriticalStrike	974	974	1050																										10				0	0
+12110	断浪·腕·绣（无双）	护手	无双等级提升974点	atStrainBase	974	974	1050																										10				0	0
+12111	断浪·鞋·绣（外攻）	鞋子	外功攻击提升439点	atPhysicsAttackPowerBase	439	439	1050																										9				0	0
+12112	断浪·鞋·绣（内攻）	鞋子	内功攻击提升524点	atMagicAttackPowerBase	524	524	1050																										9				0	0
+12113	断浪·鞋·绣（治疗）	鞋子	疗伤成效提升473点	atTherapyPowerBase	473	473	1050																										9				0	0
+12114	断浪·鞋·绣（破招）	鞋子	破招提升974点	atSurplusValueBase	974	974	1050																										9				0	0
+12115	断浪·鞋·绣（急速）	鞋子	加速提升974点	atHasteBase	974	974	1050																										9				0	0
+12116	断浪·衣·绣（体质）	上装	体质提升361点	atVitalityBase	361	361	1050																										2				0	0
+12117	断浪·衣·绣（气血）	上装	最大气血值提升4872点	atMaxLifeBase	4872	4872	1050																										2				0	0
+12118	断浪·衣·绣（格挡）	上装	拆招提升6052点	atParryValueBase	6052	6052	1050																										2				0	0
+12119	断浪·衣·绣（闪避）	上装	闪避提升487点	atDodge	487	487	1050																										2				0	0
+12120	断浪·衣·绣（外防）	上装	外功防御提升487点	atPhysicsShieldAdditional	487	487	1050																										2				0	0
+12121	断浪·衣·绣（内防）	上装	内功防御提升487点	atMagicShield	487	487	1050																										2				0	0
+12122	断浪·衣·绣（招架）	上装	招架提升487点	atParryBase	487	487	1050																										2				0	0
+12123	断浪·衣·绣（化劲）	上装	化劲提升487点	atDecriticalDamagePowerBase	487	487	1050																										2				0	0
+12124	断浪·衣·绣（御劲）	上装	御劲提升487点	atToughnessBase	487	487	1050																										2				0	0
+12125	断浪·腕·染（身法）	护手	身法提升109点	atAgilityBase	109	109	524																										10				0	0
+12126	断浪·腕·染（元气）	护手	元气提升109点	atSpunkBase	109	109	524																										10				0	0
+12127	断浪·腕·染（力道）	护手	力道提升109点	atStrengthBase	109	109	524																										10				0	0
+12128	断浪·腕·染（根骨）	护手	根骨提升109点	atSpiritBase	109	109	524																										10				0	0
+12129	断浪·腕·染（仇恨）	护手	仇恨百分比提升55%	atActiveThreatCoefficient	0	563	524																										10				0	0
+12130	断浪·腕·染（外破）	护手	外功破防等级提升487点	atPhysicsOvercomeBase	487	487	524																										10				0	0
+12131	断浪·腕·染（内破）	护手	内功破防等级提升487点	atMagicOvercome	487	487	524																										10				0	0
+12132	断浪·腕·染（会心）	护手	全会心提升487点	atAllTypeCriticalStrike	487	487	524																										10				0	0
+12133	断浪·腕·染（无双）	护手	无双等级提升487点	atStrainBase	487	487	524																										10				0	0
+12134	断浪·鞋·染（外攻）	鞋子	外功攻击提升219点	atPhysicsAttackPowerBase	219	219	524																										9				0	0
+12135	断浪·鞋·染（内攻）	鞋子	内功攻击提升262点	atMagicAttackPowerBase	262	262	524																										9				0	0
+12136	断浪·鞋·染（治疗）	鞋子	疗伤成效提升236点	atTherapyPowerBase	236	236	524																										9				0	0
+12137	断浪·鞋·染（破招）	鞋子	破招提升487点	atSurplusValueBase	487	487	524																										9				0	0
+12138	断浪·鞋·染（急速）	鞋子	加速提升487点	atHasteBase	487	487	524																										9				0	0
+12139	断浪·衣·染（体质）	上装	体质提升180点	atVitalityBase	180	180	524																										2				0	0
+12140	断浪·衣·染（气血）	上装	最大气血值提升2436点	atMaxLifeBase	2436	2436	524																										2				0	0
+12141	断浪·衣·染（格挡）	上装	拆招提升3026点	atParryValueBase	3026	3026	524																										2				0	0
+12142	断浪·衣·染（闪避）	上装	闪避提升243点	atDodge	243	243	524																										2				0	0
+12143	断浪·衣·染（外防）	上装	外功防御提升243点	atPhysicsShieldAdditional	243	243	524																										2				0	0
+12144	断浪·衣·染（内防）	上装	内功防御提升243点	atMagicShield	243	243	524																										2				0	0
+12145	断浪·衣·染（招架）	上装	招架提升243点	atParryBase	243	243	524																										2				0	0
+12146	断浪·衣·染（化劲）	上装	化劲提升243点	atDecriticalDamagePowerBase	243	243	524																										2				0	0
+12147	断浪·衣·染（御劲）	上装	御劲提升243点	atToughnessBase	243	243	524																										2				0	0
+12148	连雾·裤·会心	下装	下装全会心等级提高390	atAllTypeCriticalStrike	390	390	419																										8				0	0
+12149	连雾·腕·会心	护手	护腕全会心等级提高390	atAllTypeCriticalStrike	390	390	419																										10				0	0
+12150	连雾·头·急速	帽子	帽子加速等级提高390	atHasteBase	390	390	419																										3				0	0
+12151	连雾·裤·外破	下装	下装外功破防等级提高390	atPhysicsOvercomeBase	390	390	419																										8				0	0
+12152	连雾·裤·内破	下装	下装内功破防等级提高390	atMagicOvercome	390	390	419																										8				0	0
+12153	连雾·裤·无双	下装	下装无双等级提高390	atStrainBase	390	390	419																										8				0	0
+12154	连雾·头·外攻	帽子	帽子外功攻击提高176	atPhysicsAttackPowerBase	176	176	419																										3				0	0
+12155	连雾·头·内攻	帽子	帽子内功攻击提高210	atMagicAttackPowerBase	210	210	419																										3				0	0
+12156	连雾·头·治疗	帽子	帽子治疗成效提高189	atTherapyPowerBase	189	189	419																										3				0	0
+12157	连雾·腕·外破	护手	护腕外功破防等级提高390	atPhysicsOvercomeBase	390	390	419																										10				0	0
+12158	连雾·腕·内破	护手	护腕内功破防等级提高390	atMagicOvercome	390	390	419																										10				0	0
+12159	连雾·腕·无双	护手	护腕无双等级提高390	atStrainBase	390	390	419																										10				0	0
+12160	连雾·衣·化劲	上装	上衣化劲等级提高195	atDecriticalDamagePowerBase	195	195	419																										2					
+12161	连雾·衣·御劲	上装	上衣御劲等级提高195	atToughnessBase	195	195	419																										2					
+12162	连雾·衣·外防	上装	上衣外功防御等级提高195	atPhysicsShieldBase	195	195	419																										2					
+12163	连雾·衣·内防	上装	上衣内功防御等级提高195	atMagicShield	195	195	419																										2					
+12164	连雾·腰·化劲	腰带	腰带化劲等级提高195	atDecriticalDamagePowerBase	195	195	419																										6				0	0
+12165	连雾·腰·御劲	腰带	腰带御劲等级提高195	atToughnessBase	195	195	419																										6				0	0
+12166	连雾·腰·外防	腰带	腰带外功防御等级提高195	atPhysicsShieldBase	195	195	419																										6				0	0
+12167	连雾·腰·内防	腰带	腰带内功防御等级提高195	atMagicShield	195	195	419																										6				0	0
+12168	连雾·鞋·急速	鞋子	鞋子加速等级提高390	atHasteBase	390	390	419																										9				0	0
+12169	连雾·鞋·破招	鞋子	鞋子破招等级提高390	atSurplusValueBase	390	390	419																										9				0	0
+12170	连雾·鞋·外攻	鞋子	鞋子外功攻击提高176	atPhysicsAttackPowerBase	176	176	419																										9				0	0
+12171	连雾·鞋·内攻	鞋子	鞋子内功攻击提高210	atMagicAttackPowerBase	210	210	419																										9				0	0
+12172	连雾·衣·无双	上装	上衣无双等级提高291	atStrainBase	291	291	419																										2					
+12173	连雾·腰·无双	腰带	腰带无双等级提高291	atStrainBase	291	291	419																										6				0	0
+12174	断流心岩·项链（体质）	项链	体质提升361点	atVitalityBase	361	361	1050																										4					
+12175	断流心岩·项链（御劲）	项链	御劲提升487点	atToughnessBase	487	487	1050																										4					
+12176	断流心岩·腰坠（体质）	腰坠	体质提升361点	atVitalityBase	361	361	1050																										7					
+12177	断流心岩·腰坠（化劲）	腰坠	化劲提升487点	atDecriticalDamagePowerBase	487	487	1050																										7					
+12178	断流心岩·戒指（根骨）	戒指	根骨提升218点	atSpiritBase	218	218	1050																										5					
+12179	断流心岩·戒指（力道）	戒指	力道提升218点	atStrengthBase	218	218	1050																										5					
+12180	断流心岩·戒指（元气）	戒指	元气提升218点	atSpunkBase	218	218	1050																										5					
+12181	断流心岩·戒指（身法）	戒指	身法提升218点	atAgilityBase	218	218	1050																										5					
+12182	断流心岩·戒指（外伤）	戒指	外功攻击提升439点	atPhysicsAttackPowerBase	439	439	1050																										5					
+12183	断流心岩·戒指（内伤）	戒指	内功攻击提升524点	atMagicAttackPowerBase	524	524	1050																										5					
+12184	断流心岩·戒指（破招）	戒指	破招等级提升974点	atSurplusValueBase	974	974	1050																										5					
+12185	断流心岩·暗器（根骨）	暗器	根骨提升218点	atSpiritBase	218	218	1050																										1					
+12186	断流心岩·暗器（力道）	暗器	力道提升218点	atStrengthBase	218	218	1050																										1					
+12187	断流心岩·暗器（元气）	暗器	元气提升218点	atSpunkBase	218	218	1050																										1					
+12188	断流心岩·暗器（身法）	暗器	身法提升218点	atAgilityBase	218	218	1050																										1					
+12189	断流心岩·暗器（外破）	暗器	外功破防等级提升974点	atPhysicsOvercomeBase	974	974	1050																										1					
+12190	断流心岩·暗器（内破）	暗器	内功破防等级提升974点	atMagicOvercome	974	974	1050																										1					
+12191	断流心岩·暗器（加速）	暗器	加速提升974点	atHasteBase	974	974	1050																										1					
+12192	天堑奇珵·御·腰	腰带限时大附魔		atSkillEventHandler	2629		2112																									60	6				3	0
+12193	天堑奇珵·御·鞋	鞋子限时大附魔		atExecuteScript	skill/装备/无界赛季t鞋子附魔.lua		2112																									60	9				3	0
+12194	天堑奇珵·御·腕	护手限时大附魔		atSkillEventHandler	2630		2112																									60	10				3	0
+12195	天堑奇珵·御·衣	上装限时大附魔		atSkillEventHandler	2631		3020																									60	2				3	0
+12196	天堑奇珵·御·帽	帽子限时大附魔		atSkillEventHandler	2632		2716																									60	3				3	0
+12197	天堑奇珵·疗·腰	腰带限时大附魔		atSkillEventHandler	2628		2112																									60	6				3	0
+12198	天堑奇珵·疗·鞋	鞋子限时大附魔		atExecuteScript	skill/装备/无界赛季治疗鞋子附魔.lua		2112																									60	9				3	0
+12199	天堑奇珵·疗·腕	护手限时大附魔		atSkillEventHandler	2626		2112																									60	10				3	0
+12200	天堑奇珵·疗·衣	上装限时大附魔		atSkillEventHandler	2627		3020																									60	2				3	0
+12201	天堑奇珵·疗·帽	帽子限时大附魔		atExecuteScript	skill/装备/帽子_新附魔_治疗非战斗附魔减读条.lua		2716																									60	3				3	0
+12202	天堑奇珵·伤·腰	腰带限时大附魔		atSkillEventHandler	2623		2112																									60	6				3	0
+12203	天堑奇珵·伤·鞋	鞋子限时大附魔		atSkillEventHandler	2625		2112																									60	9				3	0
+12204	天堑奇珵·伤·腕	护手限时大附魔		atSkillEventHandler	2624		2112																									60	10				3	0
+12205	天堑奇珵·伤·衣	上装限时大附魔		atExecuteScript	skill/装备/无界赛季输出衣服附魔.lua		3020																									60	2				3	0
+12206	天堑奇珵·伤·帽	帽子限时大附魔		atExecuteScript	skill/装备/无界赛季输出帽子附魔.lua		2716																									60	3				3	0
