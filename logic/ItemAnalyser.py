@@ -534,9 +534,9 @@ class ItemAnalyser():
                 if menpai in self.weapon[name]:
                     output["related"] = self.weapon[name][menpai]
 
-        # print("==========")
-        # for key in output:
-        #     print(key, output[key])
+        print("==========")
+        for key in output:
+            print(key, output[key])
 
         return output
 
@@ -760,7 +760,7 @@ class ItemAnalyser():
                         elif name in ["剑", "侠", "情", "缘"]:
                             self.item[itemid]["class"] = "hanzi"
                             self.item[itemid]["quality"] = "5"
-                        elif "展锋" in name or "揽江" in name or "濯心" in name or "灵源" in name or "藏剑武器" in name:
+                        elif "展锋" in name or "揽江" in name or "濯心" in name or "灵源" in name or "鸿辉" in name or "藏剑武器" in name:
                             self.item[itemid]["class"] = "coupon"
                             self.item[itemid]["type"] = "coupon"
                             self.item[itemid]["related"] = []
@@ -836,4 +836,4 @@ if __name__ == "__main__":
     # res = item_analyser.GetSingleItemByName({"name": "神兵玉匣·英雄西津渡", "map": "25人英雄西津渡", "xinfa": "离经易道"})
     # res = item_analyser.GetSingleItemByName({"name": "藏剑武器·满楼行乐", "map": "25人英雄西津渡", "xinfa": "离经易道"})
     res = item_analyser.GetSingleItemByName({"name": "变星霜", "map": "25人英雄九老洞", "xinfa": "离经易道"})
-    res = item_analyser.GetSingleItemByName({"name": "挽星腰带", "map": "25人英雄九老洞", "xinfa": "离经易道"})
+    res = item_analyser.GetSingleItemByName({"name": "鸿辉护腕·万花", "map": "25人英雄冷龙峰", "xinfa": "离经易道"})
