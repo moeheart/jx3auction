@@ -49,7 +49,8 @@ def createDungeon():
             return jsonify({'status': 101})
     except:
         return jsonify({'status': 100})
-    if map not in ["25人普通西津渡", "25人英雄西津渡", "25人普通武狱黑牢", "25人英雄武狱黑牢", "25人普通九老洞", "25人英雄九老洞", "25人普通冷龙峰", "25人英雄冷龙峰"]:
+    if map not in ["25人普通西津渡", "25人英雄西津渡", "25人普通武狱黑牢", "25人英雄武狱黑牢", "25人普通九老洞", "25人英雄九老洞", "25人普通冷龙峰", "25人英雄冷龙峰",
+                   "25人普通一之窟", "25人英雄一之窟"]:
         return jsonify({'status': 102})
 
     name = config.get('jx3auction', 'username')
