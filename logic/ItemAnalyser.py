@@ -165,6 +165,20 @@ SUBTYPE_CODE = {
     "10": "护腕",
 }
 
+SUBTYPE_NAME_CODE = {
+    "0": "近身武器",
+    "1": "远程武器",
+    "2": "衣",
+    "3": "帽",
+    "4": "项链",
+    "5": "戒指",
+    "6": "腰带",
+    "7": "腰坠",
+    "8": "裤子",
+    "9": "鞋",
+    "10": "护腕",
+}
+
 MENPAI_DICT = {
     "花间游": "万花",
     "离经易道": "万花",
@@ -197,6 +211,7 @@ MENPAI_DICT = {
     "灵素": "药宗",
     "孤锋诀": "刀宗",
     "山海心诀": "万灵",
+    "周天诀": "段氏",
 }
 
 def getAttributeDesc(attrib):
@@ -395,6 +410,7 @@ class ItemAnalyser():
         # print("[Item]", idList)
 
         item = self.item[idList[-1]]
+        # print("[Item]", item)
         output = {"available": 1,
                   "name": input["name"],
                   "icon": item["iconid"],
@@ -502,7 +518,7 @@ class ItemAnalyser():
                 lvl = 0
             else:
                 lvl = int(lvl)
-            if lvl < 6 and "特效" not in sketch:
+            if (lvl < 6 or "精简" in item["magictype"]) and "特效" not in sketch:
                 sketch = ["精简"] + sketch
             if item.get("setID", "") != "":
                 suitAttribute.append("这件装备有套装效果。")
@@ -529,10 +545,10 @@ class ItemAnalyser():
             output["school"] = item["school"]
             name = input["name"]
             # 直接在武器库里寻找对应的装备
-            if name in self.weapon:
+            if name in self.weaponbox:
                 menpai = self.GetMenpai(input["xinfa"])
-                if menpai in self.weapon[name]:
-                    output["related"] = self.weapon[name][menpai]
+                if menpai in self.weaponbox[name]:
+                    output["related"] = self.weaponbox[name][menpai]
 
         print("==========")
         for key in output:
@@ -639,6 +655,7 @@ class ItemAnalyser():
                     if name not in self.name:
                         self.name[name] = []
                     self.name[name].append(uiid)
+                    menpai = content[header_index["BelongSchool"]]
                     # 记录武器
                     if subtype == "0" and content[header_index["GetType"]] == "副本":
                         map = "未知"
@@ -659,15 +676,33 @@ class ItemAnalyser():
                             map = "神兵玉匣·英雄九老洞"
                         elif level == "13950" and content[header_index["MaxStrengthLevel"]] == "4":
                             map = "神兵玉匣·英雄九老洞·奇"
-                        menpai = content[header_index["BelongSchool"]]
-                        if map in self.weapon:
-                            if menpai not in self.weapon[map]:
-                                self.weapon[map][menpai] = []
-                            self.weapon[map][menpai].append(name)
-                        if map2 in self.weapon:
-                            if menpai not in self.weapon[map2]:
-                                self.weapon[map2][menpai] = []
-                            self.weapon[map2][menpai].append(name)
+                        elif level == "22500" and content[header_index["MagicType"]] in ["130级武器用破招无双", "130级防御急速", "130级治疗急速"]:
+                            map = "神兵玉匣·普通一之窟·招"
+                        elif level == "22500" and content[header_index["MagicType"]] in ["130级武器用会心无双", "130级防御破招", "130级治疗量"]:
+                            map = "神兵玉匣·普通一之窟·会"
+                        elif level == "25900" and content[header_index["BelongMap"]] in ["25raid高级散件_特效武器"]:
+                            map = "神兵玉匣·英雄一之窟·奇"
+                        elif level == "25900" and content[header_index["MagicType"]] in ["130级武器用破招无双", "130级防御急速", "130级治疗急速"]:
+                            map = "神兵玉匣·英雄一之窟·招"
+                        elif level == "25900" and content[header_index["MagicType"]] in ["130级武器用会心无双", "130级防御破招", "130级治疗会心"]:
+                            map = "神兵玉匣·英雄一之窟·会"
+                        if map in self.weaponbox:
+                            if menpai not in self.weaponbox[map]:
+                                self.weaponbox[map][menpai] = []
+                            self.weaponbox[map][menpai].append(name)
+                        if map2 in self.weaponbox:
+                            if menpai not in self.weaponbox[map2]:
+                                self.weaponbox[map2][menpai] = []
+                            self.weaponbox[map2][menpai].append(name)
+                    seriesList = ["西塞", "孤漠"]
+                    for series in seriesList:
+                        if series in name:
+                            map = "神兵玉匣·%s%s" % (series, SUBTYPE_NAME_CODE[subtype])
+                            if map in self.weaponbox:
+                                if menpai not in self.weaponbox[map]:
+                                    self.weaponbox[map][menpai] = []
+                                self.weaponbox[map][menpai].append(name)
+
 
     def LoadEquipTable(self):
         '''
@@ -760,7 +795,8 @@ class ItemAnalyser():
                         elif name in ["剑", "侠", "情", "缘"]:
                             self.item[itemid]["class"] = "hanzi"
                             self.item[itemid]["quality"] = "5"
-                        elif "展锋" in name or "揽江" in name or "濯心" in name or "灵源" in name or "鸿辉" in name or "藏剑武器" in name:
+                        elif "展锋" in name or "揽江" in name or "濯心" in name or "灵源" in name or "鸿辉" in name or "藏剑武器" in name \
+                                or "西塞" in name or "孤漠" in name:
                             self.item[itemid]["class"] = "coupon"
                             self.item[itemid]["type"] = "coupon"
                             self.item[itemid]["related"] = []
@@ -783,6 +819,9 @@ class ItemAnalyser():
                             self.item[itemid]["type"] = "coupon"
                             self.item[itemid]["related"] = []
                             self.item[itemid]["school"] = "通用"
+                        self.item[itemid]["jingjian"] = 0
+                        # if "精简" in content[header_index["MagicType"]]:
+                        #     self.item[itemid]["jingjian"] = 1
 
     def __init__(self):
         '''
@@ -792,13 +831,20 @@ class ItemAnalyser():
         self.item = {}
         self.attrib = {}
         self.enchant = {}
-        self.weapon = {"神兵玉匣·普通西津渡": {}, "神兵玉匣·英雄西津渡": {}, "神兵玉匣·英雄西津渡·奇": {}, "神兵玉匣·英雄武狱黑牢": {}, "神兵玉匣·英雄武狱黑牢·奇": {},
-                       "神兵玉匣·普通九老洞": {}, "神兵玉匣·普通九老洞·奇": {}, "神兵玉匣·英雄九老洞": {}, "神兵玉匣·英雄九老洞·奇": {}}
+        self.weaponbox = {
+                       "神兵玉匣·普通西津渡": {}, "神兵玉匣·英雄西津渡": {}, "神兵玉匣·英雄西津渡·奇": {}, "神兵玉匣·英雄武狱黑牢": {}, "神兵玉匣·英雄武狱黑牢·奇": {},
+                       "神兵玉匣·普通九老洞": {}, "神兵玉匣·普通九老洞·奇": {}, "神兵玉匣·英雄九老洞": {}, "神兵玉匣·英雄九老洞·奇": {},
+                       "神兵玉匣·普通一之窟·会": {}, "神兵玉匣·普通一之窟·招": {}, "神兵玉匣·英雄一之窟·会": {}, "神兵玉匣·英雄一之窟·招": {}, "神兵玉匣·英雄一之窟·奇": {},
+                       "神兵玉匣·西塞护腕": {}, "神兵玉匣·西塞腰带": {}, "神兵玉匣·西塞鞋": {}, "神兵玉匣·西塞帽": {}, "神兵玉匣·西塞衣": {},
+                       "神兵玉匣·孤漠护腕": {}, "神兵玉匣·孤漠腰带": {}, "神兵玉匣·孤漠鞋": {}, "神兵玉匣·孤漠帽": {}, "神兵玉匣·孤漠衣": {},
+
+
+                       }
         self.LoadAttrib()
         self.LoadEquipTable()
         self.LoadEnchant()
         self.LoadItem()
-        # print(self.weapon)
+        # print(self.weaponbox)
 
 if __name__ == "__main__":
     item_analyser = ItemAnalyser()
@@ -835,5 +881,12 @@ if __name__ == "__main__":
     # res = item_analyser.GetSingleItemByName({"name": "揽江护腕·万花", "map": "25人英雄西津渡", "xinfa": "离经易道"})
     # res = item_analyser.GetSingleItemByName({"name": "神兵玉匣·英雄西津渡", "map": "25人英雄西津渡", "xinfa": "离经易道"})
     # res = item_analyser.GetSingleItemByName({"name": "藏剑武器·满楼行乐", "map": "25人英雄西津渡", "xinfa": "离经易道"})
-    res = item_analyser.GetSingleItemByName({"name": "变星霜", "map": "25人英雄九老洞", "xinfa": "离经易道"})
-    res = item_analyser.GetSingleItemByName({"name": "鸿辉护腕·万花", "map": "25人英雄冷龙峰", "xinfa": "离经易道"})
+    # res = item_analyser.GetSingleItemByName({"name": "变星霜", "map": "25人英雄九老洞", "xinfa": "离经易道"})
+    # res = item_analyser.GetSingleItemByName({"name": "鸿辉护腕·万花", "map": "25人英雄冷龙峰", "xinfa": "离经易道"})
+    res = item_analyser.GetSingleItemByName({"name": "神兵玉匣·孤漠腰带", "map": "25人英雄一之窟", "xinfa": "离经易道"})
+    res = item_analyser.GetSingleItemByName({"name": "孤漠护腕·万花", "map": "25人英雄一之窟", "xinfa": "离经易道"})
+    res = item_analyser.GetSingleItemByName({"name": "星河落", "map": "25人英雄一之窟", "xinfa": "离经易道"})
+    res = item_analyser.GetSingleItemByName({"name": "喻声裤", "map": "25人英雄一之窟", "xinfa": "离经易道"})
+    res = item_analyser.GetSingleItemByName({"name": "神兵玉匣·英雄一之窟·会", "map": "25人英雄一之窟", "xinfa": "离经易道"})
+    res = item_analyser.GetSingleItemByName({"name": "神兵玉匣·英雄一之窟·招", "map": "25人英雄一之窟", "xinfa": "离经易道"})
+    res = item_analyser.GetSingleItemByName({"name": "神兵玉匣·英雄一之窟·奇", "map": "25人英雄一之窟", "xinfa": "离经易道"})
