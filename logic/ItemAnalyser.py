@@ -812,6 +812,8 @@ class ItemAnalyser():
                             self.item[itemid]["desc"] = newDesc
                             if "藏剑武器" in name:
                                 self.item[itemid]["school"] = "藏剑"
+                            elif "神兵玉匣" in name:
+                                self.item[itemid]["school"] = "通用"
                             else:
                                 self.item[itemid]["school"] = name.split("·")[1]
                         elif "神兵玉匣" in name:
