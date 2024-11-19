@@ -498,6 +498,7 @@ def getTreasure():
             result = cursor.fetchall()
             if not result:
                 return jsonify({'status': 203})
+            xinfa = result[0][0]
 
         if AdminToken != "":
             # 检验团长权限
