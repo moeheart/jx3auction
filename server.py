@@ -656,13 +656,15 @@ baseXiaotie=6000&stepXiaotie=3000&baseDatie=0&stepDatie=10000&baseOther=0&stepOt
                         base /= 2
                 elif "精简" in treasure["sketch"] and treasure["maxlevel"] in ["4", 4]:
                     base = params["baseJingjian"]
-                elif "精简" in treasure["sketch"] and treasure["maxlevel"] in ["3", 3]:
-                    base = params["baseWutiJingjian"]
+                # elif "精简" in treasure["sketch"] and treasure["maxlevel"] in ["4", 4]:
+                #     base = params["baseJingjian"]
+                # elif "精简" in treasure["sketch"] and treasure["maxlevel"] in ["3", 3]:
+                #     base = params["baseWutiJingjian"]
                 else:
                     base = params["baseNormal"]
             elif treasure["type"] == "coupon":
                 step = params["stepEquip"]
-                if "神兵玉匣" in treasure["name"]:
+                if "神兵玉匣" in treasure["name"] and ("普通" in treasure["name"] or "英雄" in treasure["name"]):
                     if "·奇" in treasure["name"]:
                         base = params["baseTexiaowuqi"]
                     else:
