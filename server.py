@@ -654,7 +654,7 @@ baseXiaotie=6000&stepXiaotie=3000&baseDatie=0&stepDatie=10000&baseOther=0&stepOt
                     base = params["baseTexiaoyaozhui"]
                     if params["tnHalf"] and treasure["main"] in ["治疗", "防御"]:
                         base /= 2
-                elif "精简" in treasure["sketch"] and treasure["maxlevel"] in ["4", 4]:
+                elif "精简" in treasure["sketch"]:
                     base = params["baseJingjian"]
                 # elif "精简" in treasure["sketch"] and treasure["maxlevel"] in ["4", 4]:
                 #     base = params["baseJingjian"]
